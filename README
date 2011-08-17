@@ -1,0 +1,41 @@
+ExifTool - Enhanced interface to Phil Harvey's ExifTool for Java.
+
+
+				=================================================
+				  See ExifTool in action at http://imgscalr.com
+				=================================================
+
+
+Changelog
+---------
+1.1
+	* Initial public release.
+
+
+License
+-------
+This library is released under the Apache 2 License. See LICENSE.
+
+
+Description
+-----------
+
+
+
+Example
+-------
+
+
+Troubleshooting
+---------------
+  
+
+Reference
+---------
+ExifTool by Phil Harvey - http://www.sno.phy.queensu.ca/~phil/exiftool/
+
+
+Contact
+-------
+If you have questions, comments or bug reports for this software please contact
+us at: software@thebuzzmedia.com

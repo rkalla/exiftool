@@ -14,6 +14,11 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+/*
+ * TODO: Implement an auto-cleanup dameon that runs every 10 mins of inactivity for the
+ * daemon mode that calls close() or something.
+ */
+
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
  * Perl-based <a
@@ -171,7 +176,7 @@ import java.util.regex.Pattern;
  * that you might want to look at.
  * 
  * @author Riyad Kalla (software@thebuzzmedia.com)
- * @since 4.0
+ * @since 1.1
  */
 public class ExifTool {
 	/**
@@ -286,7 +291,7 @@ public class ExifTool {
 	 * advantage of; for example, <code>-stay_open True</code> support.
 	 * 
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 4.0
+	 * @since 1.1
 	 */
 	public enum Feature {
 		/**
@@ -316,58 +321,111 @@ public class ExifTool {
 		}
 	}
 
+	/**
+	 * Enum used to define the 2 different output formats that {@link Tag}
+	 * values can be returned in: numeric or human-readable text.
+	 * <p/>
+	 * ExifTool, via the <code>-n</code> command line arg, is capable of
+	 * returning most values in their raw numeric form (e.g.
+	 * Aperture="2.8010323841") as well as a more human-readable/friendly format
+	 * (e.g. Aperture="2.8").
+	 * <p/>
+	 * While the {@link Tag}s defined on this class do provide a hint at the
+	 * type of the result (see {@link Tag#getType()}), that hint only applies
+	 * when the {@link Format#NUMERIC} form of the value is returned.
+	 * <p/>
+	 * If the caller finds the human-readable format easier to process,
+	 * {@link Format#HUMAN_READABLE} can be specified when calling
+	 * {@link ExifTool#getImageMeta(File, Format, Tag...)} and the returned
+	 * {@link String} values processed manually by the caller.
+	 * <p/>
+	 * In order to see the types of values that are returned when
+	 * {@link Format#HUMAN_READABLE} is used, you can check the comprehensive <a
+	 * href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">
+	 * ExifTool Tag Guide</a>.
+	 * <p/>
+	 * This makes sense with some values like Aperture that in
+	 * {@link Format#NUMERIC} format end up returning as 14-decimal-place, high
+	 * precision values that are near the intended value (e.g.
+	 * "2.79999992203711" instead of just returning "2.8"). On the other hand,
+	 * other values (like Orientation) are easier to parse when their numeric
+	 * value (1-8) is returned instead of a much longer friendly name (e.g.
+	 * "Mirror horizontal and rotate 270 CW").
+	 * 
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 1.1
+	 */
 	public enum Format {
-		NUMERIC, READABLE;
+		NUMERIC, HUMAN_READABLE;
 	}
 
 	/**
-	 * Enum used to pre-define a convenience list of tags that can be easily
+	 * Enum used to pre-define a convenient list of tags that can be easily
 	 * extracted from images using this class with an external install of
 	 * ExifTool.
 	 * <p/>
 	 * Each tag defined also includes a type hint for the parsed value
-	 * associated with it. All replies from ExifTool are parsed as
-	 * {@link String}s and using the type hint can easily be converted to the
-	 * correct data format inside of Java by the caller using the provided
-	 * {@link Tag#parseValue(Tag, String)} method. This class does not make an
-	 * attempt at converting the value automatically in case there is a problem
-	 * with a past or future version of ExifTool that the caller will need to
-	 * manually handle.
+	 * associated with it when the default {@link Format#NUMERIC} value format
+	 * is used.
 	 * <p/>
-	 * The types are merely a hint based on the <a
+	 * All replies from ExifTool are parsed as {@link String}s and using the
+	 * type hint from each {@link Tag} can easily be converted to the correct
+	 * data format by using the provided {@link Tag#parseValue(Tag, String)}
+	 * method.
+	 * <p/>
+	 * This class does not make an attempt at converting the value automatically
+	 * in case the caller decides they would prefer tag values returned in
+	 * {@link Format#HUMAN_READABLE} format and to avoid any compatibility
+	 * issues with future versions of ExifTool if a tag's return value is
+	 * changed. This approach to leaving returned tag values as strings until
+	 * the caller decides they want to parse them is a safer and more robust
+	 * approach.
+	 * <p/>
+	 * The types provided by each tag are merely a hint based on the <a
 	 * href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html"
-	 * >ExifTool tag guide</a> by Phil Harvey, the caller is free to parse or
+	 * >ExifTool Tag Guide</a> by Phil Harvey; the caller is free to parse or
 	 * process the returned {@link String} values any way they wish.
 	 * <h3>Tag Support</h3>
 	 * ExifTool is capable of parsing almost every tag known to man (1000+), but
 	 * this class makes an attempt at pre-defining a convenient list of the most
-	 * common tags for use. This list was determined by looking at the common
-	 * metadata tag values written to images by popular mobile devices like the
-	 * iPhone and Android phones as well as cameras like a Canon Point and Shoot
-	 * as well as a DSLR.
+	 * common tags for use.
 	 * <p/>
-	 * Please email or <a
+	 * This list was determined by looking at the common metadata tag values
+	 * written to images by popular mobile devices (iPhone, Android) as well as
+	 * cameras like simple point and shoots as well as DSLRs. As an additional
+	 * source of input the list of supported/common EXIF formats that Flickr
+	 * supports was also reviewed to ensure the most common/useful tags were
+	 * being covered here.
+	 * <p/>
+	 * Please email me or <a
 	 * href="https://github.com/thebuzzmedia/imgscalr/issues">file an issue</a>
 	 * if you think this list is missing a commonly used tag that should be
 	 * added to it.
 	 * 
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 4.0
+	 * @since 1.1
 	 */
 	public enum Tag {
-		IMAGE_WIDTH("ImageWidth", Integer.class), IMAGE_HEIGHT("ImageHeight",
-				Integer.class), ISO("ISO", Integer.class), APERTURE(
-				"ApertureValue", Double.class), WHITE_BALANCE("WhiteBalance",
-				Integer.class), SHUTTER_SPEED("ShutterSpeedValue", Double.class), FLASH(
+		ISO("ISO", Integer.class), APERTURE("ApertureValue", Double.class), WHITE_BALANCE(
+				"WhiteBalance", Integer.class), CONTRAST("Contrast",
+				Integer.class), SATURATION("Saturation", Integer.class), SHARPNESS(
+				"Sharpness", Integer.class), SHUTTER_SPEED("ShutterSpeedValue",
+				Double.class), DIGITAL_ZOOM_RATIO("DigitalZoomRatio",
+				Double.class), IMAGE_WIDTH("ImageWidth", Integer.class), IMAGE_HEIGHT(
+				"ImageHeight", Integer.class), X_RESOLUTION("XResolution",
+				Double.class), Y_RESOLUTION("YResolution", Double.class), FLASH(
 				"Flash", Integer.class), METERING_MODE("MeteringMode",
-				Integer.class), FOCAL_LENGTH("FocalLength", Double.class), EXPOSURE_TIME(
+				Integer.class), FOCAL_LENGTH("FocalLength", Double.class), FOCAL_LENGTH_35MM(
+				"FocalLengthIn35mmFormat", Integer.class), EXPOSURE_TIME(
 				"ExposureTime", Double.class), EXPOSURE_COMPENSATION(
 				"ExposureCompensation", Double.class), EXPOSURE_PROGRAM(
 				"ExposureProgram", Integer.class), ORIENTATION("Orientation",
-				Integer.class), COLOR_SPACE("ColorSpace", Integer.class), MAKE(
-				"Make", String.class), MODEL("Model", String.class), LENS_MAKE(
-				"LensMake", String.class), LENS_MODEL("LensModel", String.class), OWNER_NAME(
-				"OwnerName", String.class), TITLE("XPTitle", String.class), AUTHOR(
+				Integer.class), COLOR_SPACE("ColorSpace", Integer.class), SENSING_METHOD(
+				"SensingMethod", Integer.class), SOFTWARE("Software",
+				String.class), MAKE("Make", String.class), MODEL("Model",
+				String.class), LENS_MAKE("LensMake", String.class), LENS_MODEL(
+				"LensModel", String.class), OWNER_NAME("OwnerName",
+				String.class), TITLE("XPTitle", String.class), AUTHOR(
 				"XPAuthor", String.class), SUBJECT("XPSubject", String.class), KEYWORDS(
 				"XPKeywords", String.class), COMMENT("XPComment", String.class), RATING(
 				"Rating", Integer.class), RATING_PERCENT("RatingPercent",

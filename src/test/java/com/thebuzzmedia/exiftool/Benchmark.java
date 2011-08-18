@@ -7,7 +7,7 @@ import com.thebuzzmedia.exiftool.ExifTool.Feature;
 import com.thebuzzmedia.exiftool.ExifTool.Tag;
 
 public class Benchmark {
-	public static final int ITERS = 25;
+	public static final int ITERS = 10;
 	public static final Tag[] TAGS = Tag.values();
 	public static final File[] IMAGES = new File("src/test/resources")
 			.listFiles();
@@ -20,8 +20,10 @@ public class Benchmark {
 
 		System.out.println("Benchmark [tags=" + TAGS.length + ", images="
 				+ IMAGES.length + ", iterations=" + ITERS + "]");
-		System.out.println("\tTotal EXIF Ops: "
-				+ (TAGS.length * IMAGES.length * ITERS) + "\n");
+		System.out.println("\t" + (IMAGES.length * ITERS)
+				+ " ExifTool process calls, "
+				+ (TAGS.length * IMAGES.length * ITERS)
+				+ " total operations.\n");
 
 		ExifTool tool = new ExifTool();
 		ExifTool toolSO = new ExifTool(Feature.STAY_OPEN);
@@ -44,8 +46,10 @@ public class Benchmark {
 		System.out.println("\t[-stay_open True]");
 		long elapsedTimeSO = 0;
 
-		for (int i = 0; i < ITERS; i++)
+		for (int i = 0; i < ITERS; i++) {
 			elapsedTimeSO += run(toolSO, IMAGES);
+			toolSO.close();
+		}
 
 		System.out.println("\t\tElapsed Time: " + elapsedTimeSO + " ms ("
 				+ ((double) elapsedTimeSO / 1000) + " secs - "

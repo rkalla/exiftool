@@ -22,7 +22,7 @@ limitations under the License.
 	<property name="version.major" value="1" />
 	<property name="version.minor" value="1" />
 
-	<property name="name.file" value="imgscalr-lib" />
+	<property name="name.file" value="exiftool-lib" />
 	<property name="name.file.javadoc" value="${name.file}-${version.major}.${version.minor}-javadoc.jar" />
 	<property name="name.file.src" value="${name.file}-${version.major}.${version.minor}-sources.jar" />
 
@@ -37,7 +37,6 @@ limitations under the License.
 	<target name="compile" depends="clean">
 		<javac destdir="${dir.bin}" debug="true" source="1.5" target="1.5">
 			<src path="${dir.src}" />
-			<src path="${dir.ext.src}" />
 		</javac>
 		<copy todir="${dir.bin}">
 			<fileset dir="${dir.src}">
@@ -50,7 +49,7 @@ limitations under the License.
 		<delete dir="${dir.javadoc}" />
 		<mkdir dir="${dir.javadoc}" />
 		<javadoc 
-			destdir="${dir.javadoc}" author="true" windowtitle="ExifTool v${version.major}.${version.minor} - ExifTool interface for Java" 
+			destdir="${dir.javadoc}" author="true" windowtitle="ExifTool v${version.major}.${version.minor} - Enhanced ExifTool Interface for Java" 
 			footer="Copyright 2011 The Buzz Media, LLC" link="http://download.oracle.com/javase/1.5.0/docs/api/" 
 			linksource="true" package="true" source="1.5" use="true">
 			<sourcepath path="${dir.src}" />

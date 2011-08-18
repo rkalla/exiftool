@@ -16,6 +16,20 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
+/*
+ * TODO:
+ * 
+ * 1. Need to normalize checking feature support in ext ExifTool and querying support
+ * into 1 or 2 well defined functions that this class AND external classes can
+ * make use of to check (e.g. imgscalr).
+ * 
+ * 2. Need to figure out what role cleanup process plays in all of this and how
+ * it is run/executed.
+ * 
+ * 3. Need to figure out better names for isRunning and close() methods to make
+ * them more intuitive to use.
+ */
+
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
  * Perl-based <a
@@ -187,33 +201,22 @@ public class ExifTool {
 	 * <p/>
 	 * This system property can be set on startup with:<br/>
 	 * <code>
-	 * -Dimgscalr.ext.exiftool.debug=true
+	 * -Dexiftool.debug=true
 	 * </code> or by calling {@link System#setProperty(String, String)} before
 	 * this class is loaded.
 	 * <p/>
 	 * Default value is <code>false</code>.
 	 */
-	public static final Boolean DEBUG = Boolean
-			.getBoolean("imgscalr.ext.exiftool.debug");
+	public static final Boolean DEBUG = Boolean.getBoolean("exiftool.debug");
 
 	/**
 	 * Prefix to every log message this library logs. Using a well-defined
 	 * prefix helps make it easier both visually and programmatically to scan
 	 * log files for messages produced by this library.
 	 * <p/>
-	 * The value is "<code>[imgscalr.ext.exiftool] </code>" (including the
-	 * space).
+	 * The value is "<code>[exiftool] </code>" (including the space).
 	 */
-	public static final String LOG_PREFIX = "[imgscalr.ext.exiftool] ";
-
-	/**
-	 * Default interval (in milliseconds) of inactivity before the cleanup
-	 * thread wakes up and cleans up the daemon ExifTool process and the
-	 * read/write streams used to communicate with it.
-	 * <p/>
-	 * Default value is <code>600,000</code> (10 minutes).
-	 */
-	public static final long DEFAULT_AUTO_CLEANUP_DELAY = 600000;
+	public static final String LOG_PREFIX = "[exiftool] ";
 
 	/**
 	 * The absolute path to the ExifTool executable on the host system running
@@ -248,38 +251,51 @@ public class ExifTool {
 			"imgscalr.ext.exiftool.path", "exiftool");
 
 	/**
+	 * Interval (in milliseconds) of inactivity before the cleanup thread wakes
+	 * up and cleans up the daemon ExifTool process and the read/write streams
+	 * used to communicate with it when the {@link Feature#STAY_OPEN} feature is
+	 * used.
+	 * <p/>
+	 * Ever time a call to <code>getImageMeta</code> is processed, the timer
+	 * keeping track of cleanup is reset; more specifically, this class has to
+	 * experience no activity for this duration of time before the cleanup
+	 * process is fired up and cleans up the host OS process and the stream
+	 * resources.
+	 * <p/>
+	 * Any subsequent calls to <code>getImageMeta</code> after a cleanup simply
+	 * re-initializes the resources.
+	 * <p/>
+	 * This system property can be set on startup with:<br/>
+	 * <code>
+	 * -Dexiftool.processCleanupDelay=600000
+	 * </code> or by calling {@link System#setProperty(String, String)} before
+	 * this class is loaded.
+	 * <p/>
+	 * Setting this value to 0 disables the automatic cleanup thread completely
+	 * and the caller will need to manually cleanup the external ExifTool
+	 * process and read/write streams by calling {@link #stopExifTool()}.
+	 * <p/>
+	 * Default value is <code>600,000</code> (10 minutes).
+	 */
+	public static final long PROCESS_CLEANUP_DELAY = Long.getLong(
+			"exiftool.processCleanupDelay", 600000);
+
+	/**
 	 * Name used to identify the (optional) cleanup {@link Thread}.
 	 * <p/>
 	 * This is only provided to make debugging and profiling easier for
 	 * implementors making use of this class such that the resources this class
 	 * creates and uses (i.e. Threads) are readily identifiable in a running VM.
 	 * <p/>
-	 * Default value is "<code>ExifTool Auto-Cleanup Thread</code>".
+	 * Default value is "<code>ExifTool Cleanup Thread</code>".
 	 */
-	protected static final String AUTO_CLEANUP_THREAD_NAME = "ExifTool Auto-Cleanup Thread";
+	protected static final String CLEANUP_THREAD_NAME = "ExifTool Cleanup Thread";
 
 	/**
 	 * Compiled {@link Pattern} of ": " used to split compact output from
 	 * ExifTool evenly into name/value pairs.
 	 */
 	protected static final Pattern TAG_VALUE_PATTERN = Pattern.compile(": ");
-
-	/**
-	 * Static list of args used to execute ExifTool using the '-ver' flag in
-	 * order to get it to print out its version number. Used by the
-	 * {@link #checkFeatureSupport(Feature...)} method to check all the required
-	 * feature versions.
-	 * <p/>
-	 * Defined here as a <code>static final</code> list because it is used every
-	 * time and never changes.
-	 */
-	protected static final List<String> VERIFY_FEATURE_ARGS = new ArrayList<String>(
-			2);
-
-	static {
-		VERIFY_FEATURE_ARGS.add(EXIF_TOOL_PATH);
-		VERIFY_FEATURE_ARGS.add("-ver");
-	}
 
 	/**
 	 * Map shared across all instances of this class that maintains the state of
@@ -299,6 +315,96 @@ public class ExifTool {
 	 * session of that running VM.
 	 */
 	protected static final Map<Feature, Boolean> FEATURE_SUPPORT_MAP = new HashMap<ExifTool.Feature, Boolean>();
+
+	/**
+	 * Static list of args used to execute ExifTool using the '-ver' flag in
+	 * order to get it to print out its version number. Used by the
+	 * {@link #checkFeatureSupport(Feature...)} method to check all the required
+	 * feature versions.
+	 * <p/>
+	 * Defined here as a <code>static final</code> list because it is used every
+	 * time and never changes.
+	 */
+	private static final List<String> VERIFY_FEATURE_ARGS = new ArrayList<String>(
+			2);
+
+	static {
+		VERIFY_FEATURE_ARGS.add(EXIF_TOOL_PATH);
+		VERIFY_FEATURE_ARGS.add("-ver");
+	}
+
+	public static boolean isFeatureSupported(Feature feature)
+			throws IllegalArgumentException, RuntimeException {
+		if (feature == null)
+			throw new IllegalArgumentException("feature cannot be null");
+
+		log("\tChecking support for feature: %s...", feature);
+
+		Boolean supported = FEATURE_SUPPORT_MAP.get(feature);
+
+		/*
+		 * Check if the given feature has not been confirmed to be supported or
+		 * unsupported yet (not in our support map).
+		 * 
+		 * If the feature is not in our map, then it hasn't been checked for
+		 * support yet, otherwise there is a true/false status for it in the map
+		 * already indicating if it is supported or not.
+		 */
+		if (supported == null) {
+			log("\t\tChecking feature %s for support, requires ExifTool version %s or higher...",
+					feature, feature.version);
+
+			String ver = null;
+
+			try {
+				// Execute 'exiftool -ver'
+				IOStream streams = startExifToolProcess(VERIFY_FEATURE_ARGS);
+
+				// Read the single-line reply (version number)
+				ver = streams.reader.readLine();
+
+				// Close r/w streams to exited process.
+				streams.close();
+			} catch (Exception e) {
+				/*
+				 * no-op, while it is important to know that we COULD launch the
+				 * ExifTool process (i.e. startExifToolProcess call worked) but
+				 * couldn't communicate with it, the context with which this
+				 * method is called is from the constructor of this class which
+				 * would just wrap this exception and discard it anyway if it
+				 * failed.
+				 * 
+				 * the caller will realize there is something wrong with the
+				 * ExifTool process communication as soon as they make their
+				 * first call to getImageMeta in which case whatever was causing
+				 * the exception here will popup there and then need to be
+				 * corrected.
+				 * 
+				 * This is an edge case that should only happen in really rare
+				 * scenarios, so making this method easier to use is more
+				 * important that robust IOException handling right here.
+				 */
+			}
+
+			// Ensure the version found is >= the required version.
+			if (ver != null && ver.compareTo(feature.version) >= 0) {
+				supported = Boolean.TRUE;
+				log("\t\tFound ExifTool version %s, feature %s is SUPPORTED.",
+						ver, feature);
+			} else {
+				supported = Boolean.FALSE;
+				log("\t\tFound ExifTool version %s, feature %s is NOT SUPPORTED.",
+						ver, feature);
+			}
+
+			// Update feature support map
+			FEATURE_SUPPORT_MAP.put(feature, supported);
+		} else
+			log("\t\tCheck skipped, support was checked already. [%s support=%s]",
+					feature, supported);
+
+		return supported;
+	}
 
 	/**
 	 * Enum used to define the different kinds of features in the native
@@ -596,9 +702,8 @@ public class ExifTool {
 		}
 	}
 
-	private long autoCleanupDelay;
-	private Timer autoCleanupTimer;
-	private TimerTask autoCleanupTimerTask;
+	private Timer cleanupTimer;
+	private TimerTask currentCleanupTask;
 
 	private IOStream streams;
 	private List<String> args;
@@ -610,20 +715,6 @@ public class ExifTool {
 	}
 
 	public ExifTool(Feature... features) throws UnsupportedFeatureException {
-		this(true, features);
-	}
-
-	public ExifTool(boolean autoCleanup, Feature... features)
-			throws UnsupportedFeatureException {
-		this(true, DEFAULT_AUTO_CLEANUP_DELAY, features);
-	}
-
-	public ExifTool(boolean autoCleanup, long autoCleanupDelay,
-			Feature... features) throws IllegalArgumentException,
-			UnsupportedFeatureException {
-		if (autoCleanupDelay < 1)
-			throw new IllegalArgumentException("autoCleanupDelay ["
-					+ autoCleanupDelay + "] must be >= 1");
 		featureSet = new HashSet<ExifTool.Feature>();
 
 		if (features != null && features.length > 0) {
@@ -658,9 +749,14 @@ public class ExifTool {
 
 		args = new ArrayList<String>(64);
 
-		// After init is done, fire up the cleanup thread if necessary.
-		if (autoCleanup) {
-			this.autoCleanupDelay = autoCleanupDelay;
+		/*
+		 * Now that initialization is done, init the cleanup timer if we are
+		 * using STAY_OPEN and the delay time set is non-zero.
+		 */
+		if (isFeatureEnabled(Feature.STAY_OPEN) && PROCESS_CLEANUP_DELAY > 0) {
+			this.cleanupTimer = new Timer(CLEANUP_THREAD_NAME, true);
+
+			// Start the first cleanup task counting down.
 			resetCleanupTask();
 		}
 	}
@@ -706,6 +802,14 @@ public class ExifTool {
 		log("\tExifTool daemon process successfully terminated.");
 	}
 
+	public boolean isFeatureEnabled(Feature feature)
+			throws IllegalArgumentException {
+		if (feature == null)
+			throw new IllegalArgumentException("feature cannot be null");
+
+		return featureSet.contains(feature);
+	}
+
 	public Map<Tag, String> getImageMeta(File image, Tag... tags)
 			throws IllegalArgumentException, SecurityException, IOException {
 		return getImageMeta(image, OutputFormat.NUMERIC, tags);
@@ -727,10 +831,6 @@ public class ExifTool {
 					"Unable to read the given image ["
 							+ image.getAbsolutePath()
 							+ "], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
-
-		// Reset Auto Cleaner timer if in-use.
-		if (autoCleanupTimer != null)
-			resetCleanupTask();
 
 		long startTime = System.currentTimeMillis();
 
@@ -759,6 +859,9 @@ public class ExifTool {
 
 		if (stayOpen) {
 			log("\tUsing ExifTool in daemon mode (-stay_open True)...");
+			
+			// Always reset the cleanup task.
+			resetCleanupTask();
 
 			/*
 			 * If this is our first time calling getImageMeta with a stayOpen
@@ -1043,17 +1146,22 @@ public class ExifTool {
 	 * isn't the way the java.util.Timer class was designed unfortunately.
 	 */
 	private void resetCleanupTask() {
-		// Create the timer if necessary (first call)
-		if (autoCleanupTimer == null)
-			autoCleanupTimer = new Timer(AUTO_CLEANUP_THREAD_NAME, true);
-
+		// no-op if the timer was never created.
+		if(cleanupTimer == null)
+			return;
+		
+		log("\tResetting cleanup task...");
+		
 		// Cancel the current cleanup task if necessary.
-		if (autoCleanupTimerTask != null)
-			autoCleanupTimerTask.cancel();
+		if (currentCleanupTask != null)
+			currentCleanupTask.cancel();
 
 		// Schedule a new cleanup task.
-		autoCleanupTimer.schedule(new AutoCleanupTimerTask(this),
-				autoCleanupDelay, autoCleanupDelay);
+		cleanupTimer.schedule(
+				(currentCleanupTask = new CleanupTimerTask(this)),
+				PROCESS_CLEANUP_DELAY, PROCESS_CLEANUP_DELAY);
+		
+		log("\t\tSuccessful");
 	}
 
 	/**
@@ -1133,11 +1241,10 @@ public class ExifTool {
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
 	 * @since 1.1
 	 */
-	private class AutoCleanupTimerTask extends TimerTask {
+	private class CleanupTimerTask extends TimerTask {
 		private ExifTool owner;
 
-		public AutoCleanupTimerTask(ExifTool owner)
-				throws IllegalArgumentException {
+		public CleanupTimerTask(ExifTool owner) throws IllegalArgumentException {
 			if (owner == null)
 				throw new IllegalArgumentException(
 						"owner cannot be null and must refer to the ExifTool instance creating this task.");

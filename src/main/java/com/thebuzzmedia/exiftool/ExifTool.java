@@ -287,11 +287,9 @@ public class ExifTool {
 		}
 	}
 
-	/*
-	 * TODO: Would be really nice to implement some flexible tag-building system
-	 * that can be extended by anyone using the library that needs a tag value
-	 * but there isn't an enum for it.
-	 */
+	public enum Format {
+		NUMERIC, READABLE;
+	}
 
 	/**
 	 * Enum used to pre-define a convenience list of tags that can be easily
@@ -547,7 +545,7 @@ public class ExifTool {
 		 */
 		if (!isOpen())
 			return;
-
+	
 		/*
 		 * If ExifTool was used in stayOpen mode but getImageMeta was never
 		 * called then the streams were never initialized and there is nothing
@@ -559,11 +557,11 @@ public class ExifTool {
 		} else {
 			try {
 				log("\tAttempting to close ExifTool daemon process, issuing '-stay_open\\nFalse\\n' command...");
-
+	
 				// Tell the ExifTool process to exit.
 				streams.writer.write("-stay_open\nFalse\n");
 				streams.writer.flush();
-
+	
 				log("\t\tSuccessful");
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -571,16 +569,23 @@ public class ExifTool {
 				streams.close();
 			}
 		}
-
+	
 		streams = null;
 		log("\tExifTool daemon process successfully terminated.");
 	}
 
 	public Map<Tag, String> getImageMeta(File image, Tag... tags)
 			throws IllegalArgumentException, SecurityException, IOException {
+		return getImageMeta(image, Format.NUMERIC, tags);
+	}
+
+	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags)
+			throws IllegalArgumentException, SecurityException, IOException {
 		if (image == null)
 			throw new IllegalArgumentException(
 					"image cannot be null and must be a valid stream of image data.");
+		if (format == null)
+			throw new IllegalArgumentException("format cannot be null");
 		if (tags == null || tags.length == 0)
 			throw new IllegalArgumentException(
 					"tags cannot be null and must contain 1 or more Tag to query the image for.");
@@ -638,9 +643,10 @@ public class ExifTool {
 
 			log("\tStreaming arguments to ExifTool process...");
 
-			streams.writer.write("-n\n"); // numeric output
+			if (format == Format.NUMERIC)
+				streams.writer.write("-n\n"); // numeric output
+
 			streams.writer.write("-S\n"); // compact output
-			streams.writer.write("-fast\n"); // do not search to EOF
 
 			for (int i = 0; i < tags.length; i++) {
 				streams.writer.write('-');
@@ -666,9 +672,10 @@ public class ExifTool {
 			 */
 			args.add(EXIF_TOOL_PATH);
 
-			args.add("-n"); // numeric output
+			if (format == Format.NUMERIC)
+				args.add("-n"); // numeric output
+
 			args.add("-S"); // compact output
-			args.add("-fast"); // do not search to EOF
 
 			for (int i = 0; i < tags.length; i++)
 				args.add("-" + tags[i].name);

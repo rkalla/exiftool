@@ -15,59 +15,50 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 /**
- * Class used to provide a Java-like wrapper to Phil Harvey's excellent <a
+ * Class used to provide a Java-like interface to Phil Harvey's excellent,
+ * Perl-based <a
  * href="http://www.sno.phy.queensu.ca/~phil/exiftool">ExifTool</a>.
  * <p/>
- * Instances of this class are <strong>not</strong> Thread-safe. Both the
- * instance of this class and external ExifTool process maintain state specific
- * to the current operation. Use of instances of this class need to be
- * synchronized using an external mechanism or in a highly threaded environment
- * (e.g. web application), instances of this class can be used along with
- * {@link ThreadLocal}s to ensure Thread-safe, highly parallel use.
- * <p/>
- * There are a number of other basic wrappers to ExifTool available online, but
- * most of them only abstract out the actual Java-external-process execution
+ * There are a number of other basic Java wrappers to ExifTool available online,
+ * but most of them only abstract out the actual Java-external-process execution
  * logic and do no additional work to make integration with the external
- * ExifTool any easier or intuitive.
+ * ExifTool any easier or intuitive from the perspective of the Java application
+ * written to make use of ExifTool.
  * <p/>
  * This class was written in order to make integration with ExifTool inside of a
- * Java application seamless, performant and easy whether you use the imgscalr
- * library or not.
+ * Java application seamless and performant with the goal being that the
+ * developer can treat ExifTool as if it were written in Java, garnering all of
+ * the benefits with none of the added headache of managing an external native
+ * process from Java.
  * <h3>Usage</h3>
  * Assuming ExifTool is installed on the host system correctly and either in the
- * system path or pointed at correctly by {@link #EXIF_TOOL_PATH}, using this
- * class to communicate with ExifTool is as simple as creating an instance (
+ * system path or pointed to by {@link #EXIF_TOOL_PATH}, using this class to
+ * communicate with ExifTool is as simple as creating an instance (
  * <code>ExifTool tool = new ExifTool()</code>) and then making calls to
- * {@link #getImageMeta(File, Tag...)} with the list of {@link Tag} values you
- * wish to pull from the source image.
+ * {@link #getImageMeta(File, Tag...)} or
+ * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag}s you
+ * want to pull values for from the given image.
  * <p/>
- * In this default mode, calls to {@link #getImageMeta(File, Tag...)} will
- * automatically start an external ExifTool process to handle the request. After
- * ExifTool has parsed the tag values from the file, the external process exits
- * and this class parses the result.
+ * In this default mode, calls to <code>getImageMeta</code> will automatically
+ * start an external ExifTool process to handle the request. After ExifTool has
+ * parsed the tag values from the file, the external process exits and this
+ * class parses the result before returning it to the caller.
  * <p/>
- * Results from calls to {@link #getImageMeta(File, Tag...)} are returned in a
- * {@link Map} with the {@link Tag} values as the keys and {@link String} values
- * for every tag that had a value in the image file. {@link Tag}s with no value
- * found in the image are omitted from the result map.
+ * Results from calls to <code>getImageMeta</code> are returned in a {@link Map}
+ * with the {@link Tag} values as the keys and {@link String} values for every
+ * tag that had a value in the image file as the values. {@link Tag}s with no
+ * value found in the image are omitted from the result map.
  * <p/>
- * It is up to the caller to decide how best to parse and convert the resulting
- * {@link String} values (e.g. convert to numbers, enums, etc.).
+ * While each {@link Tag} provides a hint at which format the resulting value
+ * for that tag is returned as from ExifTool (see {@link Tag#getType()}), that
+ * only applies to values returned with an output format of
+ * {@link Format#NUMERIC} and it is ultimately up to the caller to decide how
+ * best to parse or convert the returned values.
  * <p/>
- * In order to make use of the new <code>-stay_open</code> daemon mode supported
- * by ExifTool 8.36 and later, simply pass <code>true</code> to the constructor
- * of this class when creating an instance:
- * <code>ExifTool tool = new ExifTool(true)</code> - this will cause a daemon
- * version of ExifTool to be spun up and reused for all subsequent calls to
- * {@link #getImageMeta(File, Tag...)}.
- * <p/>
- * <strong>REMINDER</strong>: When you use this mode, you must be sure to
- * explicitly call {@link #close()} when you are done using ExifTool so this
- * class has a chance to stop the external ExifTool process and cleanup the
- * read/write streams used to communicate with it.
- * <p/>
- * Forgetting to do this will not only leak resources inside the VM, but leak
- * <code>exiftool</code> processes in the host OS.
+ * The {@link Tag} Enum provides the {@link Tag#parseValue(Tag, String)}
+ * convenience method for parsing given <code>String</code> values according to
+ * the Tag hint automatically for you if that is what you plan on doing,
+ * otherwise feel free to handle the return values anyway you want.
  * <h3>ExifTool -stay_open Support</h3>
  * ExifTool <a href=
  * "http://u88.n24.queensu.ca/exiftool/forum/index.php/topic,1402.msg12933.html#msg12933"
@@ -75,8 +66,9 @@ import java.util.regex.Pattern;
  * running in a daemon mode and continue accepting commands via a file or stdin.
  * <p/>
  * This new mode is controlled via the <code>-stay_open True/False</code>
- * command line argument and in a busy system can offer speed improvements of up
- * to <strong>40-60x</strong> (yes, really that much).
+ * command line argument and in a busy system that is making thousands of calls
+ * to ExifTool, can offer speed improvements of up to <strong>60x</strong> (yes,
+ * really that much).
  * <p/>
  * This feature was added to ExifTool shortly after user <a
  * href="http://www.christian-etter.de/?p=458">Christian Etter discovered</a>
@@ -85,20 +77,50 @@ import java.util.regex.Pattern;
  * "http://u88.n24.queensu.ca/exiftool/forum/index.php/topic,1402.msg6121.html#msg6121"
  * >98.4% of the total runtime</a>.
  * <p/>
- * If <code>-stay_open</code> support is enabled in this class by passing
- * <code>true</code> to the constructor, but the installed copy of ExifTool is
- * older than 8.36 on the host system, in order to avoid a potential lockup,
- * this class will actually make an attempt at verifying the version of ExifTool
- * used before trying to run in daemon mode. Once the version of the installed
- * ExifTool has been verified, the check will not be performed again for the
- * life of the instance of this class.
+ * Support for using ExifTool in daemon mode is enabled by passing
+ * {@link Feature#STAY_OPEN} to the constructor of the class when creating an
+ * instance of this class and then simply using the class as you normally would.
+ * This class will manage a single ExifTool process running in daemon mode in
+ * the background to service all future calls to the class.
  * <p/>
- * If the version is confirmed to be lower than the required ExifTool version to
- * support that feature, a {@link RuntimeException} is thrown to notify the
- * caller of the situation.
+ * <strong>WARNING</strong>: When {@link Feature#STAY_OPEN} mode is used, you
+ * must remember to call {@link #close()} when you are done using the class (or
+ * do not need it for a while and want to temporarily free up native resources).
+ * Calling {@link #close()} gives this class a chance to shut down the external
+ * daemon ExifTool process and cleanup the read/write streams used to
+ * communicate with it. Forgetting to call {@link #close()} will result in
+ * leaking both internal VM resources (streams) as well as external host OS
+ * processes. Calling {@link #close()} on an instance not using
+ * {@link Feature#STAY_OPEN} support does nothing (as the underlying resources
+ * are cleaned up automatically after each call).
  * <p/>
- * At that point the developer can either upgrade ExifTool or not use it in
- * daemon mode to work around the exception.
+ * Because this feature requires ExifTool 8.36 or later, this class will
+ * actually verify support for the feature in the version of ExifTool pointed at
+ * by {@link #EXIF_TOOL_PATH} before successfully instantiating the class and
+ * will notify you via an {@link UnsupportedFeatureException} if the native
+ * ExifTool doesn't support the requested feature.
+ * <p/>
+ * In the event of an {@link UnsupportedFeatureException}, the caller can either
+ * upgrade the native ExifTool upgrade to the version required or simply avoid
+ * using that feature to work around the exception.
+ * <h3>Reusing a "closed" ExifTool Instance</h3>
+ * As mentioned in the previous section, you must call {@link #close()} when
+ * done with an instance of this class only when using ExifTool in daemon mode.
+ * While this does close down the native ExifTool process and the streams used
+ * to communicate with it inside this class, it doesn't invalidate the class.
+ * <p/>
+ * The next call to <code>getImageMeta</code> will simply re-create the host
+ * daemon process as well as open up streams to the new process. So you can
+ * always re-use an instance of this class even if you have told it to go
+ * dormant and shut down its related host process via {@link #close()}.
+ * <p/>
+ * This can be handy behavior to be aware of when writing scheduled processing
+ * jobs that may wake up every hour and process thousands of pictures then go
+ * back to sleep. In order for the process to execute as fast as possible, you
+ * would want to use ExifTool in daemon mode (pass {@link Feature#STAY_OPEN} to
+ * the constructor of this class) and when done, instead of {@link #close()}-ing
+ * the instance of this class and throwing it out, you can keep the reference
+ * around and re-use it again when the job executes again an hour later.
  * <h3>Performance</h3>
  * Extra care is taken to ensure minimal object creation or unnecessary CPU
  * overhead while communicating with the external process.
@@ -118,6 +140,13 @@ import java.util.regex.Pattern;
  * All of this effort was done to ensure that imgscalr and its supporting
  * classes continue to provide best-of-breed performance and memory utilization
  * in long running/high performance environments (e.g. web applications).
+ * <h3>Thread Safety</h3>
+ * Instances of this class are <strong>not</strong> Thread-safe. Both the
+ * instance of this class and external ExifTool process maintain state specific
+ * to the current operation. Use of instances of this class need to be
+ * synchronized using an external mechanism or in a highly threaded environment
+ * (e.g. web application), instances of this class can be used along with
+ * {@link ThreadLocal}s to ensure Thread-safe, highly parallel use.
  * <h3>Why ExifTool?</h3>
  * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool">ExifTool</a> is
  * written in Perl and requires an external process call from Java to make use
@@ -545,7 +574,7 @@ public class ExifTool {
 		 */
 		if (!isOpen())
 			return;
-	
+
 		/*
 		 * If ExifTool was used in stayOpen mode but getImageMeta was never
 		 * called then the streams were never initialized and there is nothing
@@ -557,11 +586,11 @@ public class ExifTool {
 		} else {
 			try {
 				log("\tAttempting to close ExifTool daemon process, issuing '-stay_open\\nFalse\\n' command...");
-	
+
 				// Tell the ExifTool process to exit.
 				streams.writer.write("-stay_open\nFalse\n");
 				streams.writer.flush();
-	
+
 				log("\t\tSuccessful");
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -569,7 +598,7 @@ public class ExifTool {
 				streams.close();
 			}
 		}
-	
+
 		streams = null;
 		log("\tExifTool daemon process successfully terminated.");
 	}
@@ -898,7 +927,15 @@ public class ExifTool {
 		return streams;
 	}
 
-	static class IOStream {
+	/**
+	 * Simple class used to house the read/write streams used to communicate
+	 * with an external ExifTool process as well as the logic used to safely
+	 * close the streams when no longer needed.
+	 * 
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 1.1
+	 */
+	private static class IOStream {
 		BufferedReader reader;
 		OutputStreamWriter writer;
 
@@ -938,7 +975,7 @@ public class ExifTool {
 	 * not support (i.e. the version isn't new enough).
 	 * 
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 4.0
+	 * @since 1.1
 	 */
 	public class UnsupportedFeatureException extends RuntimeException {
 		private static final long serialVersionUID = -1332725983656030770L;

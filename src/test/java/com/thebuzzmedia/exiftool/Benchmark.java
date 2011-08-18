@@ -48,7 +48,9 @@ public class Benchmark {
 
 		for (int i = 0; i < ITERS; i++) {
 			elapsedTimeSO += run(toolSO, IMAGES);
-			toolSO.close();
+			
+			// TODO: TESTING
+			toolSO.stopExifTool();
 		}
 
 		System.out.println("\t\tElapsed Time: " + elapsedTimeSO + " ms ("
@@ -56,7 +58,7 @@ public class Benchmark {
 				+ ((float) elapsedTime / (float) elapsedTimeSO) + "x faster)");
 
 		// Shut down the running exiftool proc.
-		toolSO.close();
+		toolSO.stopExifTool();
 	}
 
 	private static long run(ExifTool tool, File[] images)

@@ -12,12 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Pattern;
-
-/*
- * TODO: Implement an auto-cleanup dameon that runs every 10 mins of inactivity for the
- * daemon mode that calls close() or something.
- */
 
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
@@ -41,8 +38,8 @@ import java.util.regex.Pattern;
  * communicate with ExifTool is as simple as creating an instance (
  * <code>ExifTool tool = new ExifTool()</code>) and then making calls to
  * {@link #getImageMeta(File, Tag...)} or
- * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag}s you
- * want to pull values for from the given image.
+ * {@link #getImageMeta(File, OutputFormat, Tag...)} with a list of {@link Tag}s
+ * you want to pull values for from the given image.
  * <p/>
  * In this default mode, calls to <code>getImageMeta</code> will automatically
  * start an external ExifTool process to handle the request. After ExifTool has
@@ -57,8 +54,8 @@ import java.util.regex.Pattern;
  * While each {@link Tag} provides a hint at which format the resulting value
  * for that tag is returned as from ExifTool (see {@link Tag#getType()}), that
  * only applies to values returned with an output format of
- * {@link Format#NUMERIC} and it is ultimately up to the caller to decide how
- * best to parse or convert the returned values.
+ * {@link OutputFormat#NUMERIC} and it is ultimately up to the caller to decide
+ * how best to parse or convert the returned values.
  * <p/>
  * The {@link Tag} Enum provides the {@link Tag#parseValue(Tag, String)}
  * convenience method for parsing given <code>String</code> values according to
@@ -89,13 +86,13 @@ import java.util.regex.Pattern;
  * the background to service all future calls to the class.
  * <p/>
  * <strong>WARNING</strong>: When {@link Feature#STAY_OPEN} mode is used, you
- * must remember to call {@link #close()} when you are done using the class (or
- * do not need it for a while and want to temporarily free up native resources).
- * Calling {@link #close()} gives this class a chance to shut down the external
- * daemon ExifTool process and cleanup the read/write streams used to
- * communicate with it. Forgetting to call {@link #close()} will result in
- * leaking both internal VM resources (streams) as well as external host OS
- * processes. Calling {@link #close()} on an instance not using
+ * must remember to call {@link #stopExifTool()} when you are done using the
+ * class (or do not need it for a while and want to temporarily free up native
+ * resources). Calling {@link #stopExifTool()} gives this class a chance to shut
+ * down the external daemon ExifTool process and cleanup the read/write streams
+ * used to communicate with it. Forgetting to call {@link #stopExifTool()} will
+ * result in leaking both internal VM resources (streams) as well as external
+ * host OS processes. Calling {@link #stopExifTool()} on an instance not using
  * {@link Feature#STAY_OPEN} support does nothing (as the underlying resources
  * are cleaned up automatically after each call).
  * <p/>
@@ -109,23 +106,25 @@ import java.util.regex.Pattern;
  * upgrade the native ExifTool upgrade to the version required or simply avoid
  * using that feature to work around the exception.
  * <h3>Reusing a "closed" ExifTool Instance</h3>
- * As mentioned in the previous section, you must call {@link #close()} when
- * done with an instance of this class only when using ExifTool in daemon mode.
- * While this does close down the native ExifTool process and the streams used
- * to communicate with it inside this class, it doesn't invalidate the class.
+ * As mentioned in the previous section, you must call {@link #stopExifTool()}
+ * when done with an instance of this class only when using ExifTool in daemon
+ * mode. While this does close down the native ExifTool process and the streams
+ * used to communicate with it inside this class, it doesn't invalidate the
+ * class.
  * <p/>
  * The next call to <code>getImageMeta</code> will simply re-create the host
  * daemon process as well as open up streams to the new process. So you can
  * always re-use an instance of this class even if you have told it to go
- * dormant and shut down its related host process via {@link #close()}.
+ * dormant and shut down its related host process via {@link #stopExifTool()}.
  * <p/>
  * This can be handy behavior to be aware of when writing scheduled processing
  * jobs that may wake up every hour and process thousands of pictures then go
  * back to sleep. In order for the process to execute as fast as possible, you
  * would want to use ExifTool in daemon mode (pass {@link Feature#STAY_OPEN} to
- * the constructor of this class) and when done, instead of {@link #close()}-ing
- * the instance of this class and throwing it out, you can keep the reference
- * around and re-use it again when the job executes again an hour later.
+ * the constructor of this class) and when done, instead of
+ * {@link #stopExifTool()}-ing the instance of this class and throwing it out,
+ * you can keep the reference around and re-use it again when the job executes
+ * again an hour later.
  * <h3>Performance</h3>
  * Extra care is taken to ensure minimal object creation or unnecessary CPU
  * overhead while communicating with the external process.
@@ -208,6 +207,15 @@ public class ExifTool {
 	public static final String LOG_PREFIX = "[imgscalr.ext.exiftool] ";
 
 	/**
+	 * Default interval (in milliseconds) of inactivity before the cleanup
+	 * thread wakes up and cleans up the daemon ExifTool process and the
+	 * read/write streams used to communicate with it.
+	 * <p/>
+	 * Default value is <code>600,000</code> (10 minutes).
+	 */
+	public static final long DEFAULT_AUTO_CLEANUP_DELAY = 600000;
+
+	/**
 	 * The absolute path to the ExifTool executable on the host system running
 	 * this class as defined by the "<code>imgscalr.ext.exiftool.path</code>"
 	 * system property.
@@ -238,6 +246,17 @@ public class ExifTool {
 	 */
 	public static final String EXIF_TOOL_PATH = System.getProperty(
 			"imgscalr.ext.exiftool.path", "exiftool");
+
+	/**
+	 * Name used to identify the (optional) cleanup {@link Thread}.
+	 * <p/>
+	 * This is only provided to make debugging and profiling easier for
+	 * implementors making use of this class such that the resources this class
+	 * creates and uses (i.e. Threads) are readily identifiable in a running VM.
+	 * <p/>
+	 * Default value is "<code>ExifTool Auto-Cleanup Thread</code>".
+	 */
+	protected static final String AUTO_CLEANUP_THREAD_NAME = "ExifTool Auto-Cleanup Thread";
 
 	/**
 	 * Compiled {@link Pattern} of ": " used to split compact output from
@@ -332,21 +351,22 @@ public class ExifTool {
 	 * <p/>
 	 * While the {@link Tag}s defined on this class do provide a hint at the
 	 * type of the result (see {@link Tag#getType()}), that hint only applies
-	 * when the {@link Format#NUMERIC} form of the value is returned.
+	 * when the {@link OutputFormat#NUMERIC} form of the value is returned.
 	 * <p/>
 	 * If the caller finds the human-readable format easier to process,
-	 * {@link Format#HUMAN_READABLE} can be specified when calling
-	 * {@link ExifTool#getImageMeta(File, Format, Tag...)} and the returned
-	 * {@link String} values processed manually by the caller.
+	 * {@link OutputFormat#HUMAN_READABLE} can be specified when calling
+	 * {@link ExifTool#getImageMeta(File, OutputFormat, Tag...)} and the
+	 * returned {@link String} values processed manually by the caller.
 	 * <p/>
 	 * In order to see the types of values that are returned when
-	 * {@link Format#HUMAN_READABLE} is used, you can check the comprehensive <a
+	 * {@link OutputFormat#HUMAN_READABLE} is used, you can check the
+	 * comprehensive <a
 	 * href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">
 	 * ExifTool Tag Guide</a>.
 	 * <p/>
 	 * This makes sense with some values like Aperture that in
-	 * {@link Format#NUMERIC} format end up returning as 14-decimal-place, high
-	 * precision values that are near the intended value (e.g.
+	 * {@link OutputFormat#NUMERIC} format end up returning as 14-decimal-place,
+	 * high precision values that are near the intended value (e.g.
 	 * "2.79999992203711" instead of just returning "2.8"). On the other hand,
 	 * other values (like Orientation) are easier to parse when their numeric
 	 * value (1-8) is returned instead of a much longer friendly name (e.g.
@@ -355,7 +375,7 @@ public class ExifTool {
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
 	 * @since 1.1
 	 */
-	public enum Format {
+	public enum OutputFormat {
 		NUMERIC, HUMAN_READABLE;
 	}
 
@@ -365,8 +385,8 @@ public class ExifTool {
 	 * ExifTool.
 	 * <p/>
 	 * Each tag defined also includes a type hint for the parsed value
-	 * associated with it when the default {@link Format#NUMERIC} value format
-	 * is used.
+	 * associated with it when the default {@link OutputFormat#NUMERIC} value
+	 * format is used.
 	 * <p/>
 	 * All replies from ExifTool are parsed as {@link String}s and using the
 	 * type hint from each {@link Tag} can easily be converted to the correct
@@ -375,7 +395,7 @@ public class ExifTool {
 	 * <p/>
 	 * This class does not make an attempt at converting the value automatically
 	 * in case the caller decides they would prefer tag values returned in
-	 * {@link Format#HUMAN_READABLE} format and to avoid any compatibility
+	 * {@link OutputFormat#HUMAN_READABLE} format and to avoid any compatibility
 	 * issues with future versions of ExifTool if a tag's return value is
 	 * changed. This approach to leaving returned tag values as strings until
 	 * the caller decides they want to parse them is a safer and more robust
@@ -576,8 +596,13 @@ public class ExifTool {
 		}
 	}
 
+	private long autoCleanupDelay;
+	private Timer autoCleanupTimer;
+	private TimerTask autoCleanupTimerTask;
+
 	private IOStream streams;
 	private List<String> args;
+
 	private Set<Feature> featureSet;
 
 	public ExifTool() {
@@ -585,6 +610,20 @@ public class ExifTool {
 	}
 
 	public ExifTool(Feature... features) throws UnsupportedFeatureException {
+		this(true, features);
+	}
+
+	public ExifTool(boolean autoCleanup, Feature... features)
+			throws UnsupportedFeatureException {
+		this(true, DEFAULT_AUTO_CLEANUP_DELAY, features);
+	}
+
+	public ExifTool(boolean autoCleanup, long autoCleanupDelay,
+			Feature... features) throws IllegalArgumentException,
+			UnsupportedFeatureException {
+		if (autoCleanupDelay < 1)
+			throw new IllegalArgumentException("autoCleanupDelay ["
+					+ autoCleanupDelay + "] must be >= 1");
 		featureSet = new HashSet<ExifTool.Feature>();
 
 		if (features != null && features.length > 0) {
@@ -618,19 +657,25 @@ public class ExifTool {
 		}
 
 		args = new ArrayList<String>(64);
+
+		// After init is done, fire up the cleanup thread if necessary.
+		if (autoCleanup) {
+			this.autoCleanupDelay = autoCleanupDelay;
+			resetCleanupTask();
+		}
 	}
 
-	public boolean isOpen() {
+	public boolean isExifToolRunning() {
 		return (streams != null);
 	}
 
-	public void close() {
+	public void stopExifTool() {
 		/*
 		 * no-op if the underlying process and streams have already been closed
 		 * OR if stayOpen was never used in the first place in which case
 		 * nothing is open right now anyway.
 		 */
-		if (!isOpen())
+		if (!isExifToolRunning())
 			return;
 
 		/*
@@ -663,11 +708,12 @@ public class ExifTool {
 
 	public Map<Tag, String> getImageMeta(File image, Tag... tags)
 			throws IllegalArgumentException, SecurityException, IOException {
-		return getImageMeta(image, Format.NUMERIC, tags);
+		return getImageMeta(image, OutputFormat.NUMERIC, tags);
 	}
 
-	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags)
-			throws IllegalArgumentException, SecurityException, IOException {
+	public Map<Tag, String> getImageMeta(File image, OutputFormat format,
+			Tag... tags) throws IllegalArgumentException, SecurityException,
+			IOException {
 		if (image == null)
 			throw new IllegalArgumentException(
 					"image cannot be null and must be a valid stream of image data.");
@@ -681,6 +727,10 @@ public class ExifTool {
 					"Unable to read the given image ["
 							+ image.getAbsolutePath()
 							+ "], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+
+		// Reset Auto Cleaner timer if in-use.
+		if (autoCleanupTimer != null)
+			resetCleanupTask();
 
 		long startTime = System.currentTimeMillis();
 
@@ -730,7 +780,7 @@ public class ExifTool {
 
 			log("\tStreaming arguments to ExifTool process...");
 
-			if (format == Format.NUMERIC)
+			if (format == OutputFormat.NUMERIC)
 				streams.writer.write("-n\n"); // numeric output
 
 			streams.writer.write("-S\n"); // compact output
@@ -759,7 +809,7 @@ public class ExifTool {
 			 */
 			args.add(EXIF_TOOL_PATH);
 
-			if (format == Format.NUMERIC)
+			if (format == OutputFormat.NUMERIC)
 				args.add("-n"); // numeric output
 
 			args.add("-S"); // compact output
@@ -986,6 +1036,27 @@ public class ExifTool {
 	}
 
 	/**
+	 * Helper method used to make canceling the current task and scheduling a
+	 * new one easier.
+	 * <p/>
+	 * It is annoying that we cannot just reset the timer on the task, but that
+	 * isn't the way the java.util.Timer class was designed unfortunately.
+	 */
+	private void resetCleanupTask() {
+		// Create the timer if necessary (first call)
+		if (autoCleanupTimer == null)
+			autoCleanupTimer = new Timer(AUTO_CLEANUP_THREAD_NAME, true);
+
+		// Cancel the current cleanup task if necessary.
+		if (autoCleanupTimerTask != null)
+			autoCleanupTimerTask.cancel();
+
+		// Schedule a new cleanup task.
+		autoCleanupTimer.schedule(new AutoCleanupTimerTask(this),
+				autoCleanupDelay, autoCleanupDelay);
+	}
+
+	/**
 	 * Simple class used to house the read/write streams used to communicate
 	 * with an external ExifTool process as well as the logic used to safely
 	 * close the streams when no longer needed.
@@ -1051,6 +1122,33 @@ public class ExifTool {
 
 		public Feature getFeature() {
 			return feature;
+		}
+	}
+
+	/**
+	 * Class used to represent the {@link TimerTask} used by the internal auto
+	 * cleanup {@link Timer} to call {@link ExifTool#stopExifTool()} after a
+	 * specified interval of inactivity.
+	 * 
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 1.1
+	 */
+	private class AutoCleanupTimerTask extends TimerTask {
+		private ExifTool owner;
+
+		public AutoCleanupTimerTask(ExifTool owner)
+				throws IllegalArgumentException {
+			if (owner == null)
+				throw new IllegalArgumentException(
+						"owner cannot be null and must refer to the ExifTool instance creating this task.");
+
+			this.owner = owner;
+		}
+
+		@Override
+		public void run() {
+			log("\tAuto cleanup task running...");
+			owner.stopExifTool();
 		}
 	}
 }

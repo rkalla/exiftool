@@ -7,16 +7,15 @@ import com.thebuzzmedia.exiftool.ExifTool.Feature;
 import com.thebuzzmedia.exiftool.ExifTool.Tag;
 
 public class Benchmark {
-	public static final int ITERS = 10;
+	public static final int ITERS = 25;
 	public static final Tag[] TAGS = Tag.values();
 	public static final File[] IMAGES = new File("src/test/resources")
 			.listFiles();
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException {
-		System.setProperty("imgscalr.ext.exiftool.path",
-				"D:\\Tools\\exiftool.exe");
-		System.setProperty("imgscalr.ext.exiftool.debug", "false");
+		System.setProperty("exiftool.path", "D:\\Tools\\exiftool.exe");
+		System.setProperty("exiftool.debug", "false");
 
 		System.out.println("Benchmark [tags=" + TAGS.length + ", images="
 				+ IMAGES.length + ", iterations=" + ITERS + "]");
@@ -48,9 +47,6 @@ public class Benchmark {
 
 		for (int i = 0; i < ITERS; i++) {
 			elapsedTimeSO += run(toolSO, IMAGES);
-			
-			// TODO: TESTING
-			toolSO.stopExifTool();
 		}
 
 		System.out.println("\t\tElapsed Time: " + elapsedTimeSO + " ms ("
@@ -58,7 +54,7 @@ public class Benchmark {
 				+ ((float) elapsedTime / (float) elapsedTimeSO) + "x faster)");
 
 		// Shut down the running exiftool proc.
-		toolSO.stopExifTool();
+		toolSO.close();
 	}
 
 	private static long run(ExifTool tool, File[] images)

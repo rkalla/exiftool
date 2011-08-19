@@ -16,20 +16,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
-/*
- * TODO:
- * 
- * 1. Need to normalize checking feature support in ext ExifTool and querying support
- * into 1 or 2 well defined functions that this class AND external classes can
- * make use of to check (e.g. imgscalr).
- * 
- * 2. Need to figure out what role cleanup process plays in all of this and how
- * it is run/executed.
- * 
- * 3. Need to figure out better names for isRunning and close() methods to make
- * them more intuitive to use.
- */
-
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
  * Perl-based <a
@@ -52,8 +38,8 @@ import java.util.regex.Pattern;
  * communicate with ExifTool is as simple as creating an instance (
  * <code>ExifTool tool = new ExifTool()</code>) and then making calls to
  * {@link #getImageMeta(File, Tag...)} or
- * {@link #getImageMeta(File, OutputFormat, Tag...)} with a list of {@link Tag}s
- * you want to pull values for from the given image.
+ * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag}s you
+ * want to pull values for from the given image.
  * <p/>
  * In this default mode, calls to <code>getImageMeta</code> will automatically
  * start an external ExifTool process to handle the request. After ExifTool has
@@ -68,8 +54,8 @@ import java.util.regex.Pattern;
  * While each {@link Tag} provides a hint at which format the resulting value
  * for that tag is returned as from ExifTool (see {@link Tag#getType()}), that
  * only applies to values returned with an output format of
- * {@link OutputFormat#NUMERIC} and it is ultimately up to the caller to decide
- * how best to parse or convert the returned values.
+ * {@link Format#NUMERIC} and it is ultimately up to the caller to decide how
+ * best to parse or convert the returned values.
  * <p/>
  * The {@link Tag} Enum provides the {@link Tag#parseValue(Tag, String)}
  * convenience method for parsing given <code>String</code> values according to
@@ -100,13 +86,13 @@ import java.util.regex.Pattern;
  * the background to service all future calls to the class.
  * <p/>
  * <strong>WARNING</strong>: When {@link Feature#STAY_OPEN} mode is used, you
- * must remember to call {@link #stopExifTool()} when you are done using the
- * class (or do not need it for a while and want to temporarily free up native
- * resources). Calling {@link #stopExifTool()} gives this class a chance to shut
- * down the external daemon ExifTool process and cleanup the read/write streams
- * used to communicate with it. Forgetting to call {@link #stopExifTool()} will
- * result in leaking both internal VM resources (streams) as well as external
- * host OS processes. Calling {@link #stopExifTool()} on an instance not using
+ * must remember to call {@link #close()} when you are done using the class (or
+ * do not need it for a while and want to temporarily free up native resources).
+ * Calling {@link #close()} gives this class a chance to shut down the external
+ * daemon ExifTool process and cleanup the read/write streams used to
+ * communicate with it. Forgetting to call {@link #close()} will result in
+ * leaking both internal VM resources (streams) as well as external host OS
+ * processes. Calling {@link #close()} on an instance not using
  * {@link Feature#STAY_OPEN} support does nothing (as the underlying resources
  * are cleaned up automatically after each call).
  * <p/>
@@ -120,25 +106,23 @@ import java.util.regex.Pattern;
  * upgrade the native ExifTool upgrade to the version required or simply avoid
  * using that feature to work around the exception.
  * <h3>Reusing a "closed" ExifTool Instance</h3>
- * As mentioned in the previous section, you must call {@link #stopExifTool()}
- * when done with an instance of this class only when using ExifTool in daemon
- * mode. While this does close down the native ExifTool process and the streams
- * used to communicate with it inside this class, it doesn't invalidate the
- * class.
+ * As mentioned in the previous section, you must call {@link #close()} when
+ * done with an instance of this class only when using ExifTool in daemon mode.
+ * While this does close down the native ExifTool process and the streams used
+ * to communicate with it inside this class, it doesn't invalidate the class.
  * <p/>
  * The next call to <code>getImageMeta</code> will simply re-create the host
  * daemon process as well as open up streams to the new process. So you can
  * always re-use an instance of this class even if you have told it to go
- * dormant and shut down its related host process via {@link #stopExifTool()}.
+ * dormant and shut down its related host process via {@link #close()}.
  * <p/>
  * This can be handy behavior to be aware of when writing scheduled processing
  * jobs that may wake up every hour and process thousands of pictures then go
  * back to sleep. In order for the process to execute as fast as possible, you
  * would want to use ExifTool in daemon mode (pass {@link Feature#STAY_OPEN} to
- * the constructor of this class) and when done, instead of
- * {@link #stopExifTool()}-ing the instance of this class and throwing it out,
- * you can keep the reference around and re-use it again when the job executes
- * again an hour later.
+ * the constructor of this class) and when done, instead of {@link #close()}-ing
+ * the instance of this class and throwing it out, you can keep the reference
+ * around and re-use it again when the job executes again an hour later.
  * <h3>Performance</h3>
  * Extra care is taken to ensure minimal object creation or unnecessary CPU
  * overhead while communicating with the external process.
@@ -194,10 +178,9 @@ import java.util.regex.Pattern;
 public class ExifTool {
 	/**
 	 * Flag used to indicate if debugging output has been enabled by setting the
-	 * "<code>imgscalr.ext.exiftool.debug</code>" system property to
-	 * <code>true</code>. This value will be <code>false</code> if the "
-	 * <code>imgscalr.ext.exiftool.debug</code>" system property is undefined or
-	 * set to <code>false</code>.
+	 * "<code>exiftool.debug</code>" system property to <code>true</code>. This
+	 * value will be <code>false</code> if the " <code>exiftool.debug</code>"
+	 * system property is undefined or set to <code>false</code>.
 	 * <p/>
 	 * This system property can be set on startup with:<br/>
 	 * <code>
@@ -220,8 +203,8 @@ public class ExifTool {
 
 	/**
 	 * The absolute path to the ExifTool executable on the host system running
-	 * this class as defined by the "<code>imgscalr.ext.exiftool.path</code>"
-	 * system property.
+	 * this class as defined by the "<code>exiftool.path</code>" system
+	 * property.
 	 * <p/>
 	 * If ExifTool is on your system path and running the command "exiftool"
 	 * successfully executes it, leaving this value unchanged will work fine on
@@ -231,13 +214,13 @@ public class ExifTool {
 	 * <p/>
 	 * This system property can be set on startup with:<br/>
 	 * <code>
-	 * -Dimgscalr.ext.exiftool.path=/path/to/exiftool
+	 * -Dexiftool.path=/path/to/exiftool
 	 * </code> or by calling {@link System#setProperty(String, String)} before
 	 * this class is loaded.
 	 * <p/>
 	 * On Windows be sure to double-escape the path to the tool, for example:
 	 * <code>
-	 * -Dimgscalr.ext.exiftool.path=C:\\Tools\\exiftool.exe
+	 * -Dexiftool.path=C:\\Tools\\exiftool.exe
 	 * </code>
 	 * <p/>
 	 * Default value is "<code>exiftool</code>".
@@ -248,7 +231,7 @@ public class ExifTool {
 	 * during runtime.
 	 */
 	public static final String EXIF_TOOL_PATH = System.getProperty(
-			"imgscalr.ext.exiftool.path", "exiftool");
+			"exiftool.path", "exiftool");
 
 	/**
 	 * Interval (in milliseconds) of inactivity before the cleanup thread wakes
@@ -273,7 +256,7 @@ public class ExifTool {
 	 * <p/>
 	 * Setting this value to 0 disables the automatic cleanup thread completely
 	 * and the caller will need to manually cleanup the external ExifTool
-	 * process and read/write streams by calling {@link #stopExifTool()}.
+	 * process and read/write streams by calling {@link #close()}.
 	 * <p/>
 	 * Default value is <code>600,000</code> (10 minutes).
 	 */
@@ -333,33 +316,125 @@ public class ExifTool {
 		VERIFY_FEATURE_ARGS.add("-ver");
 	}
 
+	/**
+	 * Used to determine if the given {@link Feature} is supported by the
+	 * underlying native install of ExifTool pointed at by
+	 * {@link #EXIF_TOOL_PATH}.
+	 * <p/>
+	 * If support for the given feature has not been checked for yet, this
+	 * method will automatically invoke {@link #checkFeatureSupport(Feature...)}
+	 * in order to call out to ExifTool and ensure the requested feature is
+	 * supported.
+	 * <p/>
+	 * The external call to ExifTool to confirm feature support is only ever
+	 * done once per JVM session and stored in a <code>static final</code>
+	 * {@link Map} that all instances of this class share.
+	 * 
+	 * @param feature
+	 *            The feature to check support for in the underlying ExifTool
+	 *            install.
+	 * 
+	 * @return <code>true</code> if support for the given {@link Feature} was
+	 *         confirmed to work with the currently installed ExifTool or
+	 *         <code>false</code> if it is not supported.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if <code>feature</code> is <code>null</code>.
+	 * @throws RuntimeException
+	 *             if any exception occurs while attempting to start the
+	 *             external ExifTool process to verify feature support.
+	 */
 	public static boolean isFeatureSupported(Feature feature)
 			throws IllegalArgumentException, RuntimeException {
 		if (feature == null)
 			throw new IllegalArgumentException("feature cannot be null");
 
-		log("\tChecking support for feature: %s...", feature);
-
 		Boolean supported = FEATURE_SUPPORT_MAP.get(feature);
 
 		/*
-		 * Check if the given feature has not been confirmed to be supported or
-		 * unsupported yet (not in our support map).
-		 * 
-		 * If the feature is not in our map, then it hasn't been checked for
-		 * support yet, otherwise there is a true/false status for it in the map
-		 * already indicating if it is supported or not.
+		 * If there is no Boolean flag for the feature, support for it hasn't
+		 * been checked yet with the native ExifTool install, so we need to do
+		 * that.
 		 */
 		if (supported == null) {
+			log("\tSupport for feature %s has not been checked yet, checking...");
+			checkFeatureSupport(feature);
+
+			// Re-query for the supported state
+			supported = FEATURE_SUPPORT_MAP.get(feature);
+		}
+
+		return supported;
+	}
+
+	/**
+	 * Helper method used to ensure a message is loggable before it is logged
+	 * and then pre-pend a universal prefix to all log messages generated by
+	 * this library to make the log entries easy to parse visually or
+	 * programmatically.
+	 * <p/>
+	 * If a message cannot be logged (logging is disabled) then this method
+	 * returns immediately.
+	 * <p/>
+	 * <strong>NOTE</strong>: Because Java will auto-box primitive arguments
+	 * into Objects when building out the <code>params</code> array, care should
+	 * be taken not to call this method with primitive values unless
+	 * {@link #DEBUG} is <code>true</code>; otherwise the VM will be spending
+	 * time performing unnecessary auto-boxing calculations.
+	 * 
+	 * @param message
+	 *            The log message in <a href=
+	 *            "http://download.oracle.com/javase/6/docs/api/java/util/Formatter.html#syntax"
+	 *            >format string syntax</a> that will be logged.
+	 * @param params
+	 *            The parameters that will be swapped into all the place holders
+	 *            in the original messages before being logged.
+	 * 
+	 * @see #LOG_PREFIX
+	 */
+	protected static void log(String message, Object... params) {
+		if (DEBUG)
+			System.out.printf(LOG_PREFIX + message + '\n', params);
+	}
+
+	/**
+	 * Used to verify the version of ExifTool installed is a high enough version
+	 * to support the given features.
+	 * <p/>
+	 * This method runs the command "<code>exiftool -ver</code>" to get the
+	 * version of the installed ExifTool and then compares that version to the
+	 * least required version specified by the given features (see
+	 * {@link Feature#getVersion()}).
+	 * 
+	 * @param features
+	 *            The features whose required versions will be checked against
+	 *            the installed ExifTool for support.
+	 * 
+	 * @throws RuntimeException
+	 *             if any exception occurs communicating with the external
+	 *             ExifTool process spun up in order to check its version.
+	 */
+	protected static void checkFeatureSupport(Feature... features)
+			throws RuntimeException {
+		// Ensure there is work to do.
+		if (features == null || features.length == 0)
+			return;
+
+		log("\tChecking %d feature(s) for support in the external ExifTool install...",
+				features.length);
+
+		for (int i = 0; i < features.length; i++) {
+			String ver = null;
+			Boolean supported;
+			Feature feature = features[i];
+
 			log("\t\tChecking feature %s for support, requires ExifTool version %s or higher...",
 					feature, feature.version);
-
-			String ver = null;
+			
+			// Execute 'exiftool -ver'
+			IOStream streams = startExifToolProcess(VERIFY_FEATURE_ARGS);
 
 			try {
-				// Execute 'exiftool -ver'
-				IOStream streams = startExifToolProcess(VERIFY_FEATURE_ARGS);
-
 				// Read the single-line reply (version number)
 				ver = streams.reader.readLine();
 
@@ -399,11 +474,86 @@ public class ExifTool {
 
 			// Update feature support map
 			FEATURE_SUPPORT_MAP.put(feature, supported);
-		} else
-			log("\t\tCheck skipped, support was checked already. [%s support=%s]",
-					feature, supported);
+		}
+	}
 
-		return supported;
+	protected static IOStream startExifToolProcess(List<String> args)
+			throws RuntimeException {
+		Process proc = null;
+		IOStream streams = null;
+
+		log("\tAttempting to start external ExifTool process using args: %s",
+				args);
+
+		try {
+			proc = new ProcessBuilder(args).start();
+			log("\t\tSuccessful");
+		} catch (Exception e) {
+			String message = "Unable to start external ExifTool process using the execution arguments: "
+					+ args
+					+ ". Ensure ExifTool is installed correctly and runs using the command path '"
+					+ EXIF_TOOL_PATH
+					+ "' as specified by the 'exiftool.path' system property.";
+
+			log(message);
+			throw new RuntimeException(message, e);
+		}
+
+		log("\tSetting up Read/Write streams to the external ExifTool process...");
+
+		// Setup read/write streams to the new process.
+		streams = new IOStream(new BufferedReader(new InputStreamReader(
+				proc.getInputStream())), new OutputStreamWriter(
+				proc.getOutputStream()));
+
+		log("\t\tSuccessful, returning streams to caller.");
+		return streams;
+	}
+
+	/**
+	 * Simple class used to house the read/write streams used to communicate
+	 * with an external ExifTool process as well as the logic used to safely
+	 * close the streams when no longer needed.
+	 * <p/>
+	 * This class is just a convenient way to group and manage the read/write
+	 * streams as opposed to making them dangling member variables off of
+	 * ExifTool directly.
+	 * 
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 1.1
+	 */
+	private static class IOStream {
+		BufferedReader reader;
+		OutputStreamWriter writer;
+
+		public IOStream(BufferedReader reader, OutputStreamWriter writer) {
+			this.reader = reader;
+			this.writer = writer;
+		}
+
+		public void close() {
+			try {
+				log("\tClosing Read stream...");
+				reader.close();
+				log("\t\tSuccessful");
+			} catch (Exception e) {
+				// no-op, just try to close it.
+			}
+
+			try {
+				log("\tClosing Write stream...");
+				writer.close();
+				log("\t\tSuccessful");
+			} catch (Exception e) {
+				// no-op, just try to close it.
+			}
+
+			// Null the stream references.
+			reader = null;
+			writer = null;
+
+			log("\tRead/Write streams successfully closed.");
+		}
 	}
 
 	/**
@@ -457,22 +607,21 @@ public class ExifTool {
 	 * <p/>
 	 * While the {@link Tag}s defined on this class do provide a hint at the
 	 * type of the result (see {@link Tag#getType()}), that hint only applies
-	 * when the {@link OutputFormat#NUMERIC} form of the value is returned.
+	 * when the {@link Format#NUMERIC} form of the value is returned.
 	 * <p/>
 	 * If the caller finds the human-readable format easier to process,
-	 * {@link OutputFormat#HUMAN_READABLE} can be specified when calling
-	 * {@link ExifTool#getImageMeta(File, OutputFormat, Tag...)} and the
-	 * returned {@link String} values processed manually by the caller.
+	 * {@link Format#HUMAN_READABLE} can be specified when calling
+	 * {@link ExifTool#getImageMeta(File, Format, Tag...)} and the returned
+	 * {@link String} values processed manually by the caller.
 	 * <p/>
 	 * In order to see the types of values that are returned when
-	 * {@link OutputFormat#HUMAN_READABLE} is used, you can check the
-	 * comprehensive <a
+	 * {@link Format#HUMAN_READABLE} is used, you can check the comprehensive <a
 	 * href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">
 	 * ExifTool Tag Guide</a>.
 	 * <p/>
 	 * This makes sense with some values like Aperture that in
-	 * {@link OutputFormat#NUMERIC} format end up returning as 14-decimal-place,
-	 * high precision values that are near the intended value (e.g.
+	 * {@link Format#NUMERIC} format end up returning as 14-decimal-place, high
+	 * precision values that are near the intended value (e.g.
 	 * "2.79999992203711" instead of just returning "2.8"). On the other hand,
 	 * other values (like Orientation) are easier to parse when their numeric
 	 * value (1-8) is returned instead of a much longer friendly name (e.g.
@@ -481,7 +630,7 @@ public class ExifTool {
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
 	 * @since 1.1
 	 */
-	public enum OutputFormat {
+	public enum Format {
 		NUMERIC, HUMAN_READABLE;
 	}
 
@@ -491,8 +640,8 @@ public class ExifTool {
 	 * ExifTool.
 	 * <p/>
 	 * Each tag defined also includes a type hint for the parsed value
-	 * associated with it when the default {@link OutputFormat#NUMERIC} value
-	 * format is used.
+	 * associated with it when the default {@link Format#NUMERIC} value format
+	 * is used.
 	 * <p/>
 	 * All replies from ExifTool are parsed as {@link String}s and using the
 	 * type hint from each {@link Tag} can easily be converted to the correct
@@ -501,7 +650,7 @@ public class ExifTool {
 	 * <p/>
 	 * This class does not make an attempt at converting the value automatically
 	 * in case the caller decides they would prefer tag values returned in
-	 * {@link OutputFormat#HUMAN_READABLE} format and to avoid any compatibility
+	 * {@link Format#HUMAN_READABLE} format and to avoid any compatibility
 	 * issues with future versions of ExifTool if a tag's return value is
 	 * changed. This approach to leaving returned tag values as strings until
 	 * the caller decides they want to parse them is a safer and more robust
@@ -761,17 +910,29 @@ public class ExifTool {
 		}
 	}
 
-	public boolean isExifToolRunning() {
-		return (streams != null);
-	}
-
-	public void stopExifTool() {
+	/**
+	 * Used to shutdown the external ExifTool process and close the read/write
+	 * streams used to communicate with it when {@link Feature#STAY_OPEN} is
+	 * enabled.
+	 * <p/>
+	 * <strong>NOTE</strong>: Calling this method does not preclude this
+	 * instance of {@link ExifTool} from being re-used, it merely disposes of
+	 * the native and internal resources until the next call to
+	 * <code>getImageMeta</code> causes them to be re-instantiated.
+	 * <p/>
+	 * The cleanup thread will automatically call this after an interval of
+	 * inactivity defined by {@link #PROCESS_CLEANUP_DELAY}.
+	 * <p/>
+	 * Calling this method on an instance of this class without
+	 * {@link Feature#STAY_OPEN} support enabled has no effect.
+	 */
+	public void close() {
 		/*
 		 * no-op if the underlying process and streams have already been closed
 		 * OR if stayOpen was never used in the first place in which case
 		 * nothing is open right now anyway.
 		 */
-		if (!isExifToolRunning())
+		if (streams == null)
 			return;
 
 		/*
@@ -802,6 +963,44 @@ public class ExifTool {
 		log("\tExifTool daemon process successfully terminated.");
 	}
 
+	/**
+	 * For {@link ExifTool} instances with {@link Feature#STAY_OPEN} support
+	 * enabled, this method is used to determine if there is currently a running
+	 * ExifTool process associated with this class.
+	 * <p/>
+	 * Any dependent processes and streams can be shutdown using
+	 * {@link #close()} and this class will automatically re-create them on the
+	 * next call to <code>getImageMeta</code> if necessary.
+	 * 
+	 * @return <code>true</code> if there is an external ExifTool process in
+	 *         daemon mode associated with this class utilizing the
+	 *         {@link Feature#STAY_OPEN} feature, otherwise returns
+	 *         <code>false</code>.
+	 */
+	public boolean isRunning() {
+		return (streams != null);
+	}
+
+	/**
+	 * Used to determine if the given {@link Feature} has been enabled for this
+	 * particular instance of {@link ExifTool}.
+	 * <p/>
+	 * This method is different from {@link #isFeatureSupported(Feature)}, which
+	 * checks if the given feature is supported by the underlying ExifTool
+	 * install where as this method tells the caller if the given feature has
+	 * been enabled for use in this particular instance.
+	 * 
+	 * @param feature
+	 *            The feature to check if it has been enabled for us or not on
+	 *            this instance.
+	 * 
+	 * @return <code>true</code> if the given {@link Feature} is currently
+	 *         enabled on this instance of {@link ExifTool}, otherwise returns
+	 *         <code>false</code>.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if <code>feature</code> is <code>null</code>.
+	 */
 	public boolean isFeatureEnabled(Feature feature)
 			throws IllegalArgumentException {
 		if (feature == null)
@@ -812,12 +1011,11 @@ public class ExifTool {
 
 	public Map<Tag, String> getImageMeta(File image, Tag... tags)
 			throws IllegalArgumentException, SecurityException, IOException {
-		return getImageMeta(image, OutputFormat.NUMERIC, tags);
+		return getImageMeta(image, Format.NUMERIC, tags);
 	}
 
-	public Map<Tag, String> getImageMeta(File image, OutputFormat format,
-			Tag... tags) throws IllegalArgumentException, SecurityException,
-			IOException {
+	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags)
+			throws IllegalArgumentException, SecurityException, IOException {
 		if (image == null)
 			throw new IllegalArgumentException(
 					"image cannot be null and must be a valid stream of image data.");
@@ -845,6 +1043,8 @@ public class ExifTool {
 			log("Querying %d tags from image: %s", tags.length,
 					image.getAbsolutePath());
 
+		long exifToolCallElapsedTime = 0;
+
 		/*
 		 * Using ExifTool in daemon mode (-stay_open True) executes different
 		 * code paths below. So establish the flag for this once and it is
@@ -852,14 +1052,13 @@ public class ExifTool {
 		 * to branch to.
 		 */
 		boolean stayOpen = featureSet.contains(Feature.STAY_OPEN);
-		long exifToolElapsedTime = -1;
 
 		// Clear process args
 		args.clear();
 
 		if (stayOpen) {
 			log("\tUsing ExifTool in daemon mode (-stay_open True)...");
-			
+
 			// Always reset the cleanup task.
 			resetCleanupTask();
 
@@ -883,7 +1082,7 @@ public class ExifTool {
 
 			log("\tStreaming arguments to ExifTool process...");
 
-			if (format == OutputFormat.NUMERIC)
+			if (format == Format.NUMERIC)
 				streams.writer.write("-n\n"); // numeric output
 
 			streams.writer.write("-S\n"); // compact output
@@ -898,7 +1097,9 @@ public class ExifTool {
 			streams.writer.write("\n");
 
 			log("\tExecuting ExifTool...");
-			exifToolElapsedTime = System.currentTimeMillis();
+
+			// Begin tracking the duration ExifTool takes to respond.
+			exifToolCallElapsedTime = System.currentTimeMillis();
 
 			// Run ExifTool on our file with all the given arguments.
 			streams.writer.write("-execute\n");
@@ -912,7 +1113,7 @@ public class ExifTool {
 			 */
 			args.add(EXIF_TOOL_PATH);
 
-			if (format == OutputFormat.NUMERIC)
+			if (format == Format.NUMERIC)
 				args.add("-n"); // numeric output
 
 			args.add("-S"); // compact output
@@ -924,7 +1125,9 @@ public class ExifTool {
 
 			// Run the ExifTool with our args.
 			streams = startExifToolProcess(args);
-			exifToolElapsedTime = System.currentTimeMillis();
+
+			// Begin tracking the duration ExifTool takes to respond.
+			exifToolCallElapsedTime = System.currentTimeMillis();
 		}
 
 		log("\tReading response back from ExifTool...");
@@ -962,8 +1165,9 @@ public class ExifTool {
 				break;
 		}
 
+		// Print out how long the call to external ExifTool process took.
 		log("\tFinished reading ExifTool response in %d ms.",
-				(System.currentTimeMillis() - exifToolElapsedTime));
+				(System.currentTimeMillis() - exifToolCallElapsedTime));
 
 		/*
 		 * If we are not using a persistent ExifTool process, then after running
@@ -983,162 +1187,6 @@ public class ExifTool {
 	}
 
 	/**
-	 * Helper method used to ensure a message is loggable before it is logged
-	 * and then pre-pend a universal prefix to all log messages generated by
-	 * this library to make the log entries easy to parse visually or
-	 * programmatically.
-	 * <p/>
-	 * If a message cannot be logged (logging is disabled) then this method
-	 * returns immediately.
-	 * <p/>
-	 * <strong>NOTE</strong>: Because Java will auto-box primitive arguments
-	 * into Objects when building out the <code>params</code> array, care should
-	 * be taken not to call this method with primitive values unless
-	 * {@link #DEBUG} is <code>true</code>; otherwise the VM will be spending
-	 * time performing unnecessary auto-boxing calculations.
-	 * 
-	 * @param message
-	 *            The log message in <a href=
-	 *            "http://download.oracle.com/javase/6/docs/api/java/util/Formatter.html#syntax"
-	 *            >format string syntax</a> that will be logged.
-	 * @param params
-	 *            The parameters that will be swapped into all the place holders
-	 *            in the original messages before being logged.
-	 * 
-	 * @see #LOG_PREFIX
-	 */
-	protected static void log(String message, Object... params) {
-		if (DEBUG)
-			System.out.printf(LOG_PREFIX + message + '\n', params);
-	}
-
-	/**
-	 * Used to verify the version of ExifTool installed is a high enough version
-	 * to support the given features.
-	 * <p/>
-	 * This method runs the command "<code>exiftool -ver</code>" to get the
-	 * version of the installed ExifTool and then compares that version to the
-	 * least required version specified by the given features.
-	 * 
-	 * @param features
-	 *            The features whose required versions will be checked against
-	 *            the installed ExifTool for support.
-	 * 
-	 * @throws RuntimeException
-	 *             if any exception occurs communicating with the external
-	 *             ExifTool process spun up in order to check its version.
-	 */
-	protected static void checkFeatureSupport(Feature... features)
-			throws RuntimeException {
-		// Ensure there is work to do.
-		if (features == null || features.length == 0)
-			return;
-
-		log("\tChecking %d feature(s) for support in the external ExifTool install...",
-				features.length);
-
-		for (int i = 0; i < features.length; i++) {
-			Feature f = features[i];
-
-			/*
-			 * Check if the given feature has not been confirmed to be supported
-			 * or unsupported yet (not in our support map).
-			 * 
-			 * If the feature is not in our map, then it hasn't been checked for
-			 * support yet, otherwise there is a true/false status for it in the
-			 * map already indicating if it is supported or not.
-			 */
-			if (FEATURE_SUPPORT_MAP.containsKey(f)) {
-				log("\t\tFeature %s was already confirmed to be supported by local ExifTool install, skipping re-check...",
-						f);
-			} else {
-				log("\t\tChecking feature %s for support, requires ExifTool version %s or higher...",
-						f, f.version);
-
-				String ver = null;
-
-				try {
-					// Execute 'exiftool -ver'
-					IOStream streams = startExifToolProcess(VERIFY_FEATURE_ARGS);
-
-					// Read the single-line reply (version number)
-					ver = streams.reader.readLine();
-
-					// Close r/w streams to exited process.
-					streams.close();
-				} catch (Exception e) {
-					/*
-					 * no-op, while it is important to know that we COULD launch
-					 * the ExifTool process (i.e. startExifToolProcess call
-					 * worked) but couldn't communicate with it, the context
-					 * with which this method is called is from the constructor
-					 * of this class which would just wrap this exception and
-					 * discard it anyway if it failed.
-					 * 
-					 * the caller will realize there is something wrong with the
-					 * ExifTool process communication as soon as they make their
-					 * first call to getImageMeta in which case whatever was
-					 * causing the exception here will popup there and then need
-					 * to be corrected.
-					 * 
-					 * This is an edge case that should only happen in really
-					 * rare scenarios, so making this method easier to use is
-					 * more important that robust IOException handling right
-					 * here.
-					 */
-				}
-
-				Boolean supported = Boolean.FALSE;
-
-				// Ensure the version found is >= the required version.
-				if (ver != null && ver.compareTo(f.version) >= 0) {
-					supported = Boolean.TRUE;
-					log("\t\tFound ExifTool version %s, feature %s is SUPPORTED.",
-							ver, f);
-				} else
-					log("\t\tFound ExifTool version %s, feature %s is NOT SUPPORTED.",
-							ver, f);
-
-				// Update feature support map
-				FEATURE_SUPPORT_MAP.put(f, supported);
-			}
-		}
-	}
-
-	protected static IOStream startExifToolProcess(List<String> args)
-			throws RuntimeException {
-		Process proc = null;
-		IOStream streams = null;
-
-		log("\tAttempting to start external ExifTool process using args: %s",
-				args);
-
-		try {
-			proc = new ProcessBuilder(args).start();
-			log("\t\tSuccessful");
-		} catch (Exception e) {
-			String message = "Unable to start external ExifTool process using the execution arguments: "
-					+ args
-					+ ". Ensure ExifTool is installed correctly and runs using the path ["
-					+ EXIF_TOOL_PATH
-					+ "] specified by the 'imgscalr.ext.exiftool.path' system property.";
-
-			log(message);
-			throw new RuntimeException(message, e);
-		}
-
-		log("\tSetting up Read/Write streams to the external ExifTool process...");
-
-		// Setup read/write streams to the new process.
-		streams = new IOStream(new BufferedReader(new InputStreamReader(
-				proc.getInputStream())), new OutputStreamWriter(
-				proc.getOutputStream()));
-
-		log("\t\tSuccessful, returning streams to caller.");
-		return streams;
-	}
-
-	/**
 	 * Helper method used to make canceling the current task and scheduling a
 	 * new one easier.
 	 * <p/>
@@ -1147,11 +1195,11 @@ public class ExifTool {
 	 */
 	private void resetCleanupTask() {
 		// no-op if the timer was never created.
-		if(cleanupTimer == null)
+		if (cleanupTimer == null)
 			return;
-		
+
 		log("\tResetting cleanup task...");
-		
+
 		// Cancel the current cleanup task if necessary.
 		if (currentCleanupTask != null)
 			currentCleanupTask.cancel();
@@ -1160,49 +1208,33 @@ public class ExifTool {
 		cleanupTimer.schedule(
 				(currentCleanupTask = new CleanupTimerTask(this)),
 				PROCESS_CLEANUP_DELAY, PROCESS_CLEANUP_DELAY);
-		
+
 		log("\t\tSuccessful");
 	}
 
 	/**
-	 * Simple class used to house the read/write streams used to communicate
-	 * with an external ExifTool process as well as the logic used to safely
-	 * close the streams when no longer needed.
+	 * Class used to represent the {@link TimerTask} used by the internal auto
+	 * cleanup {@link Timer} to call {@link ExifTool#close()} after a specified
+	 * interval of inactivity.
 	 * 
 	 * @author Riyad Kalla (software@thebuzzmedia.com)
 	 * @since 1.1
 	 */
-	private static class IOStream {
-		BufferedReader reader;
-		OutputStreamWriter writer;
+	private class CleanupTimerTask extends TimerTask {
+		private ExifTool owner;
 
-		public IOStream(BufferedReader reader, OutputStreamWriter writer) {
-			this.reader = reader;
-			this.writer = writer;
+		public CleanupTimerTask(ExifTool owner) throws IllegalArgumentException {
+			if (owner == null)
+				throw new IllegalArgumentException(
+						"owner cannot be null and must refer to the ExifTool instance creating this task.");
+
+			this.owner = owner;
 		}
 
-		public void close() {
-			try {
-				log("\tClosing Read stream...");
-				reader.close();
-				log("\t\tSuccessful");
-			} catch (Exception e) {
-				// no-op, just try to close it.
-			}
-
-			try {
-				log("\tClosing Write stream...");
-				writer.close();
-				log("\t\tSuccessful");
-			} catch (Exception e) {
-				// no-op, just try to close it.
-			}
-
-			// Null the stream references.
-			reader = null;
-			writer = null;
-
-			log("\tRead/Write streams successfully closed.");
+		@Override
+		public void run() {
+			log("\tAuto cleanup task running...");
+			owner.close();
 		}
 	}
 
@@ -1225,37 +1257,11 @@ public class ExifTool {
 							+ feature
 							+ "] requires version "
 							+ feature.version
-							+ " or higher of the native ExifTool program. The version of ExifTool referenced by the system property 'imgscalr.ext.exiftool.path' is not high enough. You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception.");
+							+ " or higher of the native ExifTool program. The version of ExifTool referenced by the system property 'exiftool.path' is not high enough. You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception.");
 		}
 
 		public Feature getFeature() {
 			return feature;
-		}
-	}
-
-	/**
-	 * Class used to represent the {@link TimerTask} used by the internal auto
-	 * cleanup {@link Timer} to call {@link ExifTool#stopExifTool()} after a
-	 * specified interval of inactivity.
-	 * 
-	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 1.1
-	 */
-	private class CleanupTimerTask extends TimerTask {
-		private ExifTool owner;
-
-		public CleanupTimerTask(ExifTool owner) throws IllegalArgumentException {
-			if (owner == null)
-				throw new IllegalArgumentException(
-						"owner cannot be null and must refer to the ExifTool instance creating this task.");
-
-			this.owner = owner;
-		}
-
-		@Override
-		public void run() {
-			log("\tAuto cleanup task running...");
-			owner.stopExifTool();
 		}
 	}
 }

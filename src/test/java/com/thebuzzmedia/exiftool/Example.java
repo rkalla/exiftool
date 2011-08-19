@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.thebuzzmedia.exiftool.ExifTool.Feature;
-import com.thebuzzmedia.exiftool.ExifTool.OutputFormat;
+import com.thebuzzmedia.exiftool.ExifTool.Format;
 import com.thebuzzmedia.exiftool.ExifTool.Tag;
 
 public class Example {
@@ -22,10 +22,10 @@ public class Example {
 
 		for (File f : IMAGES) {
 			System.out.println("\n[" + f.getName() + "]");
-			System.out.println(tool.getImageMeta(f, OutputFormat.HUMAN_READABLE,
+			System.out.println(tool.getImageMeta(f, Format.HUMAN_READABLE,
 					Tag.values()));
 		}
 
-		tool.stopExifTool();
+		tool.close();
 	}
 }

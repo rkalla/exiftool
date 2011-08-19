@@ -1,8 +1,5 @@
 ExifTool - Enhanced interface to Phil Harvey's ExifTool for Java.
-
-[ Related Project(s) ]
-imgscalr - Java Image-Scaling Library
-http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/
+https://github.com/thebuzzmedia/exiftool
 
 
 				=================================================
@@ -23,20 +20,127 @@ This library is released under the Apache 2 License. See LICENSE.
 
 Description
 -----------
+This project represents one of the most robust Java integrations with Phil
+Harvey's ExifTool available.
 
+The goal of this project was to provide such a tight, well designed and performant
+integration with ExifTool that any Java developer using the class would have no
+idea that they weren't simply calling into a standard Java library while still
+being able to leverage the unmatched robustness of the ExifTool project.
+
+All concepts of external process launching, management, communication, tag
+extraction, value conversion and resource cleanup are abstracted out by this 
+project and all handled automatically for the caller.
+
+Even when using ExifTool in "daemon mode" via the -stay_open True command line
+argument, this project hides all the details required to make that work, automatically
+re-using the daemon process as well as eventually cleaning it up automatically
+along with supporting resources after a defined interval of inactivity so as to
+avoid resource leaks.
+
+The set of EXIF tags supported out of the box is based on the EXIF tags supported
+by the most popular mobile devices (iPhone, Android, BlackBerry, etc.) as well
+as some of the most popular cameras on the market (Canon point and shoot as well
+as DSLR).
+
+And lastly, to ensure that integration with the external ExifTool project is as
+robust and seamless as possible, this class also offers extensive pre-condition
+checking and error reporting.
+
+For example, if you specify that you want to use Feature.STAY_OPEN support, this
+project will actually check the ExifTool executable for support for that feature
+before allowing the feature to be turned on and report the problem to you and
+potential fixes if available.
+
+Additionally, all external calls to the process are safely wrapped and reported
+with detailed exceptions if problems arise instead of just letting unknown
+exceptions bubble up from the depths to the caller.
+
+All the exceptions and exceptional scenarios are well-documented in the Javadoc
+along with extensive implementation details for anyone wanting to know more about
+the project.
 
 
 Example
 -------
 
 
+Performance
+-----------
+You can benchmark the performance of this ExifTool library on your machine by
+running the Benchmark class under the /test/java repository. 
+
+Here is an example output on my Core2 Duo 3.0Ghz E6850 w/ 12GB of Ram:
+
+Benchmark [tags=49, images=10, iterations=25]
+	250 ExifTool process calls, 12250 total operations.
+
+	[-stay_open False]
+		Elapsed Time: 97823 ms (97.823 secs)
+	[-stay_open True]
+		Elapsed Time: 4049 ms (4.049 secs - 24.159792x faster)
+
+You can see that utilizing the -stay_open functionality provided in ExifTool
+you can realize magnitudes times more performance.
+
+Also the bigger of a test you run (more iterations) the bigger the performance
+margin increases.
+
+
+History
+-------
+This ExifTool library was incubated within imgscalr as an extension library that
+I originally intended to be a simple way to pull the 'Orientation' EXIF flag out
+of images in order to service automatic orientation support in imgscalr. After 
+working on the integration layer for a few days I realized the potential for the
+class and the opportunity to provide the best Java integration with ExifTool
+available today.
+
+From there I branched the code into its own project (the one you are looking at)
+and continued to work on making the implementation as robust as possible.
+
+Once the project had been branched, many of the more advanced features like
+daemon mode support, automatic resource cleanup thread, most-popular-tags support,
+tag value parsing, etc. all became self evident additions to the class to make
+usage as easy and seamless as possible for Java developers.
+
+My goal was ALWAYS to provide a class so well designed and performant that any
+Java developer using it, wouldn't even realize they weren't using a Java library.
+
+
 Troubleshooting
 ---------------
-  
+Below are a few common scenarios you might run into and proposed workarounds for
+them.
+
+	* I keep getting UnsupportedFeatureException exceptions when running ExifTool
+	with Feature.STAY_OPEN support.
+	
+	This exception will only be raised when you attempt to use a Feature that
+	the underlying ExifTool doesn't support. This means you either need to upgrade
+	your install of ExifTool or skip using the feature.
+	
+	
+	* I downloaded the newest version of ExifTool, but I keep getting 
+	UnsupportedFeatureExceptions.
+	
+	What is probably happening is that your host system already had ExifTool
+	installed and the default EXIF_TOOL_PATH is simply running the command "exiftool"
+	which executes the one in the system path, not the newest version you may have
+	just downloaded.
+	
+	You can confirm this by typing 'which exiftool' to see which one is getting
+	launched. You can also point the ExifTool class at the correct version by
+	setting the "exiftool.path" system property to point at it, e.g.:
+	java -Dexiftool.path=/path/to/exiftool com.myco.MyApp
+
+
+	* 
 
 Reference
 ---------
 ExifTool by Phil Harvey - http://www.sno.phy.queensu.ca/~phil/exiftool/
+imgscalr - http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/
 
 
 Contact

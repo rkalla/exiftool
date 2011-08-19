@@ -32,6 +32,10 @@ import java.util.regex.Pattern;
  * developer can treat ExifTool as if it were written in Java, garnering all of
  * the benefits with none of the added headache of managing an external native
  * process from Java.
+ * <p/>
+ * Phil Harvey's ExifTool is written in Perl and runs on all major platforms
+ * (including Windows) so no portability issues are introduced into your
+ * application by utilizing this class.
  * <h3>Usage</h3>
  * Assuming ExifTool is installed on the host system correctly and either in the
  * system path or pointed to by {@link #EXIF_TOOL_PATH}, using this class to
@@ -85,17 +89,6 @@ import java.util.regex.Pattern;
  * This class will manage a single ExifTool process running in daemon mode in
  * the background to service all future calls to the class.
  * <p/>
- * <strong>WARNING</strong>: When {@link Feature#STAY_OPEN} mode is used, you
- * must remember to call {@link #close()} when you are done using the class (or
- * do not need it for a while and want to temporarily free up native resources).
- * Calling {@link #close()} gives this class a chance to shut down the external
- * daemon ExifTool process and cleanup the read/write streams used to
- * communicate with it. Forgetting to call {@link #close()} will result in
- * leaking both internal VM resources (streams) as well as external host OS
- * processes. Calling {@link #close()} on an instance not using
- * {@link Feature#STAY_OPEN} support does nothing (as the underlying resources
- * are cleaned up automatically after each call).
- * <p/>
  * Because this feature requires ExifTool 8.36 or later, this class will
  * actually verify support for the feature in the version of ExifTool pointed at
  * by {@link #EXIF_TOOL_PATH} before successfully instantiating the class and
@@ -105,16 +98,38 @@ import java.util.regex.Pattern;
  * In the event of an {@link UnsupportedFeatureException}, the caller can either
  * upgrade the native ExifTool upgrade to the version required or simply avoid
  * using that feature to work around the exception.
- * <h3>Reusing a "closed" ExifTool Instance</h3>
- * As mentioned in the previous section, you must call {@link #close()} when
- * done with an instance of this class only when using ExifTool in daemon mode.
- * While this does close down the native ExifTool process and the streams used
- * to communicate with it inside this class, it doesn't invalidate the class.
+ * <h3>Automatic Resource Cleanup</h3>
+ * When {@link Feature#STAY_OPEN} mode is used, there is the potential for
+ * leaking both host OS processes (native 'exiftool' processes) as well as the
+ * read/write streams used to communicate with it unless {@link #close()} is
+ * called to clean them up when done. <strong>Fortunately</strong>, this class
+ * provides an automatic cleanup mechanism that runs, by default, after 10mins
+ * of inactivity to clean up those stray resources.
  * <p/>
- * The next call to <code>getImageMeta</code> will simply re-create the host
- * daemon process as well as open up streams to the new process. So you can
- * always re-use an instance of this class even if you have told it to go
- * dormant and shut down its related host process via {@link #close()}.
+ * The inactivity period can be controlled by modifying the
+ * {@link #PROCESS_CLEANUP_DELAY} system variable. A value of <code>0</code> or
+ * less disabled the automatic cleanup process and requires you to cleanup
+ * ExifTool instances on your own by calling {@link #close()} manually.
+ * <p/>
+ * Any class activity by way of calls to <code>getImageMeta</code> will always
+ * reset the inactivity timer, so in a busy system the cleanup thread could
+ * potentially never run, leaving the original host ExifTool process running
+ * forever (which is fine).
+ * <p/>
+ * This design was chosen to help make using the class and not introducing
+ * memory leaks and bugs into your code easier as well as making very inactive
+ * instances of this class light weight while not in-use by cleaning up after
+ * themselves.
+ * <p/>
+ * The only overhead incurred when opening the process back up is a 250-500ms
+ * lag while launching the VM interpreter again on the first call (depending on
+ * host machine speed and load).
+ * <h3>Reusing a "closed" ExifTool Instance</h3>
+ * If you or the cleanup thread have called {@link #close()} on an instance of
+ * this class, cleaning up the host process and read/write streams, the instance
+ * of this class can still be safely used. Any followup calls to
+ * <code>getImageMeta</code> will simply re-instantiate all the required
+ * resources necessary to service the call (honoring any {@link Feature}s set).
  * <p/>
  * This can be handy behavior to be aware of when writing scheduled processing
  * jobs that may wake up every hour and process thousands of pictures then go
@@ -322,9 +337,8 @@ public class ExifTool {
 	 * {@link #EXIF_TOOL_PATH}.
 	 * <p/>
 	 * If support for the given feature has not been checked for yet, this
-	 * method will automatically invoke {@link #checkFeatureSupport(Feature...)}
-	 * in order to call out to ExifTool and ensure the requested feature is
-	 * supported.
+	 * method will automatically call out to ExifTool and ensure the requested
+	 * feature is supported in the current local install.
 	 * <p/>
 	 * The external call to ExifTool to confirm feature support is only ever
 	 * done once per JVM session and stored in a <code>static final</code>
@@ -430,7 +444,7 @@ public class ExifTool {
 
 			log("\t\tChecking feature %s for support, requires ExifTool version %s or higher...",
 					feature, feature.version);
-			
+
 			// Execute 'exiftool -ver'
 			IOStream streams = startExifToolProcess(VERIFY_FEATURE_ARGS);
 

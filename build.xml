@@ -51,7 +51,7 @@ limitations under the License.
 		<javadoc 
 			destdir="${dir.javadoc}" author="true" windowtitle="ExifTool v${version.major}.${version.minor} - Enhanced ExifTool Interface for Java" 
 			footer="Copyright 2011 The Buzz Media, LLC" link="http://download.oracle.com/javase/1.5.0/docs/api/" 
-			linksource="true" package="true" source="1.5" use="true">
+			linksource="true" public="true" source="1.5" use="true">
 			<sourcepath path="${dir.src}" />
 		</javadoc>
 	</target>

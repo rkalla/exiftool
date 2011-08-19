@@ -14,8 +14,8 @@ public class Benchmark {
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException {
-		System.setProperty("exiftool.path", "D:\\Tools\\exiftool.exe");
-		System.setProperty("exiftool.debug", "false");
+//		System.setProperty("exiftool.path", "D:\\Tools\\exiftool.exe");
+//		System.setProperty("exiftool.debug", "false");
 
 		System.out.println("Benchmark [tags=" + TAGS.length + ", images="
 				+ IMAGES.length + ", iterations=" + ITERS + "]");

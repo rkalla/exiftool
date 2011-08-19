@@ -14,9 +14,9 @@ public class Example {
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException {
-		System.setProperty("imgscalr.ext.exiftool.path",
-				"D:\\Tools\\exiftool.exe");
-		System.setProperty("imgscalr.ext.exiftool.debug", "false");
+//		System.setProperty("imgscalr.ext.exiftool.path",
+//				"D:\\Tools\\exiftool.exe");
+//		System.setProperty("imgscalr.ext.exiftool.debug", "false");
 
 		ExifTool tool = new ExifTool(Feature.STAY_OPEN);
 

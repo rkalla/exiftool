@@ -1,5 +1,5 @@
-ExifTool - Enhanced interface to Phil Harvey's ExifTool for Java.
-https://github.com/thebuzzmedia/exiftool
+ExifTool - Enhanced Java Integration for Phil Harvey's ExifTool.
+http://www.thebuzzmedia.com/software/exiftool-enhanced-java-integration-for-exiftool/
 
 
 				=================================================
@@ -63,9 +63,8 @@ the project.
 
 Example
 -------
-Using ExifTool in its simplest form is as simple as using any other Java class.
-
-Let's say we wanted to get the GPS coordinates out of an image:
+Usage is straight forward, let's say we wanted to get the GPS coordinates out of 
+an image:
 
   File image = // path to some image
   ExifTool tool = new ExifTool();

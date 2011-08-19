@@ -20,23 +20,23 @@ This library is released under the Apache 2 License. See LICENSE.
 
 Description
 -----------
-This project represents one of the most robust Java integrations with Phil
-Harvey's ExifTool available.
+This project represents the most robust Java integrations with Phil Harvey's 
+excellent ExifTool available.
 
 The goal of this project was to provide such a tight, well designed and performant
 integration with ExifTool that any Java developer using the class would have no
 idea that they weren't simply calling into a standard Java library while still
-being able to leverage the unmatched robustness of the ExifTool project.
+being able to leverage the unmatched robustness of ExifTool.
 
 All concepts of external process launching, management, communication, tag
 extraction, value conversion and resource cleanup are abstracted out by this 
 project and all handled automatically for the caller.
 
 Even when using ExifTool in "daemon mode" via the -stay_open True command line
-argument, this project hides all the details required to make that work, automatically
-re-using the daemon process as well as eventually cleaning it up automatically
-along with supporting resources after a defined interval of inactivity so as to
-avoid resource leaks.
+argument, this project hides all the details required to make that work, 
+automatically re-using the daemon process as well as eventually cleaning it up 
+automatically along with supporting resources after a defined interval of 
+inactivity so as to avoid resource leaks.
 
 The set of EXIF tags supported out of the box is based on the EXIF tags supported
 by the most popular mobile devices (iPhone, Android, BlackBerry, etc.) as well
@@ -45,16 +45,16 @@ as DSLR).
 
 And lastly, to ensure that integration with the external ExifTool project is as
 robust and seamless as possible, this class also offers extensive pre-condition
-checking and error reporting.
+checking and error reporting during instantiation and use.
 
-For example, if you specify that you want to use Feature.STAY_OPEN support, this
-project will actually check the ExifTool executable for support for that feature
-before allowing the feature to be turned on and report the problem to you and
-potential fixes if available.
+For example, if you specify that you want to use Feature.STAY_OPEN support, the
+ExifTool class will actually check the native ExifTool executable for support 
+for that feature before allowing the feature to be turned on and report the 
+problem to the caller along with potential work-arounds if necessary.
 
 Additionally, all external calls to the process are safely wrapped and reported
 with detailed exceptions if problems arise instead of just letting unknown
-exceptions bubble up from the depths to the caller.
+exceptions bubble up from the unknown system depths to the caller.
 
 All the exceptions and exceptional scenarios are well-documented in the Javadoc
 along with extensive implementation details for anyone wanting to know more about
@@ -63,6 +63,30 @@ the project.
 
 Example
 -------
+Using ExifTool in its simplest form is as simple as using any other Java class.
+
+Let's say we wanted to get the GPS coordinates out of an image:
+
+  File image = // path to some image
+  ExifTool tool = new ExifTool();
+  
+  Map<Tag, String> valueMap = 
+  	tool.getImageMeta(image, Tag.GPS_LATITUDE, Tag.GPS_LONGITUDE);
+  	
+  System.out.println("Lat: " + valueMap.get(Tag.GPS_LATITUDE) +  
+  					 ", Long: " + valueMap.get(Tag.GPS_LONGITUDE));
+
+The fundamentals of use is that you give ExifTool a File handle to the image you
+want to query as well as a list of Tags you want to pull values from it for and
+it will give you back the results in a Map.
+
+If you want to use ExifTool in daemon mode, you only change one line:
+
+  ExifTool tool = new ExifTool(Feature.STAY_OPEN);
+  
+and then keep that "tool" reference around and re-use it as necessary. Under the
+covers the ExifTool class will re-use the same ExifTool process for all the queries,
+usually taking 1/20th or 1/30th the time to complete.
 
 
 Performance
@@ -135,7 +159,44 @@ them.
 	java -Dexiftool.path=/path/to/exiftool com.myco.MyApp
 
 
-	* 
+	* Can the ExifTool class support parsing InputStreams instead of File 
+	representations of images?
+	
+	No. Phil has mentioned that enabling daemon mode disables the ability to 
+	stream bytes to ExifTool to process for EXIF data (because ExifTool listens
+	on the same input stream for processing commands and a terminating -execute
+	sequence, it can't also listen for image byte[] data).
+	
+	Because of this and because of the expectation that ExifTool in daemon mode
+	will be the primary use-case for this class, limited support for InputStream
+	parsing was designed out of this class.
+	
+	
+	* Do I need to manually call close() to cleanup a daemon ExifTool?
+	
+	This is done automatically for you via the cleanup thread the class employs
+	when a daemon instance of ExifTool is created. Unless you modified the
+	"exiftool.processCleanupDelay" system property and set it to 0 or less, the
+	automatic cleanup thread is enabled and will clean up those resources for
+	you after the specified amount of inactivity.
+	
+	If you DID disable the cleanup thread by setting "exiftool.processCleanupDelay"
+	to 0, then yes, you need to call close() manually when done to cleanup those
+	resources.
+	
+	
+	* Is it better to manage cleanup myself or let the cleanup thread do it?
+	
+	It is better (and more consistent) to let the cleanup thread handle cleanup
+	for you. You can always adjust the inactivity interval it uses by adjusting
+	the value for the "exiftool.processCleanupDelay" system property, but by
+	default the cleanup thread waits for 10 minutes of total inactivity before
+	cleaning up the resources. That should be good in most cases, but you could
+	always set that higher to something like an hour or more if you wish.
+	
+	If you really want to disable it and manage everything yourself, that is fine. 
+	Just remember to be consistent.
+	
 
 Reference
 ---------

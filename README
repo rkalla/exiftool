@@ -9,6 +9,9 @@ http://www.thebuzzmedia.com/software/exiftool-enhanced-java-integration-for-exif
 
 Changelog
 ---------
+1.2 (In progress...)
+	* Added support for the "CreationDate" QuickTime tag to the Tag enum.
+
 1.1
 	* Initial public release.
 

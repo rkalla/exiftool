@@ -734,7 +734,8 @@ public class ExifTool {
 				"XPKeywords", String.class), COMMENT("XPComment", String.class), RATING(
 				"Rating", Integer.class), RATING_PERCENT("RatingPercent",
 				Integer.class), DATE_TIME_ORIGINAL("DateTimeOriginal",
-				String.class), GPS_LATITUDE("GPSLatitude", Double.class), GPS_LATITUDE_REF(
+				String.class), CREATION_DATE("CreationDate", String.class), GPS_LATITUDE(
+				"GPSLatitude", Double.class), GPS_LATITUDE_REF(
 				"GPSLatitudeRef", String.class), GPS_LONGITUDE("GPSLongitude",
 				Double.class), GPS_LONGITUDE_REF("GPSLongitudeRef",
 				String.class), GPS_ALTITUDE("GPSAltitude", Double.class), GPS_ALTITUDE_REF(

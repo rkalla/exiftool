@@ -11,6 +11,7 @@ Changelog
 ---------
 1.2 (In progress...)
 	* Added support for the "CreationDate" QuickTime tag to the Tag enum.
+	* Merged support for WRITING meta tags from Fabien Vauchelles
 
 1.1
 	* Initial public release.

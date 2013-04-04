@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Timer;
@@ -1214,6 +1215,156 @@ public class ExifTool {
 					resultMap.size());
 
 		return resultMap;
+	}
+        
+        public void setImageMeta(File image, Map<Tag, String> tags) 
+                        throws IllegalArgumentException, SecurityException, IOException {
+		setImageMeta(image, Format.NUMERIC, tags);
+	}
+        
+        public void setImageMeta(File image, Format format, Map<Tag, String> tags )
+			throws IllegalArgumentException, SecurityException, IOException {
+		if (image == null)
+			throw new IllegalArgumentException(
+					"image cannot be null and must be a valid stream of image data.");
+		if (format == null)
+			throw new IllegalArgumentException("format cannot be null");
+		if (tags == null || tags.size() == 0)
+			throw new IllegalArgumentException(
+					"tags cannot be null and must contain 1 or more Tag to query the image for.");
+		if (!image.canWrite())
+			throw new SecurityException(
+					"Unable to read the given image ["
+							+ image.getAbsolutePath()
+							+ "], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+
+		long startTime = System.currentTimeMillis();
+
+		if (DEBUG)
+			log("Writing %d tags to image: %s", tags.size(),
+					image.getAbsolutePath());
+
+		long exifToolCallElapsedTime = 0;
+
+		/*
+		 * Using ExifTool in daemon mode (-stay_open True) executes different
+		 * code paths below. So establish the flag for this once and it is
+		 * reused a multitude of times later in this method to figure out where
+		 * to branch to.
+		 */
+		boolean stayOpen = featureSet.contains(Feature.STAY_OPEN);
+
+		// Clear process args
+		args.clear();
+
+		if (stayOpen) {
+			log("\tUsing ExifTool in daemon mode (-stay_open True)...");
+
+			// Always reset the cleanup task.
+			resetCleanupTask();
+
+			/*
+			 * If this is our first time calling getImageMeta with a stayOpen
+			 * connection, set up the persistent process and run it so it is
+			 * ready to receive commands from us.
+			 */
+			if (streams == null) {
+				log("\tStarting daemon ExifTool process and creating read/write streams (this only happens once)...");
+
+				args.add(EXIF_TOOL_PATH);
+				args.add("-stay_open");
+				args.add("True");
+				args.add("-@");
+				args.add("-");
+
+				// Begin the persistent ExifTool process.
+				streams = startExifToolProcess(args);
+			}
+
+			log("\tStreaming arguments to ExifTool process...");
+
+			if (format == Format.NUMERIC)
+				streams.writer.write("-n\n"); // numeric output
+
+			streams.writer.write("-S\n"); // compact output
+
+                        for ( Entry<Tag,String> entry :tags.entrySet() ) {
+				streams.writer.write('-');
+				streams.writer.write(entry.getKey().name);
+				streams.writer.write("='");
+				streams.writer.write(entry.getValue());
+				streams.writer.write("'\n");
+			}
+
+			streams.writer.write(image.getAbsolutePath());
+			streams.writer.write("\n");
+
+			log("\tExecuting ExifTool...");
+
+			// Begin tracking the duration ExifTool takes to respond.
+			exifToolCallElapsedTime = System.currentTimeMillis();
+
+			// Run ExifTool on our file with all the given arguments.
+			streams.writer.write("-execute\n");
+			streams.writer.flush();
+		} else {
+			log("\tUsing ExifTool in non-daemon mode (-stay_open False)...");
+
+			/*
+			 * Since we are not using a stayOpen process, we need to setup the
+			 * execution arguments completely each time.
+			 */
+			args.add(EXIF_TOOL_PATH);
+
+			if (format == Format.NUMERIC)
+				args.add("-n"); // numeric output
+
+			args.add("-S"); // compact output
+
+			for ( Entry<Tag,String> entry :tags.entrySet() )
+				args.add("-" + entry.getKey().name + "='" + entry.getValue() + "'" );
+
+			args.add(image.getAbsolutePath());
+
+			// Run the ExifTool with our args.
+			streams = startExifToolProcess(args);
+
+			// Begin tracking the duration ExifTool takes to respond.
+			exifToolCallElapsedTime = System.currentTimeMillis();
+		}
+
+		log("\tReading response back from ExifTool...");
+
+		String line = null;
+
+		while ((line = streams.reader.readLine()) != null) {
+			/*
+			 * When using a persistent ExifTool process, it terminates its
+			 * output to us with a "{ready}" clause on a new line, we need to
+			 * look for it and break from this loop when we see it otherwise
+			 * this process will hang indefinitely blocking on the input stream
+			 * with no data to read.
+			 */
+			if (stayOpen && line.equals("{ready}"))
+				break;
+		}
+
+		// Print out how long the call to external ExifTool process took.
+		log("\tFinished reading ExifTool response in %d ms.",
+				(System.currentTimeMillis() - exifToolCallElapsedTime));
+
+		/*
+		 * If we are not using a persistent ExifTool process, then after running
+		 * the command above, the process exited in which case we need to clean
+		 * our streams up since it no longer exists. If we were using a
+		 * persistent ExifTool process, leave the streams open for future calls.
+		 */
+		if (!stayOpen)
+			streams.close();
+
+		if (DEBUG)
+			log("\tImage Meta Processed in %d ms [write %d tags]",
+					(System.currentTimeMillis() - startTime), tags.size());
 	}
 
 	/**

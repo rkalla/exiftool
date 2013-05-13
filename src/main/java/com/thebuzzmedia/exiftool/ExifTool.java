@@ -746,7 +746,7 @@ public class ExifTool {
 				"GPSDestBearing", Double.class), GPS_BEARING_REF(
 				"GPSDestBearingRef", String.class), GPS_TIMESTAMP(
 				"GPSTimeStamp", String.class), ROTATION("Rotation",Integer.class),
-				EXIF_VERSION("ExifVersion",String.class);
+				EXIF_VERSION("ExifVersion",String.class), LENS_ID("LensID",String.class);
 
 		private static final Map<String, Tag> TAG_LOOKUP_MAP;
 

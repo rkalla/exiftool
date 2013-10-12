@@ -711,45 +711,61 @@ public class ExifTool {
 	 * @since 1.1
 	 */
 	public enum Tag {
-		ISO("ISO", Integer.class), APERTURE("ApertureValue", Double.class), WHITE_BALANCE(
-				"WhiteBalance", Integer.class), CONTRAST("Contrast",
-				Integer.class), SATURATION("Saturation", Integer.class), SHARPNESS(
-				"Sharpness", Integer.class), SHUTTER_SPEED("ShutterSpeedValue",
-				Double.class), DIGITAL_ZOOM_RATIO("DigitalZoomRatio",
-				Double.class), IMAGE_WIDTH("ImageWidth", Integer.class), IMAGE_HEIGHT(
-				"ImageHeight", Integer.class), X_RESOLUTION("XResolution",
-				Double.class), Y_RESOLUTION("YResolution", Double.class), FLASH(
-				"Flash", Integer.class), METERING_MODE("MeteringMode",
-				Integer.class), FOCAL_LENGTH("FocalLength", Double.class), FOCAL_LENGTH_35MM(
-				"FocalLengthIn35mmFormat", Integer.class), EXPOSURE_TIME(
-				"ExposureTime", Double.class), EXPOSURE_COMPENSATION(
-				"ExposureCompensation", Double.class), EXPOSURE_PROGRAM(
-				"ExposureProgram", Integer.class), ORIENTATION("Orientation",
-				Integer.class), COLOR_SPACE("ColorSpace", Integer.class), SENSING_METHOD(
-				"SensingMethod", Integer.class), SOFTWARE("Software",
-				String.class), MAKE("Make", String.class), MODEL("Model",
-				String.class), LENS_MAKE("LensMake", String.class), LENS_MODEL(
-				"LensModel", String.class), OWNER_NAME("OwnerName",
-				String.class), TITLE("XPTitle", String.class), AUTHOR(
-				"XPAuthor", String.class), SUBJECT("XPSubject", String.class), KEYWORDS(
-				"XPKeywords", String.class), COMMENT("XPComment", String.class), RATING(
-				"Rating", Integer.class), RATING_PERCENT("RatingPercent",
-				Integer.class), DATE_TIME_ORIGINAL("DateTimeOriginal",
-				String.class), CREATION_DATE("CreationDate", String.class), GPS_LATITUDE(
-				"GPSLatitude", Double.class), GPS_LATITUDE_REF(
-				"GPSLatitudeRef", String.class), GPS_LONGITUDE("GPSLongitude",
-				Double.class), GPS_LONGITUDE_REF("GPSLongitudeRef",
-				String.class), GPS_ALTITUDE("GPSAltitude", Double.class), GPS_ALTITUDE_REF(
-				"GPSAltitudeRef", Integer.class), GPS_SPEED("GPSSpeed",
-				Double.class), GPS_SPEED_REF("GPSSpeedRef", String.class), GPS_PROCESS_METHOD(
-				"GPSProcessingMethod", String.class), GPS_BEARING(
-				"GPSDestBearing", Double.class), GPS_BEARING_REF(
-				"GPSDestBearingRef", String.class), GPS_TIMESTAMP(
-				"GPSTimeStamp", String.class), ROTATION("Rotation",Integer.class),
-				EXIF_VERSION("ExifVersion",String.class), LENS_ID("LensID",String.class),
-				SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class);
+        APERTURE("ApertureValue", Double.class),
+        AUTHOR("XPAuthor", String.class),
+        COLOR_SPACE("ColorSpace", Integer.class),
+        COMMENT("XPComment", String.class),
+        CONTRAST("Contrast", Integer.class),
+        CREATION_DATE("CreationDate", String.class),
+        DATE_TIME_ORIGINAL("DateTimeOriginal", String.class),
+        DIGITAL_ZOOM_RATIO("DigitalZoomRatio", Double.class),
+        EXIF_VERSION("ExifVersion", String.class),
+        EXPOSURE_COMPENSATION("ExposureCompensation", Double.class),
+        EXPOSURE_PROGRAM("ExposureProgram", Integer.class),
+        EXPOSURE_TIME("ExposureTime", Double.class),
+        FLASH("Flash", Integer.class),
+        FOCAL_LENGTH("FocalLength", Double.class),
+        FOCAL_LENGTH_35MM("FocalLengthIn35mmFormat", Integer.class),
+        GPS_ALTITUDE("GPSAltitude", Double.class),
+        GPS_ALTITUDE_REF("GPSAltitudeRef", Integer.class),
+        GPS_BEARING("GPSDestBearing", Double.class),
+        GPS_BEARING_REF("GPSDestBearingRef", String.class),
+        GPS_LATITUDE("GPSLatitude", Double.class),
+        GPS_LATITUDE_REF("GPSLatitudeRef", String.class),
+        GPS_LONGITUDE("GPSLongitude", Double.class),
+        GPS_LONGITUDE_REF("GPSLongitudeRef", String.class),
+        GPS_PROCESS_METHOD("GPSProcessingMethod", String.class),
+        GPS_SPEED("GPSSpeed", Double.class),
+        GPS_SPEED_REF("GPSSpeedRef", String.class),
+        GPS_TIMESTAMP("GPSTimeStamp", String.class),
+        IMAGE_HEIGHT("ImageHeight", Integer.class),
+        IMAGE_WIDTH("ImageWidth", Integer.class),
+        ISO("ISO", Integer.class),
+        KEYWORDS("XPKeywords", String.class),
+        LENS_ID("LensID", String.class),
+        LENS_MAKE("LensMake", String.class),
+        LENS_MODEL("LensModel", String.class),
+        MAKE("Make", String.class),
+        METERING_MODE("MeteringMode", Integer.class),
+        MODEL("Model", String.class),
+        ORIENTATION("Orientation", Integer.class),
+        OWNER_NAME("OwnerName", String.class),
+        RATING("Rating", Integer.class),
+        RATING_PERCENT("RatingPercent", Integer.class),
+        ROTATION("Rotation", Integer.class),
+        SATURATION("Saturation", Integer.class),
+        SENSING_METHOD("SensingMethod", Integer.class),
+        SHARPNESS("Sharpness", Integer.class),
+        SHUTTER_SPEED("ShutterSpeedValue", Double.class),
+        SOFTWARE("Software", String.class),
+        SUBJECT("XPSubject", String.class),
+        SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class),
+        TITLE("XPTitle", String.class),
+        WHITE_BALANCE("WhiteBalance", Integer.class),
+        X_RESOLUTION("XResolution", Double.class),
+        Y_RESOLUTION("YResolution", Double.class);
 
-		private static final Map<String, Tag> TAG_LOOKUP_MAP;
+        private static final Map<String, Tag> TAG_LOOKUP_MAP;
 
 		/**
 		 * Initializer used to init the <code>static final</code> tag/name

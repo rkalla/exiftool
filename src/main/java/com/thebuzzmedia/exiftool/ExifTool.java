@@ -202,7 +202,7 @@ import java.util.regex.Pattern;
  * written the 2nd most robust image metadata library I have come across: <a
  * href="http://drewnoakes.com/drewnoakes.com/code/exif/">Metadata Extractor</a>
  * that you might want to look at.
- * 
+ *
  * @author Riyad Kalla (software@thebuzzmedia.com)
  * @since 1.1
  */
@@ -359,15 +359,15 @@ public class ExifTool {
 	 * The external call to ExifTool to confirm feature support is only ever
 	 * done once per JVM session and stored in a <code>static final</code>
 	 * {@link Map} that all instances of this class share.
-	 * 
+	 *
 	 * @param feature
 	 *            The feature to check support for in the underlying ExifTool
 	 *            install.
-	 * 
+	 *
 	 * @return <code>true</code> if support for the given {@link Feature} was
 	 *         confirmed to work with the currently installed ExifTool or
 	 *         <code>false</code> if it is not supported.
-	 * 
+	 *
 	 * @throws IllegalArgumentException
 	 *             if <code>feature</code> is <code>null</code>.
 	 * @throws RuntimeException
@@ -747,7 +747,8 @@ public class ExifTool {
 				"GPSDestBearingRef", String.class), GPS_TIMESTAMP(
 				"GPSTimeStamp", String.class), ROTATION("Rotation",Integer.class),
 				EXIF_VERSION("ExifVersion",String.class), LENS_ID("LensID",String.class),
-				COPYRIGHT("Copyright", String.class), ARTIST("Artist", String.class);
+				COPYRIGHT("Copyright", String.class), ARTIST("Artist", String.class),
+                SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class);
 
 		private static final Map<String, Tag> TAG_LOOKUP_MAP;
 

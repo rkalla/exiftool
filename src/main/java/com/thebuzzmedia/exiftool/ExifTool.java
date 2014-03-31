@@ -748,7 +748,21 @@ public class ExifTool {
 				"GPSTimeStamp", String.class), ROTATION("Rotation",Integer.class),
 				EXIF_VERSION("ExifVersion",String.class), LENS_ID("LensID",String.class),
 				COPYRIGHT("Copyright", String.class), ARTIST("Artist", String.class),
-                SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class);
+                SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class),
+                SERIAL_NUMBER("SerialNumber", String.class),
+                INTERNAL_SERIAL_NUMBER("InternalSerialNumber", String.class),
+                BODY_SERIAL_NUMBER("BodySerialNumber", String.class),
+                CAMERA_SERIAL_NUMBER("CameraSerialNumber", String.class),
+                EXTENDER_SERIAL_NUMBER("ExtenderSerialNumber", String.class),
+                DEVICE_SERIAL_NUMBER("DeviceSerialNumber", String.class),
+                FLASH_SERIAL_NUMBER("FlashSerialNumber", String.class),
+                LENS_SERIAL_NUMBER("LensSerialNumber", String.class),
+                SCANNER_SERIAL_NUMBER("ScannerSerialNumber", String.class),
+                SOURCE_SERIAL_NUMBER("SourceSerialNumber", String.class),
+                CREATOR("Creator", String.class),
+                COPYRIGHT_NOTICE("CopyrightNotice", String.class),
+                IMAGE_UNIQUE_ID("ImageUniqueID", String.class),
+                LENS("Lens", String.class);
 
 		private static final Map<String, Tag> TAG_LOOKUP_MAP;
 

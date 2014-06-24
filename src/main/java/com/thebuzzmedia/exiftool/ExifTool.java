@@ -748,7 +748,10 @@ public class ExifTool {
 				"GPSTimeStamp", String.class), ROTATION("Rotation",Integer.class),
 				EXIF_VERSION("ExifVersion",String.class), LENS_ID("LensID",String.class),
 				COPYRIGHT("Copyright", String.class), ARTIST("Artist", String.class),
-                SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class);
+                SUB_SEC_TIME_ORIGINAL("SubSecTimeOriginal", Integer.class),
+                OBJECT_NAME("ObjectName", String.class), CAPTION_ABSTRACT("Caption-Abstract",
+                String.class), CREATOR("Creator", String.class), IPTC_KEYWORDS("Keywords",
+                String.class), COPYRIGHT_NOTICE("CopyrightNotice", String.class);
 
 		private static final Map<String, Tag> TAG_LOOKUP_MAP;
 

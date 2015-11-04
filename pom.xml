@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>5</version>
+	</parent>
+
+	<groupId>com.github.mjeanroy</groupId>
+	<artifactId>exiftool-lib</artifactId>
+	<version>1.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<url>https://github.com/mjeanroy/exiftool</url>
+
+	<licenses>
+		<license>
+			<name>Apache 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>thebuzzmedia</id>
+			<name>Riyad Kalla</name>
+			<email>software@thebuzzmedia.com</email>
+		</developer>
+		<developer>
+			<id>mjeanroy</id>
+			<name>Mickael Jeanroy</name>
+			<email>mickael.jeanroy@gmail.com</email>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:mjeanroy/exiftool.git</connection>
+		<developerConnection>scm:git:git@github.com:mjeanroy/exiftool.git</developerConnection>
+		<url>https://github.com/mjeanroy/exiftool</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.6</java.version>
+		<java.test.version>1.8</java.test.version>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.testTarget>${java.test.version}</maven.compiler.testTarget>
+		<maven.compiler.testSource>${java.test.version}</maven.compiler.testSource>
+		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<encoding>${project.build.sourceEncoding}</encoding>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<testSource>${maven.compiler.testSource}</testSource>
+					<testTarget>${maven.compiler.testTarget}</testTarget>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

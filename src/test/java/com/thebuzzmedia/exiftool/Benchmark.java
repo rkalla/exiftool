@@ -3,9 +3,6 @@ package com.thebuzzmedia.exiftool;
 import java.io.File;
 import java.io.IOException;
 
-import com.thebuzzmedia.exiftool.ExifTool.Feature;
-import com.thebuzzmedia.exiftool.ExifTool.Tag;
-
 public class Benchmark {
 	public static final int ITERS = 25;
 	public static final Tag[] TAGS = Tag.values();

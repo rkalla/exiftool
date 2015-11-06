@@ -16,6 +16,9 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.logs.Logger;
+import com.thebuzzmedia.exiftool.logs.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.OutputStreamWriter;
 
@@ -32,6 +35,12 @@ import java.io.OutputStreamWriter;
  * @since 1.1
  */
 class IOStream {
+
+	/**
+	 * Internal Logger.
+	 */
+	private static final Logger log = LoggerFactory.getLogger(IOStream.class);
+
 	BufferedReader reader;
 	OutputStreamWriter writer;
 
@@ -42,17 +51,17 @@ class IOStream {
 
 	public void close() {
 		try {
-			ExifTool.log("\tClosing Read stream...");
+			log.debug("\tClosing Read stream...");
 			reader.close();
-			ExifTool.log("\t\tSuccessful");
+			log.debug("\t\tSuccessful");
 		} catch (Exception e) {
 			// no-op, just try to close it.
 		}
 
 		try {
-			ExifTool.log("\tClosing Write stream...");
+			log.debug("\tClosing Write stream...");
 			writer.close();
-			ExifTool.log("\t\tSuccessful");
+			log.debug("\t\tSuccessful");
 		} catch (Exception e) {
 			// no-op, just try to close it.
 		}
@@ -61,6 +70,6 @@ class IOStream {
 		reader = null;
 		writer = null;
 
-		ExifTool.log("\tRead/Write streams successfully closed.");
+		log.debug("\tRead/Write streams successfully closed.");
 	}
 }

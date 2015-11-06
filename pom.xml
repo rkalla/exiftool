@@ -52,11 +52,36 @@
 		<maven.compiler.testSource>${java.test.version}</maven.compiler.testSource>
 		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
+		<slf4j.version>1.6.1</slf4j.version>
+		<logback.version>1.1.2</logback.version>
+		<log4j.version>1.2.16</log4j.version>
+
 		<junit.version>4.11</junit.version>
 		<assertj.version>1.6.1</assertj.version>
+		<mockito.version>1.9.5</mockito.version>
+		<powermock.version>1.6.0</powermock.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -69,22 +94,23 @@
 			<version>${assertj.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<version>${powermock.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>${powermock.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<testSource>${maven.compiler.testSource}</testSource>
-					<testTarget>${maven.compiler.testTarget}</testTarget>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

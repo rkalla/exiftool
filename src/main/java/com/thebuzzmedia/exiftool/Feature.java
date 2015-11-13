@@ -42,17 +42,33 @@ public enum Feature {
 	/**
 	 * Used to get the version of ExifTool required by this feature in order
 	 * to work.
+	 */
+	private final String version;
+
+	private Feature(String version) {
+		this.version = version;
+	}
+
+	/**
+	 * Get the version of ExifTool required by this feature in order
+	 * to work.
 	 *
-	 * @return the version of ExifTool required by this feature in order to
-	 *         work.
+	 * @return Version of ExifTool required by this feature in order
+	 * to work.
 	 */
 	public String getVersion() {
 		return version;
 	}
 
-	private final String version;
-
-	private Feature(String version) {
-		this.version = version;
+	/**
+	 * Check that feature is available.
+	 * Feature availability is (most of the time) related to exiftool
+	 * version.
+	 *
+	 * @param exifVersion Exiftool version.
+	 * @return True if feature is available, false otherwise.
+	 */
+	public boolean isSupported(String exifVersion) {
+		return exifVersion != null && exifVersion.compareTo(version) >= 0;
 	}
 }

@@ -62,6 +62,11 @@ public class LoggerLog4j implements Logger {
 	}
 
 	@Override
+	public void error(CharSequence message, Throwable ex) {
+		log.error(message, ex);
+	}
+
+	@Override
 	public boolean isDebugEnabled() {
 		return log.isDebugEnabled();
 	}

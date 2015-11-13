@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.exceptions;
+
+import com.thebuzzmedia.exiftool.Feature;
+
+import static java.lang.String.format;
 
 /**
  * Class used to define an exception that occurs when the caller attempts to
@@ -25,20 +29,37 @@ package com.thebuzzmedia.exiftool;
  * @since 1.1
  */
 public class UnsupportedFeatureException extends RuntimeException {
-	private static final long serialVersionUID = -1332725983656030770L;
 
-	private Feature feature;
+	/**
+	 * Unsupported Feature.
+	 */
+	private final Feature feature;
 
-	public UnsupportedFeatureException(Feature feature) {
-		super(
-				"Use of feature ["
-						+ feature
-						+ "] requires version "
-						+ feature.getVersion()
-						+ " or higher of the native ExifTool program. The version of ExifTool referenced by the system property 'exiftool.path' is not high enough. You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception.");
+	/**
+	 * Exif Version (this version do not support feature).
+	 */
+	private final String exifVersion;
+
+	public UnsupportedFeatureException(String exifVersion, Feature feature) {
+		super(message(feature));
+		this.exifVersion = exifVersion;
+		this.feature = feature;
+	}
+
+	public String getExifVersion() {
+		return exifVersion;
 	}
 
 	public Feature getFeature() {
 		return feature;
+	}
+
+	private static String message(Feature feature) {
+		String msg = "" +
+			"Use of feature [%s] requires version %s or higher of the native ExifTool program. " +
+			"The version of ExifTool referenced by the system property 'exiftool.path' is not high enough. " +
+			"You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception.";
+
+		return format(msg, feature, feature.getVersion());
 	}
 }

@@ -63,6 +63,14 @@ public class LoggerSlf4jTest {
 	}
 
 	@Test
+	public void it_should_display_exception() {
+		RuntimeException ex = new RuntimeException("Error Message");
+		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
+		logger.error(ex.getMessage(), ex);
+		verify(slf4j).error(ex.getMessage(), ex);
+	}
+
+	@Test
 	public void it_should_display_debug() {
 		String message = "message";
 		LoggerSlf4j logger = new LoggerSlf4j(slf4j);

@@ -15,8 +15,12 @@
  */
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
+import com.thebuzzmedia.exiftool.process.Command;
+import com.thebuzzmedia.exiftool.process.Executor;
+import com.thebuzzmedia.exiftool.process.Result;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,6 +38,12 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
+
+import static com.thebuzzmedia.exiftool.commons.Objects.firstNonNull;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.process.Commands.exif;
+import static com.thebuzzmedia.exiftool.process.Executors.newExecutor;
+import static java.util.Collections.unmodifiableSet;
 
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
@@ -111,10 +121,10 @@ import java.util.regex.Pattern;
  * Because this feature requires ExifTool 8.36 or later, this class will
  * actually verify support for the feature in the version of ExifTool pointed at
  * by {@link #EXIF_TOOL_PATH} before successfully instantiating the class and
- * will notify you via an {@link UnsupportedFeatureException} if the native
+ * will notify you via an {@link com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException} if the native
  * ExifTool doesn't support the requested feature.
  * <p/>
- * In the event of an {@link UnsupportedFeatureException}, the caller can either
+ * In the event of an {@link com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException}, the caller can either
  * upgrade the native ExifTool upgrade to the version required or simply avoid
  * using that feature to work around the exception.
  * <h3>Automatic Resource Cleanup</h3>
@@ -296,164 +306,6 @@ public class ExifTool {
 	 */
 	protected static final Pattern TAG_VALUE_PATTERN = Pattern.compile(": ");
 
-	/**
-	 * Map shared across all instances of this class that maintains the state of
-	 * {@link Feature}s and if they are supported or not (supported=true,
-	 * unsupported=false) by the underlying native ExifTool process being used
-	 * in conjunction with this class.
-	 * <p/>
-	 * If a {@link Feature} is missing from the map (has no <code>true</code> or
-	 * <code>false</code> flag associated with it, but <code>null</code>
-	 * instead) then that means that feature has not been checked for support
-	 * yet and this class will know to call
-	 * {@link #checkFeatureSupport(Feature...)} on it to determine its supported
-	 * state.
-	 * <p/>
-	 * For efficiency reasons, individual {@link Feature}s are checked for
-	 * support one time during each run of the VM and never again during the
-	 * session of that running VM.
-	 */
-	protected static final Map<Feature, Boolean> FEATURE_SUPPORT_MAP = new HashMap<Feature, Boolean>();
-
-	/**
-	 * Static list of args used to execute ExifTool using the '-ver' flag in
-	 * order to get it to print out its version number. Used by the
-	 * {@link #checkFeatureSupport(Feature...)} method to check all the required
-	 * feature versions.
-	 * <p/>
-	 * Defined here as a <code>static final</code> list because it is used every
-	 * time and never changes.
-	 */
-	private static final List<String> VERIFY_FEATURE_ARGS = new ArrayList<String>(
-		2);
-
-	static {
-		VERIFY_FEATURE_ARGS.add(EXIF_TOOL_PATH);
-		VERIFY_FEATURE_ARGS.add("-ver");
-	}
-
-	/**
-	 * Used to determine if the given {@link Feature} is supported by the
-	 * underlying native install of ExifTool pointed at by
-	 * {@link #EXIF_TOOL_PATH}.
-	 * <p/>
-	 * If support for the given feature has not been checked for yet, this
-	 * method will automatically call out to ExifTool and ensure the requested
-	 * feature is supported in the current local install.
-	 * <p/>
-	 * The external call to ExifTool to confirm feature support is only ever
-	 * done once per JVM session and stored in a <code>static final</code>
-	 * {@link Map} that all instances of this class share.
-	 *
-	 * @param feature The feature to check support for in the underlying ExifTool
-	 * install.
-	 * @return <code>true</code> if support for the given {@link Feature} was
-	 * confirmed to work with the currently installed ExifTool or
-	 * <code>false</code> if it is not supported.
-	 * @throws IllegalArgumentException if <code>feature</code> is <code>null</code>.
-	 * @throws RuntimeException if any exception occurs while attempting to start the
-	 * external ExifTool process to verify feature support.
-	 */
-	public static boolean isFeatureSupported(Feature feature)
-		throws IllegalArgumentException, RuntimeException {
-		if (feature == null)
-			throw new IllegalArgumentException("feature cannot be null");
-
-		Boolean supported = FEATURE_SUPPORT_MAP.get(feature);
-
-		/*
-		 * If there is no Boolean flag for the feature, support for it hasn't
-		 * been checked yet with the native ExifTool install, so we need to do
-		 * that.
-		 */
-		if (supported == null) {
-			log.debug("\tSupport for feature %s has not been checked yet, checking...");
-			checkFeatureSupport(feature);
-
-			// Re-query for the supported state
-			supported = FEATURE_SUPPORT_MAP.get(feature);
-		}
-
-		return supported;
-	}
-
-	/**
-	 * Used to verify the version of ExifTool installed is a high enough version
-	 * to support the given features.
-	 * <p/>
-	 * This method runs the command "<code>exiftool -ver</code>" to get the
-	 * version of the installed ExifTool and then compares that version to the
-	 * least required version specified by the given features (see
-	 * {@link Feature#getVersion()}).
-	 *
-	 * @param features The features whose required versions will be checked against
-	 * the installed ExifTool for support.
-	 * @throws RuntimeException if any exception occurs communicating with the external
-	 * ExifTool process spun up in order to check its version.
-	 */
-	protected static void checkFeatureSupport(Feature... features)
-		throws RuntimeException {
-		// Ensure there is work to do.
-		if (features == null || features.length == 0)
-			return;
-
-		log.debug("\tChecking %d feature(s) for support in the external ExifTool install...",
-			features.length);
-
-		for (Feature feature : features) {
-			String ver = null;
-			Boolean supported;
-
-			log.debug("\t\tChecking feature %s for support, requires ExifTool version %s or higher...",
-				feature, feature.getVersion());
-
-			// Execute 'exiftool -ver'
-			IOStream streams = startExifToolProcess(VERIFY_FEATURE_ARGS);
-
-			try {
-				// Read the single-line reply (version number)
-				ver = streams.reader.readLine();
-
-				// Close r/w streams to exited process.
-				streams.close();
-			}
-			catch (Exception e) {
-				/*
-				 * no-op, while it is important to know that we COULD launch the
-				 * ExifTool process (i.e. startExifToolProcess call worked) but
-				 * couldn't communicate with it, the context with which this
-				 * method is called is from the constructor of this class which
-				 * would just wrap this exception and discard it anyway if it
-				 * failed.
-				 * 
-				 * the caller will realize there is something wrong with the
-				 * ExifTool process communication as soon as they make their
-				 * first call to getImageMeta in which case whatever was causing
-				 * the exception here will popup there and then need to be
-				 * corrected.
-				 * 
-				 * This is an edge case that should only happen in really rare
-				 * scenarios, so making this method easier to use is more
-				 * important that robust IOException handling right here.
-				 */
-			}
-
-			// Ensure the version found is >= the required version.
-			if (ver != null && ver.compareTo(feature.getVersion()) >= 0) {
-				supported = Boolean.TRUE;
-				log.debug("\t\tFound ExifTool version %s, feature %s is SUPPORTED.",
-					ver, feature);
-			} else {
-				supported = Boolean.FALSE;
-				log.debug("\t\tFound ExifTool version %s, feature %s is NOT SUPPORTED.",
-					ver, feature);
-			}
-
-			// Update feature support map
-			FEATURE_SUPPORT_MAP.put(feature, supported);
-		}
-	}
-
 	protected static IOStream startExifToolProcess(List<String> args)
 		throws RuntimeException {
 		Process proc;
@@ -496,44 +348,54 @@ public class ExifTool {
 
 	private List<String> args;
 
-	private Set<Feature> featureSet;
+	/**
+	 * Set of features enabled on this exif tool
+	 * instance.
+	 */
+	private final Set<Feature> features;
 
+	/**
+	 * Command Executor.
+	 * This executor will be used to execute exiftool process and commands.
+	 */
+	private final Executor executor;
+
+	/**
+	 * Exiftool Path.
+	 * Path is first read from `exiftool.path` system property,
+	 * otherwise `exiftool` must be globally available.
+	 */
+	private final String path;
+
+	/**
+	 * This is the version detected on exiftool executable.
+	 * This version depends on executable given on instantiation.
+	 */
+	private final String version;
+
+	/**
+	 * Create new ExifTool instance.
+	 */
 	public ExifTool() {
-		this((Feature[]) null);
+		this(new Feature[]{ });
 	}
 
-	public ExifTool(Feature... features) throws UnsupportedFeatureException {
-		featureSet = new HashSet<Feature>();
+	/**
+	 * Create new ExifTool instance.
+	 * When exiftool is created, it will try to activate some features.
+	 * If feature is not available on this specific exiftool version, then
+	 * an it an {@link UnsupportedFeatureException} will be thrown.
+	 *
+	 * @param features List of features to activate.
+	 * @throws UnsupportedFeatureException If feature is not available for this exiftool version.
+	 */
+	public ExifTool(Feature... features) {
+		this.executor = newExecutor();
+		this.path = firstNonNull(EXIF_TOOL_PATH, "exiftool");
+		this.version = parseVersion();
+		this.features = parseFeature(features);
 
-		if (features != null && features.length > 0) {
-			/*
-			 * Process all features to ensure we checked them for support in the
-			 * installed version of ExifTool. If the feature has already been
-			 * checked before, this method will return immediately.
-			 */
-			checkFeatureSupport(features);
-
-			/*
-			 * Now we need to verify that all the features requested for this
-			 * instance of ExifTool to use WERE supported after all.
-			 */
-			for (Feature f : features) {
-				/*
-				 * If the Feature was supported, record it in the local
-				 * featureSet so this instance knows what features are being
-				 * turned on by the caller.
-				 * 
-				 * If the Feature was not supported, throw an exception
-				 * reporting it to the caller so they know it cannot be used.
-				 */
-				if (FEATURE_SUPPORT_MAP.get(f).booleanValue())
-					featureSet.add(f);
-				else
-					throw new UnsupportedFeatureException(f);
-			}
-		}
-
-		args = new ArrayList<String>(64);
+		this.args = new ArrayList<String>(64);
 
 		/*
 		 * Now that initialization is done, init the cleanup timer if we are
@@ -545,6 +407,70 @@ public class ExifTool {
 			// Start the first cleanup task counting down.
 			resetCleanupTask();
 		}
+	}
+
+	/**
+	 * Parse Version from this exiftool instance.
+	 * This function need to execute exiftool external process.
+	 *
+	 * Executed command is:
+	 * <exiftool> -ver
+	 *
+	 * where:
+	 * - <exiftool> is the path to exiftool executable.
+	 * - -ver is the only one argument.
+	 *
+	 * This function should remain private since it is used directly in the constructor (and we
+	 * don't want to escape this object).
+	 *
+	 * @return Exiftool version, null if command failed.
+	 */
+	private String parseVersion() {
+		log.debug("Checking exiftool version");
+		Command command = exif(path);
+		command.addArgument("-ver");
+		Result result = execute(command);
+		return result.isSuccess() ? result.getOutput() : null;
+	}
+
+	/**
+	 * This function will returned available feature from this exiftool instances.
+	 *
+	 * Each feature given in parameters is checked:
+	 * - If feature is supported by this exiftool instance, then OK.
+	 * - Otherwise, an instance of {@link UnsupportedFeatureException} is thrown.
+	 *
+	 * If an instance of {@link UnsupportedFeatureException} is thrown, it means that:
+	 * - You should update exiftool.
+	 * - If you can't update exiftool, then you should not use this feature.
+	 *
+	 * This function should remain private since it is used directly in the constructor (and we
+	 * don't want to escape this object).
+	 *
+	 * @param features Features to check.
+	 * @return Set of available features.
+	 * @throws UnsupportedFeatureException If a feature is not supported.
+	 */
+	private Set<Feature> parseFeature(Feature... features) {
+		log.debug("Parsing activated features");
+
+		// Store it in a set, this will avoid duplicates
+		Set<Feature> set = new HashSet<Feature>();
+
+		for (Feature feature : features) {
+			if (!set.contains(feature)) {
+				boolean supported = feature.isSupported(version);
+				if (supported) {
+					log.debug("Feature %s SUPPORTED", feature);
+					set.add(feature);
+				} else {
+					log.error("Feature %s NOT SUPPORTED", feature);
+					throw new UnsupportedFeatureException(version, feature);
+				}
+			}
+		}
+
+		return unmodifiableSet(set);
 	}
 
 	/**
@@ -617,27 +543,28 @@ public class ExifTool {
 	}
 
 	/**
+	 * Exiftool version pointed by this instance.
+	 *
+	 * @return Version.
+	 */
+	public String getVersion() {
+		return version;
+	}
+
+	/**
 	 * Used to determine if the given {@link Feature} has been enabled for this
 	 * particular instance of {@link ExifTool}.
 	 * <p/>
-	 * This method is different from {@link #isFeatureSupported(Feature)}, which
-	 * checks if the given feature is supported by the underlying ExifTool
-	 * install where as this method tells the caller if the given feature has
-	 * been enabled for use in this particular instance.
 	 *
 	 * @param feature The feature to check if it has been enabled for us or not on
 	 * this instance.
 	 * @return <code>true</code> if the given {@link Feature} is currently
 	 * enabled on this instance of {@link ExifTool}, otherwise returns
 	 * <code>false</code>.
-	 * @throws IllegalArgumentException if <code>feature</code> is <code>null</code>.
+	 * @throws NullPointerException if <code>feature</code> is <code>null</code>.
 	 */
-	public boolean isFeatureEnabled(Feature feature)
-		throws IllegalArgumentException {
-		if (feature == null)
-			throw new IllegalArgumentException("feature cannot be null");
-
-		return featureSet.contains(feature);
+	public boolean isFeatureEnabled(Feature feature) throws IllegalArgumentException {
+		return features.contains(notNull(feature, "Feature cannot be null"));
 	}
 
 	public Map<Tag, String> getImageMeta(File image, Tag... tags)
@@ -682,7 +609,7 @@ public class ExifTool {
 		 * reused a multitude of times later in this method to figure out where
 		 * to branch to.
 		 */
-		boolean stayOpen = featureSet.contains(Feature.STAY_OPEN);
+		boolean stayOpen = features.contains(Feature.STAY_OPEN);
 
 		// Clear process args
 		args.clear();
@@ -853,7 +780,7 @@ public class ExifTool {
 		 * reused a multitude of times later in this method to figure out where
 		 * to branch to.
 		 */
-		boolean stayOpen = featureSet.contains(Feature.STAY_OPEN);
+		boolean stayOpen = features.contains(Feature.STAY_OPEN);
 
 		// Clear process args
 		args.clear();
@@ -992,6 +919,26 @@ public class ExifTool {
 			PROCESS_CLEANUP_DELAY, PROCESS_CLEANUP_DELAY);
 
 		log.debug("\t\tSuccessful");
+	}
+
+	/**
+	 * Execute command on exiftool executable.
+	 * Thrown exception (if any occurs) will be logged.
+	 *
+	 * @param command Command Line.
+	 * @return Result of execution.
+	 */
+	private Result execute(Command command) {
+		try {
+			log.debug("Executing %s", command);
+			Result result = executor.execute(command);
+			log.debug("Result: %s", result);
+			return result;
+		}
+		catch (RuntimeException ex) {
+			log.error(ex.getMessage(), ex);
+			throw ex;
+		}
 	}
 
 	/**

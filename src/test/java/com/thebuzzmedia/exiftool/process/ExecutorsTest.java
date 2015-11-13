@@ -1,5 +1,4 @@
 /**
- * Copyright 2011 The Buzz Media, LLC
  * Copyright 2015 Mickael Jeanroy <mickael.jeanroy@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +14,17 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.process;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FeatureTest {
+public class ExecutorsTest {
 
 	@Test
-	public void it_should_have_feature_stay_open_and_check_if_it_is_supported() {
-		Feature feature = Feature.STAY_OPEN;
-		assertThat(feature.toString()).isEqualTo("STAY_OPEN");
-
-		assertThat(feature.isSupported(null)).isFalse();
-
-		// Should be ok
-		assertThat(feature.isSupported("8.36")).isTrue();
-		assertThat(feature.isSupported("9.0.1")).isTrue();
-
-		// Should be ko
-		assertThat(feature.isSupported("8.35")).isFalse();
-		assertThat(feature.isSupported("8.3.4")).isFalse();
+	public void it_should_create_new_executor() {
+		Executor executor = Executors.newExecutor();
+		assertThat(executor).isNotNull();
 	}
 }

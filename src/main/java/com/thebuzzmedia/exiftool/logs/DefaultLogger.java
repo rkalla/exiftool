@@ -16,6 +16,9 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import static java.lang.String.format;
 
 /**
@@ -70,6 +73,15 @@ public class DefaultLogger implements Logger {
 	@Override
 	public boolean isDebugEnabled() {
 		return isEnabled(Level.DEBUG);
+	}
+
+	@Override
+	public void error(CharSequence message, Throwable ex) {
+		StringWriter errors = new StringWriter();
+		ex.printStackTrace(new PrintWriter(errors));
+
+		print(Level.ERROR, message);
+		print(Level.ERROR, errors.toString());
 	}
 
 	private boolean isEnabled(Level level) {

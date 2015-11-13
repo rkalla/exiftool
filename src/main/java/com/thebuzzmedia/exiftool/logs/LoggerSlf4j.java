@@ -58,6 +58,11 @@ public class LoggerSlf4j implements Logger {
 	}
 
 	@Override
+	public void error(CharSequence message, Throwable ex) {
+		log.error(message.toString(), ex);
+	}
+
+	@Override
 	public boolean isDebugEnabled() {
 		return log.isDebugEnabled();
 	}

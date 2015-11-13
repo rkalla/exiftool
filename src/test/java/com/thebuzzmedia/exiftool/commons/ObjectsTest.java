@@ -1,5 +1,4 @@
 /**
- * Copyright 2011 The Buzz Media, LLC
  * Copyright 2015 Mickael Jeanroy <mickael.jeanroy@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +14,35 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.commons;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FeatureTest {
+public class ObjectsTest {
 
 	@Test
-	public void it_should_have_feature_stay_open_and_check_if_it_is_supported() {
-		Feature feature = Feature.STAY_OPEN;
-		assertThat(feature.toString()).isEqualTo("STAY_OPEN");
+	public void it_should_return_first_parameter_if_it_is_not_null() {
+		String v1 = "foo";
+		String v2 = "bar";
 
-		assertThat(feature.isSupported(null)).isFalse();
+		String foo = Objects.firstNonNull(v1, v2);
 
-		// Should be ok
-		assertThat(feature.isSupported("8.36")).isTrue();
-		assertThat(feature.isSupported("9.0.1")).isTrue();
+		assertThat(foo)
+			.isNotNull()
+			.isEqualTo(v1);
+	}
 
-		// Should be ko
-		assertThat(feature.isSupported("8.35")).isFalse();
-		assertThat(feature.isSupported("8.3.4")).isFalse();
+	@Test
+	public void it_should_return_second_parameter_if_first_is_null() {
+		String v1 = null;
+		String v2 = "bar";
+
+		String foo = Objects.firstNonNull(v1, v2);
+
+		assertThat(foo)
+			.isNotNull()
+			.isEqualTo(v2);
 	}
 }

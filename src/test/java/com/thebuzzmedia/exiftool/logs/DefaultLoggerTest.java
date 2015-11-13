@@ -89,6 +89,28 @@ public class DefaultLoggerTest {
 	}
 
 	@Test
+	public void it_should_display_exception() {
+		RuntimeException ex = new RuntimeException("Error Message");
+		DefaultLogger logger = new DefaultLogger(true);
+
+		logger.error(ex.getMessage(), ex);
+		System.out.flush();
+
+		String display = out.toString();
+		String[] lines = display.split(BR);
+
+		assertThat(lines[0])
+			.isNotNull()
+			.isNotEmpty()
+			.isEqualTo("[ERROR] [exiftool] " + ex.getMessage());
+
+		assertThat(lines[1])
+			.isNotNull()
+			.isNotEmpty()
+			.isEqualTo("[ERROR] [exiftool] java.lang.RuntimeException: Error Message");
+	}
+
+	@Test
 	public void it_should_display_debug() {
 		DefaultLogger logger = new DefaultLogger(true);
 

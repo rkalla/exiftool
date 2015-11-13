@@ -63,6 +63,14 @@ public interface Logger {
 	void error(CharSequence message, Object... params);
 
 	/**
+	 * Log exception stack trace as error Level.
+	 *
+	 * @param message Error message.
+	 * @param ex Thrown exception.
+	 */
+	void error(CharSequence message, Throwable ex);
+
+	/**
 	 * Check if debug level is enabled for this logger.
 	 *
 	 * @return True if debug level is enabled, false otherwise.

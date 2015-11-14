@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.exceptions;
+package com.thebuzzmedia.exiftool.process.handlers;
 
-import java.io.IOException;
+import org.junit.Test;
 
-/**
- * Exception thrown when a process has failed because of
- * IO Exception.
- */
-public class ProcessIOException extends RuntimeException {
+import static org.assertj.core.api.Assertions.assertThat;
 
-	/**
-	 * Create exception.
-	 *
-	 * @param ex Original Exception.
-	 */
-	public ProcessIOException(IOException ex) {
-		super(ex);
+public class ResultHandlerTest {
+
+	private static final String BR = System.getProperty("line.separator");
+
+	@Test
+	public void it_should_handle_result() {
+		ResultHandler handler = new ResultHandler();
+		assertThat(handler.getOutput()).isEmpty();
+
+		handler.handleLine("foo");
+		assertThat(handler.getOutput())
+			.isNotEmpty()
+			.isEqualTo("foo");
+
+		handler.handleLine("bar");
+		assertThat(handler.getOutput())
+			.isNotEmpty()
+			.isEqualTo(
+				"foo" + BR + "bar"
+			);
 	}
 }

@@ -42,6 +42,11 @@ public class LoggerLog4j implements Logger {
 	}
 
 	@Override
+	public void trace(CharSequence message, Object... params) {
+		print(Level.TRACE, message.toString(), params);
+	}
+
+	@Override
 	public void info(CharSequence message, Object... params) {
 		print(Level.INFO, message.toString(), params);
 	}

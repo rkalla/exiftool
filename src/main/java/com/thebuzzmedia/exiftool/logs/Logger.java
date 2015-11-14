@@ -23,6 +23,16 @@ package com.thebuzzmedia.exiftool.logs;
 public interface Logger {
 
 	/**
+	 * Display trace to the console.
+	 * Message will be displayed if and only trace level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param params Optional message parameters.
+	 */
+	void trace(CharSequence message, Object... params);
+
+	/**
 	 * Display information to the console.
 	 * Message will be displayed if and only information level
 	 * is enabled.

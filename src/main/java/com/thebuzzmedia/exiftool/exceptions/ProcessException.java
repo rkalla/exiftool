@@ -16,17 +16,20 @@
 
 package com.thebuzzmedia.exiftool.exceptions;
 
+import java.io.IOException;
+
 /**
- * Exception thrown when a process has been interrupted.
+ * Exception thrown when a process has failed because of
+ * IO Exception.
  */
-public class ProcessInterruptionException extends RuntimeException {
+public class ProcessException extends RuntimeException {
 
 	/**
 	 * Create exception.
 	 *
 	 * @param ex Original Exception.
 	 */
-	public ProcessInterruptionException(InterruptedException ex) {
+	public ProcessException(IOException ex) {
 		super(ex);
 	}
 }

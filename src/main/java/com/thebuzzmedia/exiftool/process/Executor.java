@@ -16,10 +16,10 @@
 
 package com.thebuzzmedia.exiftool.process;
 
-import com.thebuzzmedia.exiftool.exceptions.ProcessIOException;
-import com.thebuzzmedia.exiftool.exceptions.ProcessInterruptionException;
+import com.thebuzzmedia.exiftool.exceptions.ProcessException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
+import com.thebuzzmedia.exiftool.process.handlers.ResultHandler;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -52,19 +52,13 @@ public class Executor {
 			args.addFirst(command.getExecutable());
 
 			Process proc = new ProcessBuilder(args).start();
-			proc.waitFor();
-
-			int exitStatus = proc.exitValue();
-			String output = readInputStream(proc.getInputStream());
-			return new Result(exitStatus, output);
-		}
-		catch (InterruptedException ex) {
-			log.error(ex.getMessage(), ex);
-			throw new ProcessInterruptionException(ex);
+			ResultHandler handler = new ResultHandler();
+			readInputStream(proc.getInputStream(), handler);
+			return new Result(proc.exitValue(), handler.getOutput());
 		}
 		catch (IOException ex) {
 			log.error(ex.getMessage(), ex);
-			throw new ProcessIOException(ex);
+			throw new ProcessException(ex);
 		}
 	}
 }

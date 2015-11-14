@@ -71,6 +71,14 @@ public class LoggerLog4jTest {
 	}
 
 	@Test
+	public void it_should_display_trace() {
+		String message = "message";
+		LoggerLog4j logger = new LoggerLog4j(log4j);
+		logger.trace(message);
+		verify(log4j).log(Level.TRACE, message);
+	}
+
+	@Test
 	public void it_should_display_debug() {
 		String message = "message";
 		LoggerLog4j logger = new LoggerLog4j(log4j);

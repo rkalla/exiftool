@@ -38,6 +38,11 @@ public class LoggerSlf4j implements Logger {
 	}
 
 	@Override
+	public void trace(CharSequence message, Object... params) {
+		print(Level.TRACE, message.toString(), params);
+	}
+
+	@Override
 	public void info(CharSequence message, Object... params) {
 		print(Level.INFO, message.toString(), params);
 	}
@@ -79,6 +84,18 @@ public class LoggerSlf4j implements Logger {
 	}
 
 	private static enum Level {
+		TRACE {
+			@Override
+			boolean isEnabled(org.slf4j.Logger log) {
+				return log.isTraceEnabled();
+			}
+
+			@Override
+			void log(org.slf4j.Logger log, String str, Object... params) {
+				log.trace(str, params);
+			}
+		},
+
 		DEBUG {
 			@Override
 			boolean isEnabled(org.slf4j.Logger log) {

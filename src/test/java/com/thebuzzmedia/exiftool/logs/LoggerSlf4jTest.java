@@ -32,6 +32,7 @@ public class LoggerSlf4jTest {
 	public void setUp() {
 		slf4j = mock(org.slf4j.Logger.class);
 
+		when(slf4j.isTraceEnabled()).thenReturn(true);
 		when(slf4j.isDebugEnabled()).thenReturn(true);
 		when(slf4j.isInfoEnabled()).thenReturn(true);
 		when(slf4j.isWarnEnabled()).thenReturn(true);
@@ -68,6 +69,14 @@ public class LoggerSlf4jTest {
 		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
 		logger.error(ex.getMessage(), ex);
 		verify(slf4j).error(ex.getMessage(), ex);
+	}
+
+	@Test
+	public void it_should_display_trace() {
+		String message = "message";
+		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
+		logger.trace(message);
+		verify(slf4j).trace(message, new Object[]{ });
 	}
 
 	@Test

@@ -38,7 +38,7 @@ import static java.lang.String.format;
 public class DefaultLogger implements Logger {
 
 	private static enum Level {
-		DEBUG, INFO, WARN, ERROR
+		TRACE, DEBUG, INFO, WARN, ERROR
 	}
 
 	/**
@@ -48,6 +48,11 @@ public class DefaultLogger implements Logger {
 
 	DefaultLogger(boolean debug) {
 		this.level = debug ? Level.DEBUG : Level.INFO;
+	}
+
+	@Override
+	public void trace(CharSequence message, Object... params) {
+		print(Level.TRACE, message, params);
 	}
 
 	@Override

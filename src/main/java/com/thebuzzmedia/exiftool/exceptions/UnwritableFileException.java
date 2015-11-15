@@ -16,20 +16,33 @@
 
 package com.thebuzzmedia.exiftool.exceptions;
 
-import java.io.IOException;
+import java.io.File;
 
 /**
- * Exception thrown when a process has failed because of
- * IO Exception.
+ * Exception thrown when a file cannot be written.
+ * A file cannot be written because:
+ * - It does not exist.
+ * - It is corrupted and cannot be updated.
  */
-public class ProcessException extends AbstractExifException {
+public class UnwritableFileException extends AbstractExifException {
+
+	/**
+	 * Unwritable file.
+	 */
+	private final File file;
 
 	/**
 	 * Create exception.
 	 *
-	 * @param ex Original Exception.
+	 * @param file Unwritable file.
+	 * @param message Error message.
 	 */
-	public ProcessException(IOException ex) {
-		super(ex);
+	public UnwritableFileException(File file, String message) {
+		super(message);
+		this.file = file;
+	}
+
+	public File getFile() {
+		return file;
 	}
 }

@@ -40,6 +40,9 @@ import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import static com.thebuzzmedia.exiftool.commons.Objects.firstNonNull;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
 import static com.thebuzzmedia.exiftool.process.Commands.exif;
 import static com.thebuzzmedia.exiftool.process.Executors.newExecutor;
@@ -567,26 +570,16 @@ public class ExifTool {
 		return features.contains(notNull(feature, "Feature cannot be null"));
 	}
 
-	public Map<Tag, String> getImageMeta(File image, Tag... tags)
-		throws IllegalArgumentException, SecurityException, IOException {
+	public Map<Tag, String> getImageMeta(File image, Tag... tags) throws IOException {
 		return getImageMeta(image, Format.NUMERIC, tags);
 	}
 
-	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags)
-		throws IllegalArgumentException, SecurityException, IOException {
-		if (image == null)
-			throw new IllegalArgumentException(
-				"image cannot be null and must be a valid stream of image data.");
-		if (format == null)
-			throw new IllegalArgumentException("format cannot be null");
-		if (tags == null || tags.length == 0)
-			throw new IllegalArgumentException(
-				"tags cannot be null and must contain 1 or more Tag to query the image for.");
-		if (!image.canRead())
-			throw new SecurityException(
-				"Unable to read the given image ["
-					+ image.getAbsolutePath()
-					+ "], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags) throws IOException {
+		// Simple preconditions.
+		notNull(image, "Image cannot be null and must be a valid stream of image data.");
+		notNull(format, "Format cannot be null.");
+		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
+		isReadable(image, "Unable to read the given image [%s], ensure that the image exists at the given path and that the executing Java process has permissions to read it.", image);
 
 		long startTime = System.currentTimeMillis();
 
@@ -745,26 +738,16 @@ public class ExifTool {
 		return resultMap;
 	}
 
-	public void setImageMeta(File image, Map<Tag, String> tags)
-		throws IllegalArgumentException, SecurityException, IOException {
+	public void setImageMeta(File image, Map<Tag, String> tags) throws IOException {
 		setImageMeta(image, Format.NUMERIC, tags);
 	}
 
-	public void setImageMeta(File image, Format format, Map<Tag, String> tags)
-		throws IllegalArgumentException, SecurityException, IOException {
-		if (image == null)
-			throw new IllegalArgumentException(
-				"image cannot be null and must be a valid stream of image data.");
-		if (format == null)
-			throw new IllegalArgumentException("format cannot be null");
-		if (tags == null || tags.size() == 0)
-			throw new IllegalArgumentException(
-				"tags cannot be null and must contain 1 or more Tag to query the image for.");
-		if (!image.canWrite())
-			throw new SecurityException(
-				"Unable to read the given image ["
-					+ image.getAbsolutePath()
-					+ "], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+	public void setImageMeta(File image, Format format, Map<Tag, String> tags) throws IOException {
+		// Simple preconditions.
+		notNull(image, "Image cannot be null and must be a valid stream of image data.");
+		notNull(format, "Format cannot be null.");
+		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
+		isWritable(image, "Unable to read the given image [%s], ensure that the image exists at the given path and that the executing Java process has permissions to read it.", image);
 
 		long startTime = System.currentTimeMillis();
 

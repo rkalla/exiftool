@@ -28,7 +28,7 @@ import static java.lang.String.format;
  * @author Riyad Kalla (software@thebuzzmedia.com)
  * @since 1.1
  */
-public class UnsupportedFeatureException extends RuntimeException {
+public class UnsupportedFeatureException extends AbstractExifException {
 
 	/**
 	 * Unsupported Feature.

@@ -16,20 +16,33 @@
 
 package com.thebuzzmedia.exiftool.exceptions;
 
-import java.io.IOException;
+import java.io.File;
 
 /**
- * Exception thrown when a process has failed because of
- * IO Exception.
+ * Exception thrown when a file cannot be read.
+ * A file cannot be read because:
+ * - It does not exist.
+ * - It is corrupted and cannot be read.
  */
-public class ProcessException extends AbstractExifException {
+public class UnreadableFileException extends AbstractExifException {
+
+	/**
+	 * Unreadable file.
+	 */
+	private final File file;
 
 	/**
 	 * Create exception.
 	 *
-	 * @param ex Original Exception.
+	 * @param file Unreadable file.
+	 * @param message Error message.
 	 */
-	public ProcessException(IOException ex) {
-		super(ex);
+	public UnreadableFileException(File file, String message) {
+		super(message);
+		this.file = file;
+	}
+
+	public File getFile() {
+		return file;
 	}
 }

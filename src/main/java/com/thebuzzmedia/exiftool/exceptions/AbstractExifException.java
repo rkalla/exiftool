@@ -16,20 +16,27 @@
 
 package com.thebuzzmedia.exiftool.exceptions;
 
-import java.io.IOException;
-
 /**
- * Exception thrown when a process has failed because of
- * IO Exception.
+ * Basic Exception.
+ * Should be extended.
  */
-public class ProcessException extends AbstractExifException {
+public class AbstractExifException extends RuntimeException {
 
 	/**
-	 * Create exception.
+	 * Wrap original exception.
 	 *
 	 * @param ex Original Exception.
 	 */
-	public ProcessException(IOException ex) {
+	protected AbstractExifException(Exception ex) {
 		super(ex);
+	}
+
+	/**
+	 * Create exception with custom message.
+	 *
+	 * @param message Error message.
+	 */
+	protected AbstractExifException(String message) {
+		super(message);
 	}
 }

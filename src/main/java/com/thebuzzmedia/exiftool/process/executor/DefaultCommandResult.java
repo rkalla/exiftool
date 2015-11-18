@@ -14,69 +14,65 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process;
+package com.thebuzzmedia.exiftool.process.executor;
 
-import static com.thebuzzmedia.exiftool.commons.Objects.firstNonNull;
+import com.thebuzzmedia.exiftool.commons.Objects;
+import com.thebuzzmedia.exiftool.process.CommandResult;
+
+import static java.lang.String.format;
 
 /**
- * Result of command execution.
+ * Default result object.
  * Result is defined by:
- * - An exit code (zero is success).
- * - An output: message logged by process.
+ * - An exit status: a zero means a success, otherwise it is a failure.
+ * - Command output.
  */
-public class Result {
+public class DefaultCommandResult implements CommandResult {
 
 	/**
-	 * Exit status.
+	 * Exit status, result of command execution.
 	 */
 	private final int exitStatus;
 
 	/**
-	 * Command output.
+	 * Standard output.
 	 */
 	private final String output;
 
 	/**
-	 * Create result.
+	 * Create new result.
 	 *
 	 * @param exitStatus Exit status.
-	 * @param output Command output.
+	 * @param output Standard output.
 	 */
-	Result(int exitStatus, String output) {
+	DefaultCommandResult(int exitStatus, String output) {
 		this.exitStatus = exitStatus;
-		this.output = firstNonNull(output, "");
+		this.output = output;
 	}
 
-	/**
-	 * Get exist status.
-	 *
-	 * @return Exit status.
-	 */
+	@Override
 	public int getExitStatus() {
 		return exitStatus;
 	}
 
-	/**
-	 * Get command output.
-	 *
-	 * @return Command output.
-	 */
+	@Override
 	public String getOutput() {
 		return output;
 	}
 
-	/**
-	 * Check if command line succeeded.
-	 *
-	 * @return True if result is a success, false otherwise.
-	 */
+	@Override
 	public boolean isSuccess() {
 		return exitStatus == 0;
 	}
 
 	@Override
-	public int hashCode() {
-		return exitStatus + output.hashCode();
+	public boolean isFailure() {
+		return exitStatus != 0;
+	}
+
+	@Override
+	public String toString() {
+		return format("[%s] %s", exitStatus, output);
 	}
 
 	@Override
@@ -85,17 +81,17 @@ public class Result {
 			return true;
 		}
 
-		if (o instanceof Result) {
-			Result r = (Result) o;
-			return exitStatus == r.exitStatus &&
-				output.equals(r.output);
+		if (o instanceof DefaultCommandResult) {
+			DefaultCommandResult r = (DefaultCommandResult) o;
+			return Objects.equals(exitStatus, r.exitStatus)
+				&& Objects.equals(output, r.output);
 		}
 
 		return false;
 	}
 
 	@Override
-	public String toString() {
-		return String.format("[%s] %s", exitStatus, output);
+	public int hashCode() {
+		return Objects.hashCode(exitStatus, output);
 	}
 }

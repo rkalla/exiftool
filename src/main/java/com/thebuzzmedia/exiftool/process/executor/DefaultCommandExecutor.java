@@ -14,47 +14,43 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process;
+package com.thebuzzmedia.exiftool.process.executor;
 
 import com.thebuzzmedia.exiftool.exceptions.ProcessException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
+import com.thebuzzmedia.exiftool.process.Command;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.handlers.ResultHandler;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.List;
 
 import static com.thebuzzmedia.exiftool.commons.IOs.readInputStream;
 
 /**
- * Execute command line and return the result of execution.
+ * Default Executor.
  */
-public class Executor {
+public class DefaultCommandExecutor implements CommandExecutor {
 
 	/**
-	 * Class Logger.
+	 * Class logger.
 	 */
-	private static Logger log = LoggerFactory.getLogger(Executor.class);
+	private static final Logger log = LoggerFactory.getLogger(DefaultCommandExecutor.class);
 
-	// Use static factory
-	Executor() {
+	// Ensure non instantiation.
+	DefaultCommandExecutor() {
 	}
 
-	/**
-	 * Execute command line.
-	 *
-	 * @param command Command line with its arguments.
-	 * @return Execution result.
-	 */
-	public Result execute(Command command) {
+	@Override
+	public CommandResult execute(Command command) {
 		try {
-			LinkedList<String> args = new LinkedList<String>(command.getArguments());
-			args.addFirst(command.getExecutable());
-
+			List<String> args = command.getArguments();
 			Process proc = new ProcessBuilder(args).start();
 			ResultHandler handler = new ResultHandler();
 			readInputStream(proc.getInputStream(), handler);
-			return new Result(proc.exitValue(), handler.getOutput());
+			return new DefaultCommandResult(proc.exitValue(), handler.getOutput());
 		}
 		catch (IOException ex) {
 			log.error(ex.getMessage(), ex);

@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process;
+package com.thebuzzmedia.exiftool.process.executor;
+
+import com.thebuzzmedia.exiftool.logs.Logger;
+import com.thebuzzmedia.exiftool.logs.LoggerFactory;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
 
 /**
- * Executors Factory.
- * The role of this class is to produce instance of process
- * executors.
+ * Executor Factory.
  */
-public final class Executors {
+public final class CommandExecutors {
+
+	/**
+	 * Class logger.
+	 */
+	private static final Logger log = LoggerFactory.getLogger(CommandExecutors.class);
 
 	// Ensure non instantiation.
-	private Executors() {
+	private CommandExecutors() {
 	}
 
 	/**
@@ -32,7 +39,8 @@ public final class Executors {
 	 *
 	 * @return Executor.
 	 */
-	public static Executor newExecutor() {
-		return new Executor();
+	public static CommandExecutor newExecutor() {
+		log.debug("Create new default command executor");
+		return new DefaultCommandExecutor();
 	}
 }

@@ -14,40 +14,43 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process;
+package com.thebuzzmedia.exiftool.process.executor;
 
+import com.thebuzzmedia.exiftool.process.CommandResult;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResultTest {
+public class DefaultResultTest {
 
 	@Test
 	public void it_should_create_result() {
 		String output = "foo";
-		Result result = new Result(0, output);
+		CommandResult result = new DefaultCommandResult(0, output);
 		assertThat(result.getExitStatus()).isZero();
 		assertThat(result.getOutput()).isEqualTo(output);
 	}
 
 	@Test
 	public void it_should_mark_result_as_success() {
-		Result result = new Result(0, "foo");
+		CommandResult result = new DefaultCommandResult(0, "foo");
 		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.isFailure()).isFalse();
 	}
 
 	@Test
 	public void it_should_mark_result_as_failure() {
-		Result result = new Result(1, "foo");
+		CommandResult result = new DefaultCommandResult(1, "foo");
 		assertThat(result.isSuccess()).isFalse();
+		assertThat(result.isFailure()).isTrue();
 	}
 
 	@Test
 	public void it_should_implement_equals() {
-		Result r1 = new Result(0, "");
-		Result r2 = new Result(0, "");
-		Result r3 = new Result(0, "");
-		Result r4 = new Result(1, "");
+		CommandResult r1 = new DefaultCommandResult(0, "");
+		CommandResult r2 = new DefaultCommandResult(0, "");
+		CommandResult r3 = new DefaultCommandResult(0, "");
+		CommandResult r4 = new DefaultCommandResult(1, "");
 
 		assertThat(r1).isNotEqualTo(r4);
 		assertThat(r1).isNotEqualTo(new Object());
@@ -63,14 +66,14 @@ public class ResultTest {
 
 	@Test
 	public void it_should_implement_hashCode() {
-		Result r1 = new Result(0, "");
-		Result r2 = new Result(0, "");
+		CommandResult r1 = new DefaultCommandResult(0, "");
+		CommandResult r2 = new DefaultCommandResult(0, "");
 		assertThat(r1.hashCode()).isEqualTo(r2.hashCode());
 	}
 
 	@Test
 	public void it_should_implement_toString() {
-		Result r1 = new Result(0, "foo");
+		CommandResult r1 = new DefaultCommandResult(0, "foo");
 		assertThat(r1.toString()).isEqualTo("[0] foo");
 	}
 }

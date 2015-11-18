@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process;
+package com.thebuzzmedia.exiftool.process.executor;
 
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +25,7 @@ public class ExecutorsTest {
 
 	@Test
 	public void it_should_create_new_executor() {
-		Executor executor = Executors.newExecutor();
+		CommandExecutor executor = CommandExecutors.newExecutor();
 		assertThat(executor).isNotNull();
 	}
 }

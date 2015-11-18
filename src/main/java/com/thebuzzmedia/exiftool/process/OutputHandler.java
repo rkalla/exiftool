@@ -18,7 +18,7 @@ package com.thebuzzmedia.exiftool.process;
 
 /**
  * Handler that should be used to handle command line output.
- * Each line is give to the {@link #handleLine(String)} method.
+ * Each line is give to the {@link #readLine(String)} method.
  * This method should return:
  * - True if next line should be read. For instance, if current line is null, it probably
  *   means that no more output is available. This may let handlers to implement a custom
@@ -35,5 +35,5 @@ public interface OutputHandler {
 	 * @param line Line output.
 	 * @return Boolean indicating if next line should be read.
 	 */
-	boolean handleLine(String line);
+	boolean readLine(String line);
 }

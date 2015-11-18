@@ -16,104 +16,26 @@
 
 package com.thebuzzmedia.exiftool.process;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
-import static java.util.Collections.unmodifiableList;
-
 /**
- * Command Line.
+ * Command Line interface.
  * A command line is defined by:
- * - An executable path (should be absolute or the executable name if it is globally available).
- * - Some arguments: argument order is important and will be preserved.
+ * - Executable path (or executable name if it is globally available).
+ * - List of arguments: may be empty.
+ *
+ * Each of these should be returned in the {@link #getArguments()} method:
+ * - First element is the executable value.
+ * - Next elements are the executable arguments.
  */
-public class Command {
-
-	/**
-	 * Command executable path.
-	 */
-	private final String executable;
+public interface Command {
 
 	/**
 	 * Command arguments.
-	 */
-	private final List<String> arguments;
-
-	/**
-	 * Create new executable command line.
-	 * Command line path should be:
-	 * - An absolute path to the executable.
-	 * - A name that point to a global executable.
+	 * First item should be the command line executable value.
+	 * Next items should be the command line arguments.
 	 *
-	 * @param executable Command line path.
-	 * @throws java.lang.NullPointerException If executable is null.
-	 * @throws java.lang.IllegalArgumentException If executable string is empty or blank.
+	 * @return Command arguments.
 	 */
-	Command(String executable) {
-		this.executable = notBlank(executable, "Exiftool path should be defined");
-		this.arguments = new LinkedList<String>();
-	}
-
-	/**
-	 * Add new argument to the command line.
-	 *
-	 * @param argument Argument.
-	 * @throws java.lang.NullPointerException If argument is null.
-	 * @throws java.lang.IllegalArgumentException If argument string is empty or blank.
-	 */
-	public void addArgument(String argument) {
-		arguments.add(notBlank(argument, "Exiftool argument must be defined if set"));
-	}
-
-	/**
-	 * Get executable path / name.
-	 *
-	 * @return Executable path / name.
-	 */
-	public String getExecutable() {
-		return executable;
-	}
-
-	/**
-	 * Get list of arguments.
-	 * Returned list is an immutable collection.
-	 *
-	 * @return List of arguments.
-	 */
-	public List<String> getArguments() {
-		return unmodifiableList(arguments);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o == this) {
-			return true;
-		}
-
-		if (o instanceof Command) {
-			Command c = (Command) o;
-			return executable.equals(c.executable) &&
-				arguments.equals(c.arguments);
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return executable.hashCode() + arguments.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(executable);
-
-		for (String argument : arguments) {
-			sb.append(" ").append(argument);
-		}
-
-		return sb.toString();
-	}
+	List<String> getArguments();
 }

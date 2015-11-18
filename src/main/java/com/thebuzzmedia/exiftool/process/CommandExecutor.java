@@ -16,27 +16,17 @@
 
 package com.thebuzzmedia.exiftool.process;
 
-import static com.thebuzzmedia.exiftool.commons.Objects.firstNonNull;
-
 /**
- * Command Factory.
- * The role of this class is to create command instances.
+ * Command Executor.
  */
-public final class Commands {
-
-	// Ensure non instantiation.
-	private Commands() {
-	}
+public interface CommandExecutor {
 
 	/**
-	 * Create new instance of exif command line.
-	 * If path is null, then command `exiftool` must be globally
-	 * available.
+	 * Execute command and build the result.
+	 * Note that execution is synchronous.
 	 *
-	 * @param path Path of exiftool, a default will be used if null.
-	 * @return Command.
+	 * @param command Command.
+	 * @return Result of execution.
 	 */
-	public static Command exif(String path) {
-		return new Command(firstNonNull(path, "exiftool"));
-	}
+	CommandResult execute(Command command);
 }

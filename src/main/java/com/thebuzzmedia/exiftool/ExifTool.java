@@ -19,8 +19,9 @@ import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
-import com.thebuzzmedia.exiftool.process.Executor;
-import com.thebuzzmedia.exiftool.process.Result;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandResult;
+import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,8 +45,7 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
-import static com.thebuzzmedia.exiftool.process.Commands.exif;
-import static com.thebuzzmedia.exiftool.process.Executors.newExecutor;
+import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExecutor;
 import static java.util.Collections.unmodifiableSet;
 
 /**
@@ -361,7 +361,7 @@ public class ExifTool {
 	 * Command Executor.
 	 * This executor will be used to execute exiftool process and commands.
 	 */
-	private final Executor executor;
+	private final CommandExecutor executor;
 
 	/**
 	 * Exiftool Path.
@@ -430,9 +430,12 @@ public class ExifTool {
 	 */
 	private String parseVersion() {
 		log.debug("Checking exiftool version");
-		Command command = exif(path);
-		command.addArgument("-ver");
-		Result result = execute(command);
+
+		Command command = CommandBuilder.builder(path)
+			.addArgument("-ver")
+			.build();
+
+		CommandResult result = execute(command);
 		return result.isSuccess() ? result.getOutput() : null;
 	}
 
@@ -911,10 +914,10 @@ public class ExifTool {
 	 * @param command Command Line.
 	 * @return Result of execution.
 	 */
-	private Result execute(Command command) {
+	private CommandResult execute(Command command) {
 		try {
 			log.debug("Executing %s", command);
-			Result result = executor.execute(command);
+			CommandResult result = executor.execute(command);
 			log.debug("Result: %s", result);
 			return result;
 		}

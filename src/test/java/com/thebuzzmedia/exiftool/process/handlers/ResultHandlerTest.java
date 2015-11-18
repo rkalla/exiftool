@@ -29,12 +29,12 @@ public class ResultHandlerTest {
 		ResultHandler handler = new ResultHandler();
 		assertThat(handler.getOutput()).isEmpty();
 
-		handler.handleLine("foo");
+		handler.readLine("foo");
 		assertThat(handler.getOutput())
 			.isNotEmpty()
 			.isEqualTo("foo");
 
-		handler.handleLine("bar");
+		handler.readLine("bar");
 		assertThat(handler.getOutput())
 			.isNotEmpty()
 			.isEqualTo(

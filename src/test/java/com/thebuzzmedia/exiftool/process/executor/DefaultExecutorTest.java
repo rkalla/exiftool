@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process;
+package com.thebuzzmedia.exiftool.process.executor;
 
+import com.thebuzzmedia.exiftool.process.Command;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandResult;
 import org.junit.Test;
 
 import java.io.File;
@@ -25,15 +28,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ExecutorTest {
+public class DefaultExecutorTest {
 
 	@Test
 	public void it_should_execute_command_line() {
 		File script = new File(getClass().getResource("/processes/success.sh").getFile());
 		Command command = createUnixCommand(script.getAbsolutePath());
 
-		Executor executor = new Executor();
-		Result result = executor.execute(command);
+		CommandExecutor executor = new DefaultCommandExecutor();
+		CommandResult result = executor.execute(command);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getExitStatus()).isZero();
@@ -42,8 +45,8 @@ public class ExecutorTest {
 
 	private Command createUnixCommand(String script) {
 		Command command = mock(Command.class);
-		when(command.getExecutable()).thenReturn("/bin/sh");
 		when(command.getArguments()).thenReturn(asList(
+			"/bin/sh",
 			script
 		));
 

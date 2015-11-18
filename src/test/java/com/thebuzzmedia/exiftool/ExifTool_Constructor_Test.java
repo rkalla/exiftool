@@ -19,9 +19,9 @@ package com.thebuzzmedia.exiftool;
 
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.process.Command;
-import com.thebuzzmedia.exiftool.process.Executor;
-import com.thebuzzmedia.exiftool.process.Executors;
-import com.thebuzzmedia.exiftool.process.Result;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandResult;
+import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,25 +40,25 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Executors.class)
+@PrepareForTest(CommandExecutors.class)
 public class ExifTool_Constructor_Test {
 
 	@Rule
 	public ExpectedException thrown = none();
 
-	private Executor executor;
+	private CommandExecutor executor;
 
 	@Before
 	public void setUp() {
-		PowerMockito.mockStatic(Executors.class);
+		PowerMockito.mockStatic(CommandExecutors.class);
 
-		executor = mock(Executor.class);
-		PowerMockito.when(Executors.newExecutor()).thenReturn(executor);
+		executor = mock(CommandExecutor.class);
+		PowerMockito.when(CommandExecutors.newExecutor()).thenReturn(executor);
 	}
 
 	@Test
 	public void it_should_initialize_exiftool_without_features() {
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("9.36");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);
@@ -83,7 +83,7 @@ public class ExifTool_Constructor_Test {
 
 	@Test
 	public void it_should_initialize_exiftool_with_stay_open_feature() {
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("9.36");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);
@@ -114,7 +114,7 @@ public class ExifTool_Constructor_Test {
 			"You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception."
 		);
 
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("5.0");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);
@@ -125,7 +125,7 @@ public class ExifTool_Constructor_Test {
 
 	@Test
 	public void it_should_check_if_feature_is_enabled() {
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("9.0");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);
@@ -138,7 +138,7 @@ public class ExifTool_Constructor_Test {
 
 	@Test
 	public void it_should_check_if_feature_is_not_enabled() {
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("9.0");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);
@@ -154,7 +154,7 @@ public class ExifTool_Constructor_Test {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Feature cannot be null");
 
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("9.0");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);

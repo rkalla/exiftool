@@ -40,7 +40,7 @@ public final class IOs {
 	}
 
 	/**
-	 * Read input and continue until {@link ResultHandler#handleLine(String)} returns false.
+	 * Read input and continue until {@link ResultHandler#readLine(String)} returns false.
 	 *
 	 * @param is Input stream.
 	 * @param handler Result handler.
@@ -53,7 +53,7 @@ public final class IOs {
 			boolean next = true;
 			while (next) {
 				String line = br.readLine();
-				next = handler.handleLine(line);
+				next = handler.readLine(line);
 				log.trace("  - Line: %s", line);
 				log.trace("  - Continue: %s", next);
 			}

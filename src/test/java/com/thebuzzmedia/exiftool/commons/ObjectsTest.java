@@ -45,4 +45,24 @@ public class ObjectsTest {
 			.isNotNull()
 			.isEqualTo(v2);
 	}
+
+	@Test
+	public void it_should_compute_hash_code() {
+		assertThat(Objects.hashCode(null)).isZero();
+		assertThat(Objects.hashCode("foobar")).isNotNull();
+
+		int h1 = Objects.hashCode("foo");
+		int h2 = Objects.hashCode("foo");
+		assertThat(h1).isEqualTo(h2);
+	}
+
+	@Test
+	public void it_should_get_equality_of_values() {
+		assertThat(Objects.equals(null, null)).isTrue();
+		assertThat(Objects.equals(null, "foo")).isFalse();
+		assertThat(Objects.equals("foo", null)).isFalse();
+		assertThat(Objects.equals("foo", "foo")).isTrue();
+		assertThat(Objects.equals("bar", "foo")).isFalse();
+		assertThat(Objects.equals("foo", "bar")).isFalse();
+	}
 }

@@ -19,9 +19,9 @@ package com.thebuzzmedia.exiftool;
 
 import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
-import com.thebuzzmedia.exiftool.process.Executor;
-import com.thebuzzmedia.exiftool.process.Executors;
-import com.thebuzzmedia.exiftool.process.Result;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandResult;
+import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Executors.class)
+@PrepareForTest(CommandExecutors.class)
 public class ExifTool_setImageMeta_Test {
 
 	@Rule
@@ -52,18 +52,18 @@ public class ExifTool_setImageMeta_Test {
 
 	private ExifTool exifTool;
 
-	private Executor executor;
+	private CommandExecutor executor;
 
 	private Map<Tag, String> tags;
 
 	@Before
 	public void setUp() {
-		executor = mock(Executor.class);
+		executor = mock(CommandExecutor.class);
 
-		PowerMockito.mockStatic(Executors.class);
-		PowerMockito.when(Executors.newExecutor()).thenReturn(executor);
+		PowerMockito.mockStatic(CommandExecutors.class);
+		PowerMockito.when(CommandExecutors.newExecutor()).thenReturn(executor);
 
-		Result resultVersion = mock(Result.class);
+		CommandResult resultVersion = mock(CommandResult.class);
 		when(resultVersion.getOutput()).thenReturn("9.36");
 		when(resultVersion.getExitStatus()).thenReturn(0);
 		when(resultVersion.isSuccess()).thenReturn(true);

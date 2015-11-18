@@ -48,7 +48,7 @@ public class ResultHandler implements OutputHandler {
 	}
 
 	@Override
-	public boolean handleLine(String line) {
+	public boolean readLine(String line) {
 		if (line != null) {
 			if (output.length() > 0) {
 				output.append(BR);

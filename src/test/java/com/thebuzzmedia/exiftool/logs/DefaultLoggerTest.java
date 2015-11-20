@@ -16,12 +16,9 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import org.junit.After;
-import org.junit.Before;
+import com.thebuzzmedia.exiftool.junit.SystemOutRule;
+import org.junit.Rule;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,22 +26,8 @@ public class DefaultLoggerTest {
 
 	private static final String BR = System.getProperty("line.separator");
 
-	private PrintStream oldOut;
-
-	private ByteArrayOutputStream out;
-
-	@Before
-	public void setUp() {
-		oldOut = System.out;
-		out = new ByteArrayOutputStream();
-		System.setOut(new PrintStream(out));
-	}
-
-	@After
-	public void tearDown() {
-		System.out.flush();
-		System.setOut(oldOut);
-	}
+	@Rule
+	public SystemOutRule systemOutRule = new SystemOutRule();
 
 	@Test
 	public void it_should_display_info() {
@@ -52,12 +35,13 @@ public class DefaultLoggerTest {
 
 		String message = "message";
 		logger.info(message);
-		System.out.flush();
 
-		assertThat(out.toString())
+		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isNotEmpty()
 			.isEqualTo("[INFO] [exiftool] " + message + BR);
+
+		System.out.println("out = " + systemOutRule.getPendingOut());
 	}
 
 	@Test
@@ -66,9 +50,8 @@ public class DefaultLoggerTest {
 
 		String message = "message";
 		logger.warn(message);
-		System.out.flush();
 
-		assertThat(out.toString())
+		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isNotEmpty()
 			.isEqualTo("[WARN] [exiftool] " + message + BR);
@@ -80,9 +63,8 @@ public class DefaultLoggerTest {
 
 		String message = "message";
 		logger.error(message);
-		System.out.flush();
 
-		assertThat(out.toString())
+		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isNotEmpty()
 			.isEqualTo("[ERROR] [exiftool] " + message + BR);
@@ -94,9 +76,8 @@ public class DefaultLoggerTest {
 		DefaultLogger logger = new DefaultLogger(true);
 
 		logger.error(ex.getMessage(), ex);
-		System.out.flush();
 
-		String display = out.toString();
+		String display = systemOutRule.getPendingOut();
 		String[] lines = display.split(BR);
 
 		assertThat(lines[0])
@@ -116,9 +97,8 @@ public class DefaultLoggerTest {
 
 		String message = "message";
 		logger.debug(message);
-		System.out.flush();
 
-		assertThat(out.toString())
+		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isNotEmpty()
 			.isEqualTo("[DEBUG] [exiftool] " + message + BR);
@@ -130,9 +110,8 @@ public class DefaultLoggerTest {
 
 		String message = "message";
 		logger.debug(message);
-		System.out.flush();
 
-		assertThat(out.toString())
+		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isEmpty();
 	}
@@ -143,9 +122,8 @@ public class DefaultLoggerTest {
 
 		String message = "message %s";
 		logger.debug(message, "foo");
-		System.out.flush();
 
-		assertThat(out.toString())
+		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isNotEmpty()
 			.isEqualTo("[DEBUG] [exiftool] message foo" + BR);

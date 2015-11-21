@@ -29,4 +29,15 @@ public interface CommandExecutor {
 	 * @return Result of execution.
 	 */
 	CommandResult execute(Command command);
+
+	/**
+	 * Start command line and return associated process.
+	 * This process will be used to:
+	 * - Read output.
+	 * - Write arguments.
+	 *
+	 * @param command Command.
+	 * @return Process.
+	 */
+	CommandProcess start(Command command);
 }

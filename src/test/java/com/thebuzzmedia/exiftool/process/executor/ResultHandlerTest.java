@@ -16,16 +16,29 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
-import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExecutorsTest {
+public class ResultHandlerTest {
+
+	private static final String BR = System.getProperty("line.separator");
 
 	@Test
-	public void it_should_create_new_executor() {
-		CommandExecutor executor = CommandExecutors.newExecutor();
-		assertThat(executor).isNotNull();
+	public void it_should_handle_result() {
+		ResultHandler handler = new ResultHandler();
+		assertThat(handler.getOutput()).isEmpty();
+
+		handler.readLine("foo");
+		assertThat(handler.getOutput())
+			.isNotEmpty()
+			.isEqualTo("foo");
+
+		handler.readLine("bar");
+		assertThat(handler.getOutput())
+			.isNotEmpty()
+			.isEqualTo(
+				"foo" + BR + "bar"
+			);
 	}
 }

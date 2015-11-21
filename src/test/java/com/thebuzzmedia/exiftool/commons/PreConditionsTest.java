@@ -26,6 +26,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
@@ -151,6 +153,37 @@ public class PreConditionsTest {
 		val.put("foo", "bar");
 
 		Map<String, String> results = PreConditions.notEmpty(val, message);
+
+		assertThat(results)
+			.isNotNull()
+			.isNotEmpty()
+			.isSameAs(val);
+	}
+
+	@Test
+	public void it_should_fail_with_null_iterable() {
+		String message = "should not be empty";
+		thrown.expect(NullPointerException.class);
+		thrown.expectMessage(message);
+
+		PreConditions.notEmpty((Iterable<Object>) null, message);
+	}
+
+	@Test
+	public void it_should_fail_with_empty_iterable() {
+		String message = "should not be empty";
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage(message);
+
+		PreConditions.notEmpty(emptyList(), message);
+	}
+
+	@Test
+	public void it_should_not_fail_with_valid_iterable() {
+		String message = "should not be empty";
+		Iterable<String> val = asList("foo", "bar");
+
+		Iterable<String> results = PreConditions.notEmpty(val, message);
 
 		assertThat(results)
 			.isNotNull()

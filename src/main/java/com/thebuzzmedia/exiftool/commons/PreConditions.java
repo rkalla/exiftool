@@ -123,6 +123,29 @@ public final class PreConditions {
 	}
 
 	/**
+	 * Ensures that iterable element is:
+	 * - Not null.
+	 * - Not empty.
+	 *
+	 * @param val Value to check.
+	 * @param message Message passed to thrown exception.
+	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @return Original value if it is not null.
+	 * @throws java.lang.NullPointerException If {@code val} is null.
+	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
+	 */
+	public static <T> Iterable<T> notEmpty(Iterable<T> val, String message, Object... params) {
+		notNull(val, message, params);
+
+		if (!val.iterator().hasNext()) {
+			String msg = params.length > 0 ? format(message, params) : message;
+			throw new IllegalArgumentException(msg);
+		}
+
+		return val;
+	}
+
+	/**
 	 * Check that a given file exist and is readable.
 	 *
 	 * @param file File to check.

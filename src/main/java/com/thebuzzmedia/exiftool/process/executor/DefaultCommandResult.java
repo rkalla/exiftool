@@ -27,7 +27,7 @@ import static java.lang.String.format;
  * - An exit status: a zero means a success, otherwise it is a failure.
  * - Command output.
  */
-public class DefaultCommandResult implements CommandResult {
+class DefaultCommandResult implements CommandResult {
 
 	/**
 	 * Exit status, result of command execution.

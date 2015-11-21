@@ -28,9 +28,10 @@ import static com.thebuzzmedia.exiftool.commons.Collections.size;
 import static java.util.Collections.unmodifiableList;
 
 /**
- * Default implementation for {@link com.thebuzzmedia.exiftool.process.Command} interface.
+ * Default implementation for {@link Command} interface.
+ * This implementation should only be used with {@link com.thebuzzmedia.exiftool.process.command.CommandBuilder} builder.
  */
-public class DefaultCommand implements Command {
+class DefaultCommand implements Command {
 
 	/**
 	 * List of arguments:
@@ -43,13 +44,17 @@ public class DefaultCommand implements Command {
 
 	/**
 	 * Create command line.
+	 *
 	 * @param executable Executable value.
 	 * @param arguments List of optional arguments.
 	 */
 	DefaultCommand(String executable, List<String> arguments) {
 		List<String> args = new ArrayList<String>(size(arguments) + 1);
+
+		// Add first argument (should always be executable argument).
 		args.add(executable);
 
+		// Add optional arguments.
 		if (!isEmpty(arguments)) {
 			args.addAll(arguments);
 		}

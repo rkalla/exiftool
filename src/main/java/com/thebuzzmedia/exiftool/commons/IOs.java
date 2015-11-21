@@ -18,7 +18,7 @@ package com.thebuzzmedia.exiftool.commons;
 
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
-import com.thebuzzmedia.exiftool.process.handlers.ResultHandler;
+import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,22 +40,22 @@ public final class IOs {
 	}
 
 	/**
-	 * Read input and continue until {@link ResultHandler#readLine(String)} returns false.
+	 * Read input and continue until {@link OutputHandler#readLine(String)} returns false.
 	 *
 	 * @param is Input stream.
 	 * @param handler Result handler.
 	 */
-	public static void readInputStream(InputStream is, ResultHandler handler) {
+	public static void readInputStream(InputStream is, OutputHandler handler) {
 		log.trace("Read input stream");
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
 		try {
-			boolean next = true;
-			while (next) {
+			boolean hasNext = true;
+			while (hasNext) {
 				String line = br.readLine();
-				next = handler.readLine(line);
+				hasNext = handler.readLine(line);
 				log.trace("  - Line: %s", line);
-				log.trace("  - Continue: %s", next);
+				log.trace("  - Continue: %s", hasNext);
 			}
 		}
 		catch (IOException ex) {

@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultResultTest {
+public class DefaultCommandResultTest {
 
 	@Test
 	public void it_should_create_result() {

@@ -22,7 +22,6 @@ import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
-import com.thebuzzmedia.exiftool.process.handlers.ResultHandler;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,25 +31,37 @@ import static com.thebuzzmedia.exiftool.commons.IOs.readInputStream;
 /**
  * Default Executor.
  */
-public class DefaultCommandExecutor implements CommandExecutor {
+class DefaultCommandExecutor implements CommandExecutor {
 
 	/**
 	 * Class logger.
 	 */
 	private static final Logger log = LoggerFactory.getLogger(DefaultCommandExecutor.class);
 
-	// Ensure non instantiation.
+	/**
+	 * Create default executor.
+	 */
 	DefaultCommandExecutor() {
 	}
 
 	@Override
 	public CommandResult execute(Command command) {
+		final Process proc = createProcess(command);
+		final ResultHandler handler = new ResultHandler();
+		readInputStream(proc.getInputStream(), handler);
+		return new DefaultCommandResult(proc.exitValue(), handler.getOutput());
+	}
+
+	@Override
+	public DefaultCommandProcess start(Command command) {
+		final Process proc = createProcess(command);
+		return new DefaultCommandProcess(proc.getInputStream(), proc.getOutputStream());
+	}
+
+	private Process createProcess(Command command) {
 		try {
 			List<String> args = command.getArguments();
-			Process proc = new ProcessBuilder(args).start();
-			ResultHandler handler = new ResultHandler();
-			readInputStream(proc.getInputStream(), handler);
-			return new DefaultCommandResult(proc.exitValue(), handler.getOutput());
+			return new ProcessBuilder(args).start();
 		}
 		catch (IOException ex) {
 			log.error(ex.getMessage(), ex);

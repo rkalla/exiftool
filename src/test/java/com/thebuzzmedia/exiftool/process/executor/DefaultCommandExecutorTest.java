@@ -18,6 +18,7 @@ package com.thebuzzmedia.exiftool.process.executor;
 
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultExecutorTest {
+public class DefaultCommandExecutorTest {
 
 	@Test
 	public void it_should_execute_command_line() {
@@ -41,6 +42,22 @@ public class DefaultExecutorTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getExitStatus()).isZero();
 		assertThat(result.getOutput()).isEqualTo("Hello World");
+	}
+
+	@Test
+	public void it_should_start_command_line() {
+		File script = new File(getClass().getResource("/processes/success.sh").getFile());
+		Command command = createUnixCommand(script.getAbsolutePath());
+
+		CommandExecutor executor = new DefaultCommandExecutor();
+		CommandProcess process = executor.start(command);
+
+		assertThat(process).isNotNull();
+
+		String output = process.read();
+		assertThat(output)
+			.isNotNull()
+			.isEqualTo("Hello World");
 	}
 
 	private Command createUnixCommand(String script) {

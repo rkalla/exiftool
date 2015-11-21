@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.process.handlers;
+package com.thebuzzmedia.exiftool.process.executor;
 
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
@@ -26,7 +26,7 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
  * Note that this handler is not thread safe and should be
  * synchronized if needed.
  */
-public class ResultHandler implements OutputHandler {
+class ResultHandler implements OutputHandler {
 
 	/**
 	 * Line separator.
@@ -43,7 +43,7 @@ public class ResultHandler implements OutputHandler {
 	/**
 	 * Create new handler.
 	 */
-	public ResultHandler() {
+	ResultHandler() {
 		this.output = new StringBuilder();
 	}
 

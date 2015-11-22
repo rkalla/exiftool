@@ -30,11 +30,26 @@ public final class Objects {
 	 *
 	 * @param val1 First value.
 	 * @param val2 Second value.
+	 * @param others Other value.
 	 * @param <T> Type of parameters.
 	 * @return First parameter if it is not null, second parameter otherwise.
 	 */
-	public static <T> T firstNonNull(T val1, T val2) {
-		return val1 != null ? val1 : val2;
+	public static <T> T firstNonNull(T val1, T val2, T... others) {
+		if (val1 != null) {
+			return val1;
+		}
+
+		if (val2 != null) {
+			return val2;
+		}
+
+		for (T current : others) {
+			if (current != null) {
+				return current;
+			}
+		}
+
+		return null;
 	}
 
 	/**

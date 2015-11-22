@@ -47,6 +47,21 @@ public class ObjectsTest {
 	}
 
 	@Test
+	public void it_should_return_other_first_non_null_parameter() {
+		String v1 = null;
+		String v2 = null;
+		String o1 = null;
+		String o2 = "foo";
+		String o3 = "bar";
+
+		String foo = Objects.firstNonNull(v1, v2, o1, o2, o3);
+
+		assertThat(foo)
+			.isNotNull()
+			.isEqualTo(o2);
+	}
+
+	@Test
 	public void it_should_compute_hash_code() {
 		assertThat(Objects.hashCode(null)).isZero();
 		assertThat(Objects.hashCode("foobar")).isNotNull();

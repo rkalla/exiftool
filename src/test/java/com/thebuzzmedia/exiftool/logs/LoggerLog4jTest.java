@@ -106,7 +106,6 @@ public class LoggerLog4jTest extends AbstractLoggerTest {
 	}
 
 	private org.apache.log4j.Logger getLog4j(Logger logger) throws Exception {
-		System.out.println(logger.getClass());
 		Field field = logger.getClass().getDeclaredField("log");
 		field.setAccessible(true);
 		return (org.apache.log4j.Logger) field.get(logger);

@@ -21,6 +21,7 @@ import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,26 +49,45 @@ public final class IOs {
 	public static void readInputStream(InputStream is, OutputHandler handler) {
 		log.trace("Read input stream");
 
+		String line = null;
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
 		try {
 			boolean hasNext = true;
 			while (hasNext) {
-				String line = br.readLine();
+				line = br.readLine();
 				hasNext = handler.readLine(line);
 				log.trace("  - Line: %s", line);
 				log.trace("  - Continue: %s", hasNext);
 			}
 		}
 		catch (IOException ex) {
+			log.error(ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
 		finally {
-			try {
-				br.close();
+			// Maybe last line is not null (suppose an handler that should stop on given output).
+			// On the opposite, if line is null, then we know that stream should be closed.
+			if (line == null) {
+				closeQuietly(br);
 			}
-			catch (IOException ex) {
-				// No worries
-			}
+		}
+	}
+
+	/**
+	 * Close instance of {@link Closeable} object (stream, reader, writer, etc.).
+	 * If an {@link IOException} occurs during the close operation, then it is logged but it
+	 * will not fail by throwing another exception.
+	 *
+	 * @param closeable Closeable instance.
+	 */
+	public static void closeQuietly(Closeable closeable) {
+		try {
+			closeable.close();
+		}
+		catch (IOException ex) {
+			// No worries, but log warning at least.
+			log.warn(ex.getMessage(), ex);
 		}
 	}
 }

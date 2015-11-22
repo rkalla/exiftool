@@ -43,32 +43,34 @@ public class LoggerLog4j implements Logger {
 
 	@Override
 	public void trace(CharSequence message, Object... params) {
-		print(Level.TRACE, message.toString(), params);
+		print(Level.TRACE, message, params);
 	}
 
 	@Override
 	public void info(CharSequence message, Object... params) {
-		print(Level.INFO, message.toString(), params);
+		print(Level.INFO, message, params);
 	}
 
 	@Override
 	public void debug(CharSequence message, Object... params) {
-		print(Level.DEBUG, message.toString(), params);
+		print(Level.DEBUG, message, params);
 	}
 
 	@Override
 	public void warn(CharSequence message, Object... params) {
-		print(Level.WARN, message.toString(), params);
+		print(Level.WARN, message, params);
 	}
 
 	@Override
 	public void error(CharSequence message, Object... params) {
-		print(Level.ERROR, message.toString(), params);
+		print(Level.ERROR, message, params);
 	}
 
 	@Override
 	public void error(CharSequence message, Throwable ex) {
-		log.error(message, ex);
+		if (log.isEnabledFor(Level.ERROR)) {
+			log.error(message, ex);
+		}
 	}
 
 	@Override
@@ -76,13 +78,14 @@ public class LoggerLog4j implements Logger {
 		return log.isDebugEnabled();
 	}
 
-	private void print(Level level, String message, Object... params) {
+	private void print(Level level, CharSequence message, Object... params) {
 		if (log.isEnabledFor(level)) {
-			if (params.length > 0) {
-				message = format(message, params);
+			String msg = message == null ? null : message.toString();
+			if (msg != null && params.length > 0) {
+				msg = format(msg, params);
 			}
 
-			log.log(level, message);
+			log.log(level, msg);
 		}
 	}
 }

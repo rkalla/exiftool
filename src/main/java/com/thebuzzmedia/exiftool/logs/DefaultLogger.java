@@ -47,7 +47,7 @@ public class DefaultLogger implements Logger {
 	private final Level level;
 
 	DefaultLogger(boolean debug) {
-		this.level = debug ? Level.DEBUG : Level.INFO;
+		this.level = debug ? Level.TRACE : Level.INFO;
 	}
 
 	@Override
@@ -95,8 +95,8 @@ public class DefaultLogger implements Logger {
 
 	private void print(Level level, CharSequence message, Object... params) {
 		if (isEnabled(level)) {
-			String str = message.toString();
-			if (params.length > 0) {
+			String str = message == null ? null : message.toString();
+			if (str != null && params.length > 0) {
 				str = format(str, params);
 			}
 

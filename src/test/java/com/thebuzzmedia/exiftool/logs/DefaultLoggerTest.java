@@ -18,122 +18,80 @@ package com.thebuzzmedia.exiftool.logs;
 
 import com.thebuzzmedia.exiftool.junit.SystemOutRule;
 import org.junit.Rule;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultLoggerTest {
+public class DefaultLoggerTest extends AbstractLoggerTest {
 
 	private static final String BR = System.getProperty("line.separator");
 
 	@Rule
 	public SystemOutRule systemOutRule = new SystemOutRule();
 
-	@Test
-	public void it_should_display_info() {
-		DefaultLogger logger = new DefaultLogger(true);
-
-		String message = "message";
-		logger.info(message);
-
-		assertThat(systemOutRule.getPendingOut())
-			.isNotNull()
-			.isNotEmpty()
-			.isEqualTo("[INFO] [exiftool] " + message + BR);
-
-		System.out.println("out = " + systemOutRule.getPendingOut());
+	@Override
+	protected Logger getLogger() {
+		return new DefaultLogger(true);
 	}
 
-	@Test
-	public void it_should_display_warn() {
-		DefaultLogger logger = new DefaultLogger(true);
-
-		String message = "message";
-		logger.warn(message);
-
-		assertThat(systemOutRule.getPendingOut())
-			.isNotNull()
-			.isNotEmpty()
-			.isEqualTo("[WARN] [exiftool] " + message + BR);
+	@Override
+	protected Logger getLoggerWithoutDebug() {
+		return new DefaultLogger(false);
 	}
 
-	@Test
-	public void it_should_display_error() {
-		DefaultLogger logger = new DefaultLogger(true);
-
-		String message = "message";
-		logger.error(message);
-
-		assertThat(systemOutRule.getPendingOut())
-			.isNotNull()
-			.isNotEmpty()
-			.isEqualTo("[ERROR] [exiftool] " + message + BR);
+	@Override
+	protected void verifyInfo(Logger logger, String message, Object... params) throws Exception {
+		verifyCall("INFO", message, params);
 	}
 
-	@Test
-	public void it_should_display_exception() {
-		RuntimeException ex = new RuntimeException("Error Message");
-		DefaultLogger logger = new DefaultLogger(true);
+	@Override
+	protected void verifyWarn(Logger logger, String message, Object... params) throws Exception {
+		verifyCall("WARN", message, params);
+	}
 
-		logger.error(ex.getMessage(), ex);
+	@Override
+	protected void verifyError(Logger logger, String message, Object... params) throws Exception {
+		verifyCall("ERROR", message, params);
+	}
 
+	@Override
+	protected void verifyException(Logger logger, String message, Exception ex) throws Exception {
 		String display = systemOutRule.getPendingOut();
 		String[] lines = display.split(BR);
 
 		assertThat(lines[0])
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo("[ERROR] [exiftool] " + ex.getMessage());
+			.isEqualTo("[ERROR] [exiftool] " + message);
 
 		assertThat(lines[1])
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo("[ERROR] [exiftool] java.lang.RuntimeException: Error Message");
+			.isEqualTo("[ERROR] [exiftool] " + ex.getClass().getName() + ": " + ex.getMessage());
 	}
 
-	@Test
-	public void it_should_display_debug() {
-		DefaultLogger logger = new DefaultLogger(true);
-
-		String message = "message";
-		logger.debug(message);
-
-		assertThat(systemOutRule.getPendingOut())
-			.isNotNull()
-			.isNotEmpty()
-			.isEqualTo("[DEBUG] [exiftool] " + message + BR);
+	@Override
+	protected void verifyDebug(Logger logger, String message, Object... params) throws Exception {
+		verifyCall("DEBUG", message, params);
 	}
 
-	@Test
-	public void it_should_not_display_debug_if_it_is_disabled() {
-		DefaultLogger logger = new DefaultLogger(false);
-
-		String message = "message";
-		logger.debug(message);
-
+	@Override
+	protected void verifyWithoutDebug(Logger logger, String message, Object... params) throws Exception {
 		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isEmpty();
 	}
 
-	@Test
-	public void it_should_display_message_with_parameters() {
-		DefaultLogger logger = new DefaultLogger(true);
+	@Override
+	protected void verifyTrace(Logger logger, String message, Object... params) throws Exception {
+		verifyCall("TRACE", message, params);
+	}
 
-		String message = "message %s";
-		logger.debug(message, "foo");
-
+	private void verifyCall(String level, String message, Object... params) {
+		String msg = message == null ? null : String.format(message, params);
+		String expectedMessage = String.format("[%s] [exiftool] %s" + BR, level, msg);
 		assertThat(systemOutRule.getPendingOut())
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo("[DEBUG] [exiftool] message foo" + BR);
-	}
-
-	@Test
-	public void it_should_check_if_debug_is_enabled() {
-		DefaultLogger logger1 = new DefaultLogger(true);
-		DefaultLogger logger2 = new DefaultLogger(false);
-		assertThat(logger1.isDebugEnabled()).isTrue();
-		assertThat(logger2.isDebugEnabled()).isFalse();
+			.isEqualTo(expectedMessage);
 	}
 }

@@ -16,104 +16,92 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.lang.reflect.Field;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class LoggerSlf4jTest {
+public class LoggerSlf4jTest extends AbstractLoggerTest {
 
-	private org.slf4j.Logger slf4j;
-
-	@Before
-	public void setUp() {
-		slf4j = mock(org.slf4j.Logger.class);
+	@Override
+	protected Logger getLogger() {
+		org.slf4j.Logger slf4j = mock(org.slf4j.Logger.class);
 
 		when(slf4j.isTraceEnabled()).thenReturn(true);
 		when(slf4j.isDebugEnabled()).thenReturn(true);
 		when(slf4j.isInfoEnabled()).thenReturn(true);
 		when(slf4j.isWarnEnabled()).thenReturn(true);
 		when(slf4j.isErrorEnabled()).thenReturn(true);
+
+		return new LoggerSlf4j(slf4j);
 	}
 
-	@Test
-	public void it_should_display_info() {
-		String message = "message";
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.info(message);
-		verify(slf4j).info(message, new Object[]{ });
+	@Override
+	protected Logger getLoggerWithoutDebug() {
+		org.slf4j.Logger slf4j = mock(org.slf4j.Logger.class);
+
+		when(slf4j.isTraceEnabled()).thenReturn(false);
+		when(slf4j.isDebugEnabled()).thenReturn(false);
+		when(slf4j.isInfoEnabled()).thenReturn(true);
+		when(slf4j.isWarnEnabled()).thenReturn(true);
+		when(slf4j.isErrorEnabled()).thenReturn(true);
+
+		return new LoggerSlf4j(slf4j);
 	}
 
-	@Test
-	public void it_should_display_warn() {
-		String message = "message";
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.warn(message);
-		verify(slf4j).warn(message, new Object[]{ });
+	@Override
+	protected void verifyInfo(Logger logger, String message, Object... params) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).info(toSlf4jMessage(message), params);
 	}
 
-	@Test
-	public void it_should_display_error() {
-		String message = "message";
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.error(message);
-		verify(slf4j).error(message, new Object[]{ });
+	@Override
+	protected void verifyWarn(Logger logger, String message, Object... params) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).warn(toSlf4jMessage(message), params);
 	}
 
-	@Test
-	public void it_should_display_exception() {
-		RuntimeException ex = new RuntimeException("Error Message");
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.error(ex.getMessage(), ex);
-		verify(slf4j).error(ex.getMessage(), ex);
+	@Override
+	protected void verifyError(Logger logger, String message, Object... params) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).error(toSlf4jMessage(message), params);
 	}
 
-	@Test
-	public void it_should_display_trace() {
-		String message = "message";
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.trace(message);
-		verify(slf4j).trace(message, new Object[]{ });
+	@Override
+	protected void verifyException(Logger logger, String message, Exception ex) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).error(message, ex);
 	}
 
-	@Test
-	public void it_should_display_debug() {
-		String message = "message";
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.debug(message);
-		verify(slf4j).debug(message, new Object[]{ });
+	@Override
+	protected void verifyDebug(Logger logger, String message, Object... params) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).debug(toSlf4jMessage(message), params);
 	}
 
-	@Test
-	public void it_should_display_message_with_parameters() {
-		String message = "message {}";
-		String parameter = "foo";
-
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.debug(message, "foo");
-
-		verify(slf4j).debug(message, new Object[]{ parameter });
+	@Override
+	protected void verifyWithoutDebug(Logger logger, String message, Object... params) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j, never()).debug(anyString(), any(Object[].class));
 	}
 
-	@Test
-	public void it_should_display_message_with_custom_parameters() {
-		String message = "message %s %s";
-		String parameter = "foo";
-
-		LoggerSlf4j logger = new LoggerSlf4j(slf4j);
-		logger.debug(message, "foo");
-
-		verify(slf4j).debug("message {} {}", new Object[]{ parameter });
+	@Override
+	protected void verifyTrace(Logger logger, String message, Object... params) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).trace(toSlf4jMessage(message), params);
 	}
 
-	@Test
-	public void it_should_check_if_debug_is_enabled() {
-		when(slf4j.isDebugEnabled()).thenReturn(true);
-		LoggerSlf4j logger1 = new LoggerSlf4j(slf4j);
-		assertThat(logger1.isDebugEnabled()).isTrue();
-		verify(slf4j).isDebugEnabled();
+	private org.slf4j.Logger getSlf4j(Logger logger) throws Exception {
+		Field field = logger.getClass().getDeclaredField("log");
+		field.setAccessible(true);
+		return (org.slf4j.Logger) field.get(logger);
+	}
+
+	private String toSlf4jMessage(String msg) {
+		return msg != null ? msg.replace("%s", "{}") : msg;
 	}
 }

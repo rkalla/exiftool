@@ -39,32 +39,33 @@ public class LoggerSlf4j implements Logger {
 
 	@Override
 	public void trace(CharSequence message, Object... params) {
-		print(Level.TRACE, message.toString(), params);
+		print(Level.TRACE, message, params);
 	}
 
 	@Override
 	public void info(CharSequence message, Object... params) {
-		print(Level.INFO, message.toString(), params);
+		print(Level.INFO, message, params);
 	}
 
 	@Override
 	public void debug(CharSequence message, Object... params) {
-		print(Level.DEBUG, message.toString(), params);
+		print(Level.DEBUG, message, params);
 	}
 
 	@Override
 	public void warn(CharSequence message, Object... params) {
-		print(Level.WARN, message.toString(), params);
+		print(Level.WARN, message, params);
 	}
 
 	@Override
 	public void error(CharSequence message, Object... params) {
-		print(Level.ERROR, message.toString(), params);
+		print(Level.ERROR, message, params);
 	}
 
 	@Override
 	public void error(CharSequence message, Throwable ex) {
-		log.error(message.toString(), ex);
+		String msg = message == null ? null : message.toString();
+		log.error(msg, ex);
 	}
 
 	@Override
@@ -74,8 +75,8 @@ public class LoggerSlf4j implements Logger {
 
 	private void print(Level level, CharSequence message, Object... params) {
 		if (level.isEnabled(log)) {
-			String str = message.toString();
-			if (params.length > 0) {
+			String str = message == null ? null : message.toString();
+			if (str != null && params.length > 0) {
 				str = str.replaceAll("%s", "{}");
 			}
 

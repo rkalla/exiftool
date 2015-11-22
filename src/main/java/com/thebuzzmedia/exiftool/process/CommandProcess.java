@@ -1,5 +1,7 @@
 package com.thebuzzmedia.exiftool.process;
 
+import java.io.IOException;
+
 public interface CommandProcess extends AutoCloseable {
 
 	/**
@@ -31,8 +33,9 @@ public interface CommandProcess extends AutoCloseable {
 	 * of {@link com.thebuzzmedia.exiftool.exceptions.ProcessException} should be thrown.
 	 *
 	 * @param input Input.
+	 * @param others Other inputs.
 	 */
-	void write(String input);
+	void write(String input, String... others);
 
 	/**
 	 * Write set of inputs to the current process.
@@ -42,6 +45,11 @@ public interface CommandProcess extends AutoCloseable {
 	 * @param inputs Collection of inputs.
 	 */
 	void write(Iterable<String> inputs);
+
+	/**
+	 * Flush pending write operations.
+	 */
+	void flush() throws IOException;
 
 	/**
 	 * Check if current process is still opened.

@@ -36,6 +36,15 @@ public class ProcessException extends AbstractExifException {
 	/**
 	 * Create exception.
 	 *
+	 * @param ex Original Exception.
+	 */
+	public ProcessException(InterruptedException ex) {
+		super(ex);
+	}
+
+	/**
+	 * Create exception.
+	 *
 	 * @param message Error message.
 	 */
 	public ProcessException(String message) {

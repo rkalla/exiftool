@@ -20,6 +20,7 @@ import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.CommandResult;
+import com.thebuzzmedia.exiftool.process.OutputHandler;
 import org.junit.Test;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import java.io.File;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultCommandExecutorTest {
@@ -38,6 +40,22 @@ public class DefaultCommandExecutorTest {
 
 		CommandExecutor executor = new DefaultCommandExecutor();
 		CommandResult result = executor.execute(command);
+
+		assertThat(result).isNotNull();
+		assertThat(result.getExitStatus()).isZero();
+		assertThat(result.getOutput()).isEqualTo("Hello World");
+	}
+
+	@Test
+	public void it_should_execute_command_line_with_handler() {
+		File script = new File(getClass().getResource("/processes/success.sh").getFile());
+		Command command = createUnixCommand(script.getAbsolutePath());
+		OutputHandler handler = mock(OutputHandler.class);
+
+		CommandExecutor executor = new DefaultCommandExecutor();
+		CommandResult result = executor.execute(command, handler);
+
+		verify(handler).readLine("Hello World");
 
 		assertThat(result).isNotNull();
 		assertThat(result.getExitStatus()).isZero();

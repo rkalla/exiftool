@@ -57,22 +57,30 @@ public class DefaultCommandProcessTest {
 	public void it_should_fail_with_null_input() {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Input stream should not be null");
-		new DefaultCommandProcess(null, mock(OutputStream.class));
+		new DefaultCommandProcess(null, mock(OutputStream.class), mock(InputStream.class));
 	}
 
 	@Test
 	public void it_should_fail_with_null_output() {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Output stream should not be null");
-		new DefaultCommandProcess(mock(InputStream.class), null);
+		new DefaultCommandProcess(mock(InputStream.class), null, mock(InputStream.class));
+	}
+
+	@Test
+	public void it_should_fail_with_null_error_input() {
+		thrown.expect(NullPointerException.class);
+		thrown.expectMessage("Error stream should not be null");
+		new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), null);
 	}
 
 	@Test
 	public void it_should_close_process() throws Exception {
 		OutputStream os = mock(OutputStream.class);
 		InputStream is = mock(InputStream.class);
+		InputStream err = mock(InputStream.class);
 
-		DefaultCommandProcess process = new DefaultCommandProcess(is, os);
+		DefaultCommandProcess process = new DefaultCommandProcess(is, os, err);
 		assertThat(process.isClosed()).isFalse();
 		assertThat(process.isRunning()).isTrue();
 
@@ -80,6 +88,7 @@ public class DefaultCommandProcessTest {
 
 		verify(is).close();
 		verify(os).close();
+		verify(err).close();
 
 		assertThat(process.isClosed()).isTrue();
 		assertThat(process.isRunning()).isFalse();
@@ -89,11 +98,12 @@ public class DefaultCommandProcessTest {
 	public void it_should_close_process_with_first_failure() throws Exception {
 		OutputStream os = mock(OutputStream.class);
 		InputStream is = mock(InputStream.class);
+		InputStream err = mock(InputStream.class);
 
 		IOException ex = new IOException("fail");
 		doThrow(ex).when(os).close();
 
-		DefaultCommandProcess process = new DefaultCommandProcess(is, os);
+		DefaultCommandProcess process = new DefaultCommandProcess(is, os, err);
 		assertThat(process.isClosed()).isFalse();
 		assertThat(process.isRunning()).isTrue();
 
@@ -101,11 +111,12 @@ public class DefaultCommandProcessTest {
 			process.close();
 			failBecauseExceptionWasNotThrown(IOException.class);
 		}
-		catch (ProcessException e) {
-			assertThat(e.getCause()).isSameAs(ex);
+		catch (IOException e) {
+			assertThat(e).isSameAs(ex);
 
 			verify(is).close();
 			verify(os).close();
+			verify(err).close();
 
 			assertThat(process.isClosed()).isTrue();
 			assertThat(process.isRunning()).isFalse();
@@ -116,11 +127,12 @@ public class DefaultCommandProcessTest {
 	public void it_should_close_process_with_second_failure() throws Exception {
 		OutputStream os = mock(OutputStream.class);
 		InputStream is = mock(InputStream.class);
+		InputStream err = mock(InputStream.class);
 
 		IOException ex = new IOException("fail");
 		doThrow(ex).when(is).close();
 
-		DefaultCommandProcess process = new DefaultCommandProcess(is, os);
+		DefaultCommandProcess process = new DefaultCommandProcess(is, os, err);
 		assertThat(process.isClosed()).isFalse();
 		assertThat(process.isRunning()).isTrue();
 
@@ -128,11 +140,12 @@ public class DefaultCommandProcessTest {
 			process.close();
 			failBecauseExceptionWasNotThrown(IOException.class);
 		}
-		catch (ProcessException e) {
-			assertThat(e.getCause()).isSameAs(ex);
+		catch (IOException e) {
+			assertThat(e).isSameAs(ex);
 
 			verify(is).close();
 			verify(os).close();
+			verify(err).close();
 
 			assertThat(process.isClosed()).isTrue();
 			assertThat(process.isRunning()).isFalse();
@@ -140,17 +153,15 @@ public class DefaultCommandProcessTest {
 	}
 
 	@Test
-	public void it_should_close_process_with_both_failure() throws Exception {
+	public void it_should_close_process_with_third_failure() throws Exception {
 		OutputStream os = mock(OutputStream.class);
 		InputStream is = mock(InputStream.class);
+		InputStream err = mock(InputStream.class);
 
-		IOException ex1 = new IOException("fail1");
-		doThrow(ex1).when(os).close();
+		IOException ex = new IOException("fail");
+		doThrow(ex).when(err).close();
 
-		IOException ex2 = new IOException("fail2");
-		doThrow(ex2).when(is).close();
-
-		DefaultCommandProcess process = new DefaultCommandProcess(is, os);
+		DefaultCommandProcess process = new DefaultCommandProcess(is, os, err);
 		assertThat(process.isClosed()).isFalse();
 		assertThat(process.isRunning()).isTrue();
 
@@ -158,11 +169,47 @@ public class DefaultCommandProcessTest {
 			process.close();
 			failBecauseExceptionWasNotThrown(IOException.class);
 		}
-		catch (ProcessException e) {
-			assertThat(e.getCause()).isSameAs(ex1);
+		catch (IOException e) {
+			assertThat(e).isSameAs(ex);
 
 			verify(is).close();
 			verify(os).close();
+			verify(err).close();
+
+			assertThat(process.isClosed()).isTrue();
+			assertThat(process.isRunning()).isFalse();
+		}
+	}
+
+	@Test
+	public void it_should_close_process_with_all_failure() throws Exception {
+		OutputStream os = mock(OutputStream.class);
+		InputStream is = mock(InputStream.class);
+		InputStream err = mock(InputStream.class);
+
+		IOException ex1 = new IOException("fail1");
+		doThrow(ex1).when(os).close();
+
+		IOException ex2 = new IOException("fail2");
+		doThrow(ex2).when(is).close();
+
+		IOException ex3 = new IOException("fail3");
+		doThrow(ex3).when(err).close();
+
+		DefaultCommandProcess process = new DefaultCommandProcess(is, os, err);
+		assertThat(process.isClosed()).isFalse();
+		assertThat(process.isRunning()).isTrue();
+
+		try {
+			process.close();
+			failBecauseExceptionWasNotThrown(IOException.class);
+		}
+		catch (IOException e) {
+			assertThat(e).isSameAs(ex1);
+
+			verify(is).close();
+			verify(os).close();
+			verify(err).close();
 
 			assertThat(process.isClosed()).isTrue();
 			assertThat(process.isRunning()).isFalse();
@@ -176,7 +223,7 @@ public class DefaultCommandProcessTest {
 		String output = firstLine + BR + secondLine;
 		InputStream stream = new ByteArrayInputStream(output.getBytes(StandardCharsets.UTF_8));
 
-		DefaultCommandProcess process = new DefaultCommandProcess(stream, mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(stream, mock(OutputStream.class), mock(InputStream.class));
 		String out = process.read();
 
 		assertThat(out)
@@ -189,7 +236,7 @@ public class DefaultCommandProcessTest {
 	public void it_should_not_read_from_closed_process() throws Exception {
 		thrown.expect(ProcessException.class);
 		thrown.expectMessage("Cannot read from closed process");
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.close();
 		process.read();
 	}
@@ -211,7 +258,7 @@ public class DefaultCommandProcessTest {
 			}
 		});
 
-		DefaultCommandProcess process = new DefaultCommandProcess(stream, mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(stream, mock(OutputStream.class), mock(InputStream.class));
 		String out = process.read(handler);
 
 		assertThat(out)
@@ -230,7 +277,7 @@ public class DefaultCommandProcessTest {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		String message = "foo";
 
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), os);
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), os, mock(InputStream.class));
 		process.write(message);
 
 		assertThat(os.toString())
@@ -248,7 +295,7 @@ public class DefaultCommandProcessTest {
 		IOException ex = new IOException("fail");
 		doThrow(ex).when(os).write(any(byte[].class));
 
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), os);
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), os, mock(InputStream.class));
 		process.write("foo");
 	}
 
@@ -256,7 +303,7 @@ public class DefaultCommandProcessTest {
 	public void it_should_not_write_null_output() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Write input should not be null");
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.write((String) null);
 	}
 
@@ -264,7 +311,7 @@ public class DefaultCommandProcessTest {
 	public void it_should_not_write_null_outputs() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Write inputs should not be empty");
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.write((Iterable<String>) null);
 	}
 
@@ -273,7 +320,7 @@ public class DefaultCommandProcessTest {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Write inputs should not be empty");
 		List<String> inputs = emptyList();
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.write(inputs);
 	}
 
@@ -281,7 +328,7 @@ public class DefaultCommandProcessTest {
 	public void it_should_not_write_from_closed_process() throws Exception {
 		thrown.expect(ProcessException.class);
 		thrown.expectMessage("Cannot write from closed process");
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class));
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.close();
 		process.write("foo");
 	}
@@ -292,7 +339,7 @@ public class DefaultCommandProcessTest {
 		String msg1 = "foo";
 		String msg2 = "bar";
 
-		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), os);
+		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), os, mock(InputStream.class));
 		process.write(asList(msg1, msg2));
 
 		assertThat(os.toString())

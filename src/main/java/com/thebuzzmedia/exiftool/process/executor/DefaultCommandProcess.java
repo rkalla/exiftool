@@ -22,6 +22,7 @@ import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,6 +59,11 @@ class DefaultCommandProcess implements CommandProcess {
 	private final OutputStream os;
 
 	/**
+	 * Error Stream.
+	 */
+	private final InputStream err;
+
+	/**
 	 * Flag to know if a given process has been closed.
 	 */
 	private boolean close;
@@ -67,9 +73,10 @@ class DefaultCommandProcess implements CommandProcess {
 	 * @param is Input stream.
 	 * @param os Output streap.
 	 */
-	DefaultCommandProcess(InputStream is, OutputStream os) {
+	DefaultCommandProcess(InputStream is, OutputStream os, InputStream err) {
 		this.is = notNull(is, "Input stream should not be null");
 		this.os = notNull(os, "Output stream should not be null");
+		this.err = notNull(err, "Error stream should not be null");
 		this.close = false;
 	}
 
@@ -84,8 +91,13 @@ class DefaultCommandProcess implements CommandProcess {
 	}
 
 	@Override
-	public void write(String input) {
+	public void write(String input, String... others) {
 		doWrite(input);
+
+		// Write other inputs.
+		for (String o : others) {
+			doWrite(o);
+		}
 	}
 
 	@Override
@@ -94,6 +106,11 @@ class DefaultCommandProcess implements CommandProcess {
 		for (String input : inputs) {
 			doWrite(input);
 		}
+	}
+
+	@Override
+	public void flush() throws IOException {
+		os.flush();
 	}
 
 	@Override
@@ -108,31 +125,21 @@ class DefaultCommandProcess implements CommandProcess {
 
 	@Override
 	public void close() throws Exception {
-		IOException ex1 = closeOut();
-		IOException ex2 = closeIn();
+		IOException ex1 = close(os);
+		IOException ex2 = close(is);
+		IOException ex3 = close(err);
 
 		close = true;
 
 		// Throw exception if something bad happened
-		if (ex1 != null || ex2 != null) {
-			throw new ProcessException(firstNonNull(ex1, ex2));
+		if (ex1 != null || ex2 != null || ex3 != null) {
+			throw firstNonNull(ex1, ex2, ex3);
 		}
 	}
 
-	private IOException closeOut() {
+	private IOException close(Closeable closeable) {
 		try {
-			os.close();
-			return null;
-		}
-		catch (IOException ex) {
-			log.error(ex.getMessage(), ex);
-			return ex;
-		}
-	}
-
-	private IOException closeIn() {
-		try {
-			is.close();
+			closeable.close();
 			return null;
 		}
 		catch (IOException ex) {

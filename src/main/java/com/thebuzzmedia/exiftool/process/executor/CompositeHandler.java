@@ -62,7 +62,9 @@ class CompositeHandler implements OutputHandler {
 	public boolean readLine(String line) {
 		boolean hasNext = true;
 		for (OutputHandler handler : handlers) {
-			hasNext &= handler.readLine(line);
+			if (!handler.readLine(line)) {
+				hasNext = false;
+			}
 		}
 
 		return hasNext;

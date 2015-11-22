@@ -22,11 +22,14 @@ import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
+import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 import java.io.IOException;
 import java.util.List;
 
+import static com.thebuzzmedia.exiftool.commons.IOs.closeQuietly;
 import static com.thebuzzmedia.exiftool.commons.IOs.readInputStream;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
 
 /**
  * Default Executor.
@@ -46,16 +49,42 @@ class DefaultCommandExecutor implements CommandExecutor {
 
 	@Override
 	public CommandResult execute(Command command) {
-		final Process proc = createProcess(command);
-		final ResultHandler handler = new ResultHandler();
-		readInputStream(proc.getInputStream(), handler);
-		return new DefaultCommandResult(proc.exitValue(), handler.getOutput());
+		return readProcessOutput(command, null);
+	}
+
+	@Override
+	public CommandResult execute(Command command, OutputHandler handler) {
+		return readProcessOutput(command, notNull(handler, "Handler should not be null"));
 	}
 
 	@Override
 	public DefaultCommandProcess start(Command command) {
 		final Process proc = createProcess(command);
-		return new DefaultCommandProcess(proc.getInputStream(), proc.getOutputStream());
+		return new DefaultCommandProcess(proc.getInputStream(), proc.getOutputStream(), proc.getErrorStream());
+	}
+
+	private CommandResult readProcessOutput(Command cmd, OutputHandler h) {
+		final Process proc = createProcess(cmd);
+		final ResultHandler h1 = new ResultHandler();
+		final OutputHandler handler = h == null ? h1 : new CompositeHandler(h, h1);
+
+		readInputStream(proc.getInputStream(), handler);
+
+		// Wait for end of process
+		try {
+			proc.waitFor();
+			return new DefaultCommandResult(proc.exitValue(), h1.getOutput());
+		}
+		catch (InterruptedException ex) {
+			log.error(ex.getMessage(), ex);
+			throw new ProcessException(ex);
+		}
+		finally {
+			// Close streams.
+			closeQuietly(proc.getInputStream());
+			closeQuietly(proc.getOutputStream());
+			closeQuietly(proc.getErrorStream());
+		}
 	}
 
 	private Process createProcess(Command command) {

@@ -31,6 +31,16 @@ public interface CommandExecutor {
 	CommandResult execute(Command command);
 
 	/**
+	 * Execute command and build the result.
+	 * Note that execution is synchronous.
+	 *
+	 * @param command Command.
+	 * @param handler Custom output handler.
+	 * @return Result of execution.
+	 */
+	CommandResult execute(Command command, OutputHandler handler);
+
+	/**
 	 * Start command line and return associated process.
 	 * This process will be used to:
 	 * - Read output.

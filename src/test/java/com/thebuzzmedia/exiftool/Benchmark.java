@@ -6,7 +6,7 @@ import java.io.IOException;
 public class Benchmark {
 	public static final int ITERS = 25;
 	public static final Tag[] TAGS = Tag.values();
-	public static final File[] IMAGES = new File("src/test/resources")
+	public static final File[] IMAGES = new File("src/test/resources/images")
 			.listFiles();
 
 	public static void main(String[] args) throws IOException,

@@ -19,11 +19,10 @@ package com.thebuzzmedia.exiftool.logs;
 import com.thebuzzmedia.exiftool.junit.SystemOutRule;
 import org.junit.Rule;
 
+import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultLoggerTest extends AbstractLoggerTest {
-
-	private static final String BR = System.getProperty("line.separator");
 
 	@Rule
 	public SystemOutRule systemOutRule = new SystemOutRule();

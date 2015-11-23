@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,8 +48,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultCommandProcessTest {
-
-	private static final String BR = System.getProperty("line.separator");
 
 	@Rule
 	public ExpectedException thrown = none();

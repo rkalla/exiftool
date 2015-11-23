@@ -17,9 +17,17 @@
 package com.thebuzzmedia.exiftool.commons;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CollectionsTest {
 
@@ -43,5 +51,38 @@ public class CollectionsTest {
 		assertThat(Collections.join(java.util.Collections.emptyList(), " ")).isEqualTo("");
 		assertThat(Collections.join(asList("foo"), " ")).isEqualTo("foo");
 		assertThat(Collections.join(asList("foo", "bar"), " ")).isEqualTo("foo bar");
+	}
+
+	@Test
+	public void it_should_map_inputs_to_outputs() {
+		@SuppressWarnings("unchecked")
+		Mapper<String, String> mapper = mock(Mapper.class);
+
+		final String suffix = "from_mapper";
+		when(mapper.map(anyString())).thenAnswer(new Answer<String>() {
+			@Override
+			public String answer(InvocationOnMock invocation) throws Throwable {
+				String input = (String) invocation.getArguments()[0];
+				return input + suffix;
+			}
+		});
+
+		String input1 = "foo";
+		String input2 = "bar";
+		List<String> inputs = asList(input1, input2);
+
+		List<String> outputs = Collections.map(inputs, mapper);
+
+		verify(mapper).map(input1);
+		verify(mapper).map(input2);
+
+		assertThat(outputs)
+			.isNotNull()
+			.isNotEmpty()
+			.hasSameSizeAs(inputs)
+			.containsExactly(
+				input1 + "from_mapper",
+				input2 + "from_mapper"
+			);
 	}
 }

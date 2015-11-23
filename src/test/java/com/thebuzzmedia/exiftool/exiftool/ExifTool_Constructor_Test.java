@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.exiftool;
 
+import com.thebuzzmedia.exiftool.ExifTool;
+import com.thebuzzmedia.exiftool.Feature;
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;

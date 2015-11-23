@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Example {
 	public static final int ITERS = 100;
-	public static final File[] IMAGES = new File("src/test/resources")
+	public static final File[] IMAGES = new File("src/test/resources/images")
 			.listFiles();
 
 	public static void main(String[] args) throws IOException,
@@ -14,7 +14,7 @@ public class Example {
 //				"D:\\Tools\\exiftool.exe");
 //		System.setProperty("imgscalr.ext.exiftool.debug", "false");
 
-		ExifTool tool = new ExifTool();
+		ExifTool tool = new ExifTool(Feature.STAY_OPEN);
 
 		for (File f : IMAGES) {
 			System.out.println("\n[" + f.getName() + "]");

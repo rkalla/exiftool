@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -37,8 +38,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class IOsTest {
-
-	private static final String BR = System.getProperty("line.separator");
 
 	@Test
 	public void it_should_read_input_stream() throws Exception {

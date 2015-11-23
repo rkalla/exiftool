@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
 
 /**
  * Command builder.
@@ -78,6 +79,23 @@ public class CommandBuilder {
 			for (String a : args) {
 				add(a);
 			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * Add all arguments to the command line.
+	 *
+	 * @param arguments All arguments.
+	 * @return The builder.
+	 * @throws NullPointerException If arguments is null.
+	 * @throws IllegalArgumentException If arguments is empty.
+	 */
+	public CommandBuilder addAll(Iterable<String> arguments) {
+		notEmpty(arguments, "Arguments should not be empty");
+		for (String arg : arguments) {
+			add(arg);
 		}
 
 		return this;

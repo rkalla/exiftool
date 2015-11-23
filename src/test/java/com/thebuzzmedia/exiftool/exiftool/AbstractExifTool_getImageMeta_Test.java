@@ -15,9 +15,12 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.exiftool;
 
-import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
+import com.thebuzzmedia.exiftool.ExifTool;
+import com.thebuzzmedia.exiftool.Format;
+import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
@@ -32,8 +35,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,16 +46,14 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(CommandExecutors.class)
-public class ExifTool_setImageMeta_Test {
+public abstract class AbstractExifTool_getImageMeta_Test {
 
 	@Rule
 	public ExpectedException thrown = none();
 
-	private ExifTool exifTool;
+	protected ExifTool exifTool;
 
-	private CommandExecutor executor;
-
-	private Map<Tag, String> tags;
+	protected CommandExecutor executor;
 
 	@Before
 	public void setUp() {
@@ -69,22 +68,20 @@ public class ExifTool_setImageMeta_Test {
 		when(resultVersion.isSuccess()).thenReturn(true);
 		when(executor.execute(any(Command.class))).thenReturn(resultVersion);
 
-		exifTool = new ExifTool();
+		exifTool = createExifTool();
 		assertThat(exifTool.getVersion()).isEqualTo("9.36");
 
 		reset(executor);
-
-		tags = new HashMap<Tag, String>();
-		tags.put(Tag.APERTURE, "foo");
-		tags.put(Tag.ARTIST, "bar");
 	}
+
+	protected abstract ExifTool createExifTool();
 
 	@Test
 	public void it_should_fail_if_image_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Image cannot be null and must be a valid stream of image data.");
 
-		exifTool.setImageMeta(null, Format.HUMAN_READABLE, tags);
+		exifTool.getImageMeta(null, Format.HUMAN_READABLE, Tag.values());
 	}
 
 	@Test
@@ -92,7 +89,7 @@ public class ExifTool_setImageMeta_Test {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Format cannot be null.");
 
-		exifTool.setImageMeta(mock(File.class), null, tags);
+		exifTool.getImageMeta(mock(File.class), null, Tag.values());
 	}
 
 	@Test
@@ -100,7 +97,7 @@ public class ExifTool_setImageMeta_Test {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
 
-		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
+		exifTool.getImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
 	}
 
 	@Test
@@ -108,34 +105,86 @@ public class ExifTool_setImageMeta_Test {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
 
-		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, Collections.<Tag, String>emptyMap());
+		exifTool.getImageMeta(mock(File.class), Format.HUMAN_READABLE, new Tag[]{ });
 	}
 
 	@Test
 	public void it_should_fail_with_unknown_file() throws Exception {
-		thrown.expect(UnwritableFileException.class);
+		thrown.expect(UnreadableFileException.class);
 		thrown.expectMessage("Unable to read the given image [/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
 
 		File image = mock(File.class);
 		when(image.getPath()).thenReturn("/foo.png");
 		when(image.exists()).thenReturn(false);
-		when(image.canWrite()).thenReturn(true);
+		when(image.canRead()).thenReturn(true);
 		when(image.toString()).thenCallRealMethod();
 
-		exifTool.setImageMeta(image, Format.HUMAN_READABLE, tags);
+		exifTool.getImageMeta(image, Format.HUMAN_READABLE, Tag.values());
 	}
 
 	@Test
-	public void it_should_fail_with_non_writable_file() throws Exception {
-		thrown.expect(UnwritableFileException.class);
+	public void it_should_fail_with_non_readable_file() throws Exception {
+		thrown.expect(UnreadableFileException.class);
 		thrown.expectMessage("Unable to read the given image [/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
 
 		File image = mock(File.class);
 		when(image.getPath()).thenReturn("/foo.png");
 		when(image.exists()).thenReturn(true);
-		when(image.canWrite()).thenReturn(false);
+		when(image.canRead()).thenReturn(false);
 		when(image.toString()).thenCallRealMethod();
 
-		exifTool.setImageMeta(image, Format.HUMAN_READABLE, tags);
+		exifTool.getImageMeta(image, Format.HUMAN_READABLE, Tag.values());
+	}
+
+	@Test
+	public void it_should_get_image_metadata() throws Exception {
+		// Given
+		Format format = Format.HUMAN_READABLE;
+		File image = createValidImage();
+		Tag[] tags = new Tag[]{
+			Tag.ARTIST,
+			Tag.COMMENT
+		};
+
+		mockExecutor();
+
+		// When
+		Map<Tag, String> results = exifTool.getImageMeta(image, format, tags);
+
+		// Then
+		verifyExecution(format, results);
+	}
+
+	@Test
+	public void it_should_get_image_metadata_in_numeric_format() throws Exception {
+		// Given
+		Format format = Format.NUMERIC;
+		File image = createValidImage();
+		Tag[] tags = new Tag[]{
+			Tag.ARTIST,
+			Tag.COMMENT
+		};
+
+		mockExecutor();
+
+		// When
+		Map<Tag, String> results = exifTool.getImageMeta(image, format, tags);
+
+		// Then
+		verifyExecution(format, results);
+	}
+
+	protected abstract void mockExecutor() throws Exception ;
+
+	protected abstract void verifyExecution(Format format, Map<Tag, String> results) throws Exception ;
+
+	protected File createValidImage() {
+		File image = mock(File.class);
+		when(image.getPath()).thenReturn("/foo.png");
+		when(image.getAbsolutePath()).thenReturn("/tmp/foo.png");
+		when(image.exists()).thenReturn(true);
+		when(image.canRead()).thenReturn(true);
+		when(image.toString()).thenCallRealMethod();
+		return image;
 	}
 }

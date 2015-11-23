@@ -16,6 +16,11 @@
 
 package com.thebuzzmedia.exiftool;
 
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+
 /**
  * Enum used to define the 2 different output formats that {@link Tag}
  * values can be returned in: numeric or human-readable text.
@@ -51,5 +56,25 @@ package com.thebuzzmedia.exiftool;
  * @since 1.1
  */
 public enum Format {
-	NUMERIC, HUMAN_READABLE;
+	NUMERIC {
+		@Override
+		public List<String> getArgs() {
+			return asList("-n");
+		}
+	},
+
+	HUMAN_READABLE {
+		@Override
+		public List<String> getArgs() {
+			return emptyList();
+		}
+	};
+
+	/**
+	 * Build arguments to add to the command line to produce
+	 * desired output.
+	 *
+	 * @return Arguments, may be an empty list (but not null).
+	 */
+	public abstract List<String> getArgs();
 }

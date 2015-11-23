@@ -16,8 +16,10 @@
 
 package com.thebuzzmedia.exiftool.commons;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Static Collection Utilities.
@@ -73,5 +75,24 @@ public final class Collections {
 		}
 
 		return sb.toString();
+	}
+
+	/**
+	 * Map list of inputs to a new list of outputs.
+	 *
+	 * @param inputs Input list.
+	 * @param mapper Mapper used to transform inputs.
+	 * @param <T> Type of input.
+	 * @param <U> Type of output.
+	 * @return New list of outputs.
+	 */
+	public static <T, U> List<U> map(List<T> inputs, Mapper<T, U> mapper) {
+		List<U> outputs = new ArrayList<U>(inputs.size());
+		for (T input : inputs) {
+			U output = mapper.map(input);
+			outputs.add(output);
+		}
+
+		return outputs;
 	}
 }

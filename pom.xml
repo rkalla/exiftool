@@ -50,12 +50,17 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.testTarget>${java.test.version}</maven.compiler.testTarget>
 		<maven.compiler.testSource>${java.test.version}</maven.compiler.testSource>
+
+		<!-- Plugins -->
+		<maven-surefire-plugin.version>2.19</maven-surefire-plugin.version>
 		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
+		<!-- Project dependencies -->
 		<slf4j.version>1.6.1</slf4j.version>
 		<logback.version>1.1.2</logback.version>
 		<log4j.version>1.2.16</log4j.version>
 
+		<!-- Tests dependencies -->
 		<junit.version>4.11</junit.version>
 		<assertj.version>1.6.1</assertj.version>
 		<mockito.version>1.9.5</mockito.version>
@@ -113,4 +118,36 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/*IT.java</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<phase>integration-test</phase>
+						<configuration>
+							<excludes>
+								<exclude>none</exclude>
+							</excludes>
+							<includes>
+								<include>**/*IT.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

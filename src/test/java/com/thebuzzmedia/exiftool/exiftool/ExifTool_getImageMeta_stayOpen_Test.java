@@ -21,17 +21,17 @@ import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.Feature;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.tests.mocks.ReadStringResultAnswer;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
+import com.thebuzzmedia.exiftool.tests.mocks.ReadStringResultAnswer;
 import org.mockito.ArgumentCaptor;
 
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -78,7 +78,7 @@ public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getIma
 			);
 
 		ArgumentCaptor<List> argsCaptor = ArgumentCaptor.forClass(List.class);
-		CommandProcess commandProcess = getProcess(exifTool);
+		CommandProcess commandProcess = readPrivateField(exifTool, "process", CommandProcess.class);
 		verify(commandProcess).write(argsCaptor.capture());
 
 		List<String> args = argsCaptor.getValue();
@@ -89,12 +89,6 @@ public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getIma
 
 		verify(commandProcess).flush();
 		verify(commandProcess, never()).close();
-	}
-
-	private CommandProcess getProcess(ExifTool exifTool) throws Exception {
-		Field field = exifTool.getClass().getDeclaredField("process");
-		field.setAccessible(true);
-		return (CommandProcess) field.get(exifTool);
 	}
 
 	private List<String> buildArgumentsList(Format format) {

@@ -16,8 +16,7 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import java.lang.reflect.Field;
-
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -96,9 +95,7 @@ public class LoggerSlf4jTest extends AbstractLoggerTest {
 	}
 
 	private org.slf4j.Logger getSlf4j(Logger logger) throws Exception {
-		Field field = logger.getClass().getDeclaredField("log");
-		field.setAccessible(true);
-		return (org.slf4j.Logger) field.get(logger);
+		return readPrivateField(logger, "log", org.slf4j.Logger.class);
 	}
 
 	private String toSlf4jMessage(String msg) {

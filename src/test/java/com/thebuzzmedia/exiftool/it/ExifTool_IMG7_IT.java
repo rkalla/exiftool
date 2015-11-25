@@ -55,4 +55,11 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 			}
 		};
 	}
+
+	@Override
+	protected Map<Tag, String> updateTags() {
+		return new HashMap<Tag, String>() {{
+			put(Tag.FLASH, "Auto, Did not fire");
+		}};
+	}
 }

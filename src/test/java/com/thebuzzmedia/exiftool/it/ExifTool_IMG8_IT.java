@@ -65,4 +65,12 @@ public class ExifTool_IMG8_IT extends AbstractExifToolIT {
 			}
 		};
 	}
+
+	@Override
+	protected Map<Tag, String> updateTags() {
+		return new HashMap<Tag, String>() {{
+			put(Tag.COMMENT, "Hello =World");
+			put(Tag.AUTHOR, "mjeanroy");
+		}};
+	}
 }

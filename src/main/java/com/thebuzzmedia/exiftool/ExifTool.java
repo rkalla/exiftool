@@ -533,8 +533,10 @@ public class ExifTool {
 			log.debug("\tAttempting to close ExifTool daemon process, issuing '-stay_open\\nFalse\\n' command...");
 
 			// Tell the ExifTool process to exit.
-			streams.writer.write("-stay_open\nFalse\n");
-			streams.writer.flush();
+			if (streams.writer != null) {
+				streams.writer.write("-stay_open\nFalse\n");
+				streams.writer.flush();
+			}
 
 			log.debug("\t\tSuccessful");
 		}
@@ -738,9 +740,9 @@ public class ExifTool {
 			for (Entry<Tag, String> entry : tags.entrySet()) {
 				streams.writer.write('-');
 				streams.writer.write(entry.getKey().getName());
-				streams.writer.write("='");
+				streams.writer.write("=");
 				streams.writer.write(entry.getValue());
-				streams.writer.write("'\n");
+				streams.writer.write("\n");
 			}
 
 			streams.writer.write(image.getAbsolutePath());
@@ -769,7 +771,7 @@ public class ExifTool {
 			args.add("-S"); // compact output
 
 			for (Entry<Tag, String> entry : tags.entrySet())
-				args.add("-" + entry.getKey().getName() + "='" + entry.getValue() + "'");
+				args.add("-" + entry.getKey().getName() + "=" + entry.getValue());
 
 			args.add(image.getAbsolutePath());
 

@@ -21,9 +21,12 @@ import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.Feature;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.tests.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.Map;
@@ -33,7 +36,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractExifToolIT {
 
 	private ExifTool exifTool;
+
 	private ExifTool exifToolStayOpen;
+
+	@Rule
+	public TemporaryFolder tmp = new TemporaryFolder();
 
 	@Before
 	public void setUp() {
@@ -48,25 +55,59 @@ public abstract class AbstractExifToolIT {
 	}
 
 	@Test
-	public void testImage() throws Exception {
-		check(exifTool);
+	public void testGetImageMeta() throws Exception {
+		verifyGetMeta(exifTool);
 	}
 
 	@Test
-	public void testImage_StayOpen() throws Exception {
-		check(exifToolStayOpen);
+	public void testGetImageMeta_StayOpen() throws Exception {
+		verifyGetMeta(exifToolStayOpen);
 	}
 
-	private void check(ExifTool exifTool) throws Exception {
+	@Test
+	public void testSetImageMeta() throws Exception {
+		verifySetMeta(exifTool);
+	}
+
+	@Test
+	public void testSetImageMeta_stay_open() throws Exception {
+		verifySetMeta(exifToolStayOpen);
+	}
+
+	private void verifyGetMeta(ExifTool exifTool) throws Exception {
 		File file = new File("src/test/resources/images/" + image());
-		Map<Tag, String> results = exifTool.getImageMeta(file, Format.HUMAN_READABLE, Tag.values());
+		checkMeta(exifTool, file, Tag.values(), expectations());
+	}
+
+	private void verifySetMeta(ExifTool exifTool) throws Exception {
+		File file = new File("src/test/resources/images/" + image());
+		File folder = tmp.newFolder("exif");
+		File tmpCopy = FileUtils.copy(file, folder);
+		Map<Tag, String> meta = updateTags();
+
+		exifTool.setImageMeta(tmpCopy, Format.HUMAN_READABLE, meta);
+
+		Tag[] tags = new Tag[meta.size()];
+		int i = 0;
+		for (Tag t : meta.keySet()) {
+			tags[i] = t;
+			i++;
+		}
+
+		checkMeta(exifTool, tmpCopy, tags, meta);
+	}
+
+	private void checkMeta(ExifTool exifTool, File image, Tag[] tags, Map<Tag, String> expectations) throws Exception {
+		Map<Tag, String> results = exifTool.getImageMeta(image, Format.HUMAN_READABLE, tags);
 		assertThat(results)
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(expectations());
+			.isEqualTo(expectations);
 	}
 
 	protected abstract String image();
 
 	protected abstract Map<Tag, String> expectations();
+
+	protected abstract Map<Tag, String> updateTags();
 }

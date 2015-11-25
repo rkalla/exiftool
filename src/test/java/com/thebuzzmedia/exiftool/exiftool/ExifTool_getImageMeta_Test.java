@@ -20,7 +20,7 @@ package com.thebuzzmedia.exiftool.exiftool;
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.mocks.ReadCommandResultAnswer;
+import com.thebuzzmedia.exiftool.tests.mocks.ReadCommandResultAnswer;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import org.mockito.ArgumentCaptor;

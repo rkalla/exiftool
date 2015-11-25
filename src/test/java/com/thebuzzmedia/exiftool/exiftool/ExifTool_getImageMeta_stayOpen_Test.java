@@ -21,7 +21,7 @@ import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.Feature;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.mocks.ReadStringResultAnswer;
+import com.thebuzzmedia.exiftool.tests.mocks.ReadStringResultAnswer;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.OutputHandler;

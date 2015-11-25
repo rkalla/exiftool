@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.junit;
+package com.thebuzzmedia.exiftool.tests.junit;
 
 import org.junit.rules.ExternalResource;
 

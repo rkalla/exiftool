@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.mocks;
+package com.thebuzzmedia.exiftool.tests.mocks;
 
+import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import com.thebuzzmedia.exiftool.tests.TestConstants;
 import org.mockito.invocation.InvocationOnMock;
@@ -26,21 +27,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.addAll;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class ReadStringResultAnswer implements Answer<String> {
+public class ReadCommandResultAnswer implements Answer<CommandResult> {
 
 	private final List<String> lines;
 
-	public ReadStringResultAnswer(String... lines) {
+	public ReadCommandResultAnswer(String... lines) {
 		this.lines = new ArrayList<String>(lines.length);
 		addAll(this.lines, lines);
 	}
 
 	@Override
-	public String answer(InvocationOnMock invocation) throws Throwable {
-		Object[] arguments = invocation.getArguments();
-		int argIndex = arguments.length == 1 ? 0 : 1;
-		OutputHandler handler = (OutputHandler) arguments[argIndex];
+	public CommandResult answer(InvocationOnMock invocation) throws Throwable {
+		OutputHandler handler = (OutputHandler) invocation.getArguments()[1];
 
 		StringBuilder output = new StringBuilder();
 		for (String line : lines) {
@@ -50,6 +51,9 @@ public class ReadStringResultAnswer implements Answer<String> {
 			}
 		}
 
-		return output.toString().trim();
+		CommandResult result = mock(CommandResult.class);
+		when(result.getExitStatus()).thenReturn(0);
+		when(result.getOutput()).thenReturn(output.toString().trim());
+		return result;
 	}
 }

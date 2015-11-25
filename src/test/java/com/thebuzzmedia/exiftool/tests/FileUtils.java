@@ -35,7 +35,7 @@ public final class FileUtils {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static File copy(File src, File dstFolder) throws FileNotFoundException, IOException {
+	public static File copy(File src, File dstFolder) throws IOException {
 		File dst = new File(dstFolder, src.getName());
 		FileInputStream fis = new FileInputStream(src);
 		FileOutputStream fos = new FileOutputStream(dst);

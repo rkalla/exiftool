@@ -16,7 +16,7 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import com.thebuzzmedia.exiftool.junit.SystemOutRule;
+import com.thebuzzmedia.exiftool.tests.junit.SystemOutRule;
 import org.junit.Rule;
 
 import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;

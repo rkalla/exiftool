@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thebuzzmedia.exiftool;
 
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
@@ -305,12 +306,6 @@ public class ExifTool {
 	 */
 	protected static final String CLEANUP_THREAD_NAME = "ExifTool Cleanup Thread";
 
-	/**
-	 * Compiled {@link Pattern} of ": " used to split compact output from
-	 * ExifTool evenly into name/value pairs.
-	 */
-	protected static final Pattern TAG_VALUE_PATTERN = Pattern.compile(": ");
-
 	protected static IOStream startExifToolProcess(List<String> args)
 		throws RuntimeException {
 		Process proc;
@@ -594,31 +589,48 @@ public class ExifTool {
 		return features.contains(notNull(feature, "Feature cannot be null"));
 	}
 
+	/**
+	 * Parse image metadata.
+	 * Output format is numeric.
+	 *
+	 * @param image Image.
+	 * @param tags List of tags to extract.
+	 * @return Pair of tag associated with the value.
+	 * @throws IOException If something bad happen during I/O operations.
+	 * @throws NullPointerException If one parameter is null.
+	 * @throws IllegalArgumentException If list of tag is empty.
+	 * @throws com.thebuzzmedia.exiftool.exceptions.UnreadableFileException If image cannot be read.
+	 */
 	public Map<Tag, String> getImageMeta(File image, Tag... tags) throws IOException {
 		return getImageMeta(image, Format.NUMERIC, tags);
 	}
 
+	/**
+	 * Parse image metadata.
+	 *
+	 * @param image Image.
+	 * @param format Output format.
+	 * @param tags List of tags to extract.
+	 * @return Pair of tag associated with the value.
+	 * @throws IOException If something bad happen during I/O operations.
+	 * @throws NullPointerException If one parameter is null.
+	 * @throws IllegalArgumentException If list of tag is empty.
+	 * @throws com.thebuzzmedia.exiftool.exceptions.UnreadableFileException If image cannot be read.
+	 */
 	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags) throws IOException {
-		// Simple preconditions.
 		notNull(image, "Image cannot be null and must be a valid stream of image data.");
 		notNull(format, "Format cannot be null.");
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
 		isReadable(image, "Unable to read the given image [%s], ensure that the image exists at the given path and that the executing Java process has permissions to read it.", image);
 
-		// Track process execution time.
-		final long startTime = System.currentTimeMillis();
-
-		// Print some debugging information.
 		log.debug("Querying %s tags from image: %s", tags.length, image);
 
-		// Create a result map big enough to hold results for each of the tags and avoid collisions while inserting.
+		// Create a result map big enough to hold results for each of the tags
+		// and avoid collisions while inserting.
 		final TagHandler tagHandler = new TagHandler(tags.length * 3);
 
-		// This will track exiftool execution time.
-		final long exifToolCallElapsedTime;
-
-		// Build list of arguments.
-		List<String> args = getImageMetaArguments(format, image, tags);
+		// Build list of exiftool arguments.
+		final List<String> args = getImageMetaArguments(format, image, tags);
 
 		// Using ExifTool in daemon mode (-stay_open True) executes different
 		// code paths below. So establish the flag for this once and it is
@@ -626,54 +638,57 @@ public class ExifTool {
 		// to branch to.
 		final boolean stayOpen = features.contains(Feature.STAY_OPEN);
 
+		// Execute exiftool
 		if (stayOpen) {
-			log.debug("Using ExifTool in daemon mode (-stay_open True)...");
-
-			// Always reset the cleanup task.
-			resetCleanupTask();
-
-			// If this is our first time calling getImageMeta with a "stayOpen"
-			// connection, set up the persistent process and run it so it is
-			// ready to receive commands from us.
-			if (process == null || process.isClosed()) {
-				process = start();
-			}
-
-			// Add last argument...
-			// And transform it for streaming process
-			//args.add("-execute");
-			args = map(args, StreamArgumentMapper.getInstance());
-
-			// Begin tracking the duration ExifTool takes to respond.
-			log.debug("Executing ExifTool...");
-			exifToolCallElapsedTime = System.currentTimeMillis();
-			process.write(args);
-			process.flush();
-			process.read(tagHandler);
+			doGetImageMetaStayOpen(tagHandler, args);
 		} else {
-			log.debug("Using ExifTool in non-daemon mode (-stay_open False)...");
-			Command cmd = CommandBuilder.builder(path)
-				.addAll(args)
-				.build();
-
-			exifToolCallElapsedTime = System.currentTimeMillis();
-			executor.execute(cmd, tagHandler);
+			doGetImageMeta(tagHandler, args);
 		}
 
-		if (log.isDebugEnabled()) {
-			// Print out how long the call to external ExifTool process took.
-			log.debug("Finished reading ExifTool response in %s ms.", System.currentTimeMillis() - exifToolCallElapsedTime);
-
-			// Print out how the entire process took
-			log.debug(
-				"Image Meta Processed in %s ms [queried %s tags and found %s values]",
-				System.currentTimeMillis() - startTime,
-				tags.length,
-				tagHandler.size()
-			);
-		}
+		// Add some debugging log
+		log.debug("Image Meta Processed [queried %s tags and found %s values]", tags.length, tagHandler.size());
 
 		return tagHandler.getTags();
+	}
+
+	/**
+	 * Parse image metadata.
+	 * If exiftool process is not already started, then it will be opened
+	 * with stay_open flag.
+	 *
+	 * @param tagHandler Tag handler, will be executed for each line output.
+	 * @param args Command arguments.
+	 * @throws IOException If something bad happen process input/output operations.
+	 */
+	private void doGetImageMetaStayOpen(TagHandler tagHandler, List<String> args) throws IOException {
+		log.debug("Using ExifTool in daemon mode (-stay_open True)...");
+
+		// Always reset the cleanup task.
+		resetCleanupTask();
+
+		// Start deamon process if it is not already started.
+		start();
+
+		process.write(map(args, StreamArgumentMapper.getInstance()));
+		process.flush();
+		process.read(tagHandler);
+	}
+
+	/**
+	 * Parse image metadata using new exiftool process.
+	 * Process is automatically closed when finished.
+	 *
+	 * @param tagHandler Tag handler, will be executed for each line output.
+	 * @param args Command arguments.
+	 */
+	private void doGetImageMeta(TagHandler tagHandler, List<String> args) {
+		log.debug("Using ExifTool in non-daemon mode (-stay_open False)...");
+
+		Command cmd = CommandBuilder.builder(path)
+			.addAll(args)
+			.build();
+
+		executor.execute(cmd, tagHandler);
 	}
 
 	public void setImageMeta(File image, Map<Tag, String> tags) throws IOException {
@@ -819,27 +834,30 @@ public class ExifTool {
 	/**
 	 * Helper method used to make canceling the current task and scheduling a
 	 * new one easier.
-	 * <p/>
+	 *
 	 * It is annoying that we cannot just reset the timer on the task, but that
 	 * isn't the way the java.util.Timer class was designed unfortunately.
 	 */
 	private void resetCleanupTask() {
 		// no-op if the timer was never created.
-		if (cleanupTimer == null)
+		if (cleanupTimer == null) {
 			return;
+		}
 
-		log.debug("\tResetting cleanup task...");
+		log.debug("Resetting cleanup task...");
 
 		// Cancel the current cleanup task if necessary.
-		if (currentCleanupTask != null)
+		if (currentCleanupTask != null) {
 			currentCleanupTask.cancel();
+		}
+
+		// Create task
+		currentCleanupTask = new CleanupTimerTask(this);
 
 		// Schedule a new cleanup task.
-		cleanupTimer.schedule(
-			(currentCleanupTask = new CleanupTimerTask(this)),
-			PROCESS_CLEANUP_DELAY, PROCESS_CLEANUP_DELAY);
+		cleanupTimer.schedule(currentCleanupTask, PROCESS_CLEANUP_DELAY, PROCESS_CLEANUP_DELAY);
 
-		log.debug("\t\tSuccessful");
+		log.debug("\t-> Successful");
 	}
 
 	/**
@@ -877,14 +895,21 @@ public class ExifTool {
 
 	/**
 	 * Start exiftool process with stay_open flag.
-	 *
-	 * @return New created process.
+	 * If exiftool process is already started, then this function is a no-op.
 	 */
-	private CommandProcess start() {
-		log.debug("Start exiftool process");
-		return executor.start(CommandBuilder.builder(path)
-			.addArgument("-stay_open", "True", "-@", "-")
-			.build());
+	private void start() {
+		// If this is our first time calling getImageMeta with a "stayOpen"
+		// connection, set up the persistent process and run it so it is
+		// ready to receive commands from us.
+		if (process == null || process.isClosed()) {
+			log.debug("Start exiftool process");
+
+			Command cmd = CommandBuilder.builder(path)
+				.addArgument("-stay_open", "True", "-@", "-")
+				.build();
+
+			process = executor.start(cmd);
+		}
 	}
 
 	/**

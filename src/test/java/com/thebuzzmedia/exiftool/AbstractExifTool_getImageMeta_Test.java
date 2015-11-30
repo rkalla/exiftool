@@ -15,26 +15,19 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.exiftool;
+package com.thebuzzmedia.exiftool;
 
-import com.thebuzzmedia.exiftool.ExifTool;
-import com.thebuzzmedia.exiftool.Format;
-import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
-import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
 import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.util.Map;
@@ -47,34 +40,34 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(CommandExecutors.class)
 public abstract class AbstractExifTool_getImageMeta_Test {
 
 	@Rule
 	public ExpectedException thrown = none();
 
-	private ExifTool exifTool;
-
 	private CommandExecutor executor;
+
+	private ExifTool exifTool;
 
 	@Before
 	public void setUp() {
 		executor = mock(CommandExecutor.class);
 
-		PowerMockito.mockStatic(CommandExecutors.class);
-		PowerMockito.when(CommandExecutors.newExecutor()).thenReturn(executor);
+		CommandResult result = new CommandResultBuilder()
+			.output("9.36")
+			.build();
 
-		CommandResult resultVersion = new CommandResultBuilder().output("9.36").build();
-		when(executor.execute(any(Command.class))).thenReturn(resultVersion);
+		when(executor.execute(any(Command.class))).thenReturn(result);
 
-		exifTool = createExifTool();
-		assertThat(exifTool.getVersion()).isEqualTo("9.36");
+		exifTool = createExifTool(executor);
 
 		reset(executor);
 	}
 
-	protected abstract ExifTool createExifTool();
+	@After
+	public void tearDown() throws Exception {
+		exifTool.close();
+	}
 
 	@Test
 	public void it_should_fail_if_image_is_null() throws Exception {
@@ -134,8 +127,8 @@ public abstract class AbstractExifTool_getImageMeta_Test {
 		Format format = Format.HUMAN_READABLE;
 		File image = new FileBuilder("foo.png").build();
 		Map<Tag, String> tags = newMap(
-			Tag.ARTIST, "foo",
-			Tag.COMMENT, "bar"
+			Tag.ARTIST, "bar",
+			Tag.COMMENT, "foo"
 		);
 
 		mockExecutor(executor, tags);
@@ -144,7 +137,13 @@ public abstract class AbstractExifTool_getImageMeta_Test {
 		Map<Tag, String> results = exifTool.getImageMeta(image, format, Tag.ARTIST, Tag.COMMENT);
 
 		// Then
-		verifyExecution(exifTool, executor, image, format, results);
+		verifyExecution(exifTool, executor, image, format, tags);
+
+		assertThat(results)
+			.isNotNull()
+			.isNotEmpty()
+			.hasSize(tags.size())
+			.isEqualTo(tags);
 	}
 
 	@Test
@@ -163,8 +162,22 @@ public abstract class AbstractExifTool_getImageMeta_Test {
 		Map<Tag, String> results = exifTool.getImageMeta(image, format, Tag.ARTIST, Tag.COMMENT);
 
 		// Then
-		verifyExecution(exifTool, executor, image, format, results);
+		verifyExecution(exifTool, executor, image, format, tags);
+
+		assertThat(results)
+			.isNotNull()
+			.isNotEmpty()
+			.hasSize(tags.size())
+			.isEqualTo(tags);
 	}
+
+	/**
+	 * Create exiftool instance to test.
+	 *
+	 * @param executor Executor that should be used by exiftool instance.
+	 * @return Exiftool instance to test.
+	 */
+	protected abstract ExifTool createExifTool(CommandExecutor executor);
 
 	/**
 	 * Mock executor used by {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(java.io.File, com.thebuzzmedia.exiftool.Format, com.thebuzzmedia.exiftool.Tag...)}.

@@ -18,7 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.ExifTool;
-import com.thebuzzmedia.exiftool.Feature;
+import com.thebuzzmedia.exiftool.ExifToolBuilder;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.tests.FileUtils;
@@ -44,8 +44,13 @@ public abstract class AbstractExifToolIT {
 
 	@Before
 	public void setUp() {
-		exifTool = new ExifTool();
-		exifToolStayOpen = new ExifTool(Feature.STAY_OPEN);
+		exifTool = new ExifToolBuilder()
+			.disableStayOpen()
+			.build();
+
+		exifToolStayOpen = new ExifToolBuilder()
+			.enableStayOpen()
+			.build();
 	}
 
 	@After

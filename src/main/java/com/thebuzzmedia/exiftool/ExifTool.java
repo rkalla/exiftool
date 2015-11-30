@@ -27,7 +27,6 @@ import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +39,10 @@ import java.util.regex.Pattern;
 import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
 import static com.thebuzzmedia.exiftool.StreamArgumentMapper.streamArgumentMapper;
 import static com.thebuzzmedia.exiftool.commons.Collections.map;
-import static com.thebuzzmedia.exiftool.commons.Objects.firstNonNull;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
-import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExecutor;
 import static java.util.Collections.unmodifiableSet;
 
 /**
@@ -71,19 +68,35 @@ import static java.util.Collections.unmodifiableSet;
  * ## Usage
  *
  * Assuming ExifTool is installed on the host system correctly and either in the
- * system path or pointed to by {@link #EXIF_TOOL_PATH}, using this class to
- * communicate with ExifTool is as simple as creating an instance (
- * <code>ExifTool tool = new ExifTool()</code>) and then making calls to
- * {@link #getImageMeta(File, Tag...)} or
+ * system path, using this class to communicate with ExifTool is as simple as
+ * creating an instance:
+ *
+ * ```java
+ * ExifTool tool = new ExifToolBuilder().build();
+ * ```
+ *
+ * This mode assume that:
+ * - Path is set as an environment variable (i.e. `-Dexiftool.path=/usr/local/exiftool/bin/exiftool`).
+ * - Or globally available.
+ *
+ * If you want to set the path of ExifTool, you can also specify it during creation:
+ *
+ * ```java
+ * ExifTool tool = new ExifToolBuilder()
+ *   .path("/usr/local/exiftool/bin/exiftool")
+ *   .build();
+ * ```
+ *
+ * Once created, usage is as simple as making calls to {@link #getImageMeta(File, Tag...)} or
  * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag}s you
  * want to pull values for from the given image.
  *
- * In this default mode, calls to <code>getImageMeta</code> will automatically
+ * In this default mode, calls to `getImageMeta` will automatically
  * start an external ExifTool process to handle the request. After ExifTool has
  * parsed the tag values from the file, the external process exits and this
  * class parses the result before returning it to the caller.
  *
- * Results from calls to <code>getImageMeta</code> are returned in a {@link Map}
+ * Results from calls to `getImageMeta` are returned in a {@link Map}
  * with the {@link Tag} values as the keys and {@link String} values for every
  * tag that had a value in the image file as the values. {@link Tag}s with no
  * value found in the image are omitted from the result map.
@@ -95,7 +108,7 @@ import static java.util.Collections.unmodifiableSet;
  * best to parse or convert the returned values.
  *
  * The {@link Tag} Enum provides the {@link Tag#parseValue(Tag, String)}
- * convenience method for parsing given <code>String</code> values according to
+ * convenience method for parsing given `String` values according to
  * the Tag hint automatically for you if that is what you plan on doing,
  * otherwise feel free to handle the return values anyway you want.
  *
@@ -105,7 +118,7 @@ import static java.util.Collections.unmodifiableSet;
  * added a new persistent-process feature that allows ExifTool to stay
  * running in a daemon mode and continue accepting commands via a file or stdin.
  *
- * This new mode is controlled via the <code>-stay_open True/False</code>
+ * This new mode is controlled via the `-stay_open True/False`
  * command line argument and in a busy system that is making thousands of calls
  * to ExifTool, can offer speed improvements of up to <strong>60x</strong> (yes,
  * really that much).
@@ -122,9 +135,9 @@ import static java.util.Collections.unmodifiableSet;
  * the background to service all future calls to the class.
  *
  * Because this feature requires ExifTool 8.36 or later, this class will
- * actually verify support for the feature in the version of ExifTool pointed at
- * by {@link #EXIF_TOOL_PATH} before successfully instantiating the class and
- * will notify you via an {@link com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException} if the native
+ * actually verify support for the feature in the version of ExifTool
+ * before successfully instantiating the class and will notify you via
+ * an {@link com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException} if the native
  * ExifTool doesn't support the requested feature.
  *
  * In the event of an {@link com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException}, the caller can either
@@ -137,7 +150,7 @@ import static java.util.Collections.unmodifiableSet;
  * leaking both host OS processes (native 'exiftool' processes) as well as the
  * read/write streams used to communicate with it unless {@link #close()} is
  * called to clean them up when done. <strong>Fortunately</strong>, this class
- * provides an automatic cleanup mechanism that runs, by default, after 10mins
+ * provides an automatic cleanup mechanism that runs, by default, after 10 mins
  * of inactivity to clean up those stray resources.
  *
  * The inactivity period can be controlled by modifying the
@@ -242,38 +255,6 @@ public class ExifTool implements AutoCloseable {
 	private static final Logger log = LoggerFactory.getLogger(ExifTool.class);
 
 	/**
-	 * The absolute path to the ExifTool executable on the host system running
-	 * this class as defined by the "<code>exiftool.path</code>" system
-	 * property.
-	 * <p/>
-	 * If ExifTool is on your system path and running the command "exiftool"
-	 * successfully executes it, leaving this value unchanged will work fine on
-	 * any platform. If the ExifTool executable is named something else or not
-	 * in the system path, then this property will need to be set to point at it
-	 * before using this class.
-	 * <p/>
-	 * This system property can be set on startup with:<br/>
-	 * <code>
-	 * -Dexiftool.path=/path/to/exiftool
-	 * </code> or by calling {@link System#setProperty(String, String)} before
-	 * this class is loaded.
-	 * <p/>
-	 * On Windows be sure to double-escape the path to the tool, for example:
-	 * <code>
-	 * -Dexiftool.path=C:\\Tools\\exiftool.exe
-	 * </code>
-	 * <p/>
-	 * Default value is "<code>exiftool</code>".
-	 * <h3>Relative Paths</h3>
-	 * Relative path values (e.g. "bin/tools/exiftool") are executed with
-	 * relation to the base directory the VM process was started in. Essentially
-	 * the directory that <code>new File(".").getAbsolutePath()</code> points at
-	 * during runtime.
-	 */
-	public static final String EXIF_TOOL_PATH = System.getProperty(
-		"exiftool.path", "exiftool");
-
-	/**
 	 * Interval (in milliseconds) of inactivity before the cleanup thread wakes
 	 * up and cleans up the daemon ExifTool process and the read/write streams
 	 * used to communicate with it when the {@link Feature#STAY_OPEN} feature is
@@ -347,13 +328,6 @@ public class ExifTool implements AutoCloseable {
 
 	/**
 	 * Create new ExifTool instance.
-	 */
-	public ExifTool() {
-		this(new Feature[]{ });
-	}
-
-	/**
-	 * Create new ExifTool instance.
 	 * When exiftool is created, it will try to activate some features.
 	 * If feature is not available on this specific exiftool version, then
 	 * an it an {@link UnsupportedFeatureException} will be thrown.
@@ -361,9 +335,9 @@ public class ExifTool implements AutoCloseable {
 	 * @param features List of features to activate.
 	 * @throws UnsupportedFeatureException If feature is not available for this exiftool version.
 	 */
-	public ExifTool(Feature... features) {
-		this.executor = newExecutor();
-		this.path = firstNonNull(EXIF_TOOL_PATH, "exiftool");
+	ExifTool(String path, CommandExecutor executor, Set<Feature> features) {
+		this.executor = notNull(executor, "Executor should not be null");
+		this.path = notNull(path, "ExifTool path should not be null");
 		this.version = parseVersion();
 		this.features = parseFeature(features);
 
@@ -424,26 +398,21 @@ public class ExifTool implements AutoCloseable {
 	 * @return Set of available features.
 	 * @throws UnsupportedFeatureException If a feature is not supported.
 	 */
-	private Set<Feature> parseFeature(Feature... features) {
+	private Set<Feature> parseFeature(Set<Feature> features) {
 		log.debug("Parsing activated features");
 
 		// Store it in a set, this will avoid duplicates
-		Set<Feature> set = new HashSet<Feature>();
-
 		for (Feature feature : features) {
-			if (!set.contains(feature)) {
-				boolean supported = feature.isSupported(version);
-				if (supported) {
-					log.debug("Feature %s SUPPORTED", feature);
-					set.add(feature);
-				} else {
-					log.error("Feature %s NOT SUPPORTED", feature);
-					throw new UnsupportedFeatureException(version, feature);
-				}
+			boolean supported = feature.isSupported(version);
+			if (supported) {
+				log.debug("Feature %s SUPPORTED", feature);
+			} else {
+				log.error("Feature %s NOT SUPPORTED", feature);
+				throw new UnsupportedFeatureException(version, feature);
 			}
 		}
 
-		return unmodifiableSet(set);
+		return unmodifiableSet(features);
 	}
 
 	/**

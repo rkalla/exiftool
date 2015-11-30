@@ -20,8 +20,13 @@ public class Benchmark {
 				+ (TAGS.length * IMAGES.length * ITERS)
 				+ " total operations.\n");
 
-		ExifTool tool = new ExifTool();
-		ExifTool toolSO = new ExifTool(Feature.STAY_OPEN);
+		ExifTool tool = new ExifToolBuilder()
+			.disableStayOpen()
+			.build();
+
+		ExifTool toolSO = new ExifToolBuilder()
+			.enableStayOpen()
+			.build();
 
 		/*
 		 * -stay_open False

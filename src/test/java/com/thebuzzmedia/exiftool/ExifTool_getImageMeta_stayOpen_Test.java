@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.exiftool;
+package com.thebuzzmedia.exiftool;
 
-import com.thebuzzmedia.exiftool.ExifTool;
-import com.thebuzzmedia.exiftool.Feature;
-import com.thebuzzmedia.exiftool.Format;
-import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
@@ -36,6 +32,7 @@ import java.util.Map;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -47,8 +44,8 @@ import static org.mockito.Mockito.when;
 public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getImageMeta_Test {
 
 	@Override
-	protected ExifTool createExifTool() {
-		return new ExifTool(Feature.STAY_OPEN);
+	protected ExifTool createExifTool(CommandExecutor executor) {
+		return new ExifTool("exiftool", executor, singleton(Feature.STAY_OPEN));
 	}
 
 	@Override

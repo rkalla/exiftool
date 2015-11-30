@@ -12,7 +12,9 @@ public class Example {
 //				"D:\\Tools\\exiftool.exe");
 //		System.setProperty("imgscalr.ext.exiftool.debug", "false");
 
-		ExifTool tool = new ExifTool(Feature.STAY_OPEN);
+		ExifTool tool = new ExifToolBuilder()
+			.enableStayOpen()
+			.build();
 
 		for (File f : IMAGES) {
 			System.out.println("\n[" + f.getName() + "]");

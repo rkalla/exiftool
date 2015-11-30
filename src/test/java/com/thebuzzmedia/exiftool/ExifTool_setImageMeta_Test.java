@@ -15,61 +15,49 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.exiftool;
+package com.thebuzzmedia.exiftool;
 
-import com.thebuzzmedia.exiftool.ExifTool;
-import com.thebuzzmedia.exiftool.Format;
-import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
-import com.thebuzzmedia.exiftool.tests.mocks.ReadCommandResultAnswer;
 import org.mockito.ArgumentCaptor;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-public class ExifTool_getImageMeta_Test extends AbstractExifTool_getImageMeta_Test {
+public class ExifTool_setImageMeta_Test extends AbstractExifTool_setImageMeta_Test {
 
 	@Override
-	protected ExifTool createExifTool() {
-		return new ExifTool();
+	protected ExifTool createExifTool(CommandExecutor executor) throws Exception {
+		return new ExifTool("exiftool", executor, Collections.<Feature>emptySet());
 	}
 
 	@Override
-	protected void mockExecutor(CommandExecutor executor, Map<Tag, String> tags) throws Exception {
-		// Mock Executor
-		String[] lines = new String[tags.size()];
-		int i = 0;
-		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
-			lines[i++] = format("%s: %s", entry.getKey().getName(), entry.getValue());
-		}
-
-		ReadCommandResultAnswer readAnswer = new ReadCommandResultAnswer(lines);
-		when(executor.execute(any(Command.class), any(OutputHandler.class))).thenAnswer(readAnswer);
+	protected void mockExecutor(CommandExecutor executor) throws Exception {
 	}
 
 	@Override
-	protected void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> results) throws Exception {
+	protected void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> tags) throws Exception {
 		ArgumentCaptor<Command> cmdCaptor = ArgumentCaptor.forClass(Command.class);
 		verify(executor).execute(cmdCaptor.capture(), any(OutputHandler.class));
 
+		List<String> expectedArgs = createArgumentsList(image, format, tags);
 		Command cmd = cmdCaptor.getValue();
 		assertThat(cmd.getArguments())
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(buildArgumentsList(image, format, results));
+			.hasSameSizeAs(expectedArgs)
+			.isEqualTo(expectedArgs);
 	}
 
-	private List<String> buildArgumentsList(File image, Format format, Map<Tag, String> tags) {
+	private List<String> createArgumentsList(File file, Format format, Map<Tag, String> tags) {
 		List<String> args = new LinkedList<String>();
 		args.add("exiftool");
 
@@ -80,10 +68,10 @@ public class ExifTool_getImageMeta_Test extends AbstractExifTool_getImageMeta_Te
 		args.add("-S");
 
 		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
-			args.add("-" + entry.getKey().getName());
+			args.add("-" + entry.getKey().getName() + "=" + entry.getValue());
 		}
 
-		args.add(image.getAbsolutePath());
+		args.add(file.getAbsolutePath());
 		args.add("-execute");
 
 		return args;

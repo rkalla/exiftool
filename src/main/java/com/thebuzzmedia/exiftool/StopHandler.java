@@ -16,36 +16,39 @@
 
 package com.thebuzzmedia.exiftool;
 
-import com.thebuzzmedia.exiftool.commons.Mapper;
+import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 /**
- * Map all arguments to a valid streaming output.
- * Each argument is terminated with a carriage break.
+ * Check if line means it is the end of the stream.
+ * End is detected if:
+ * - Line is null.
+ * - Output is strictly equals to "{ready}".
  *
- * This mapper is thread safe, stateless and is implemented as a singleton.
+ * This handler is thread safe, stateless and is implemented as
+ * a singleton.
  */
-class StreamArgumentMapper implements Mapper<String, String> {
+class StopHandler implements OutputHandler {
 
 	/**
 	 * Singleton instance.
 	 */
-	private static final StreamArgumentMapper INSTANCE = new StreamArgumentMapper();
+	private static final StopHandler INSTANCE = new StopHandler();
 
 	/**
 	 * Get instance.
 	 *
-	 * @return Instance.
+	 * @return Singleton instance.
 	 */
-	static StreamArgumentMapper streamArgumentMapper() {
+	static StopHandler stopHandler() {
 		return INSTANCE;
 	}
 
 	// Ensure non instantiation.
-	private StreamArgumentMapper() {
+	private StopHandler() {
 	}
 
 	@Override
-	public String map(String input) {
-		return input + "\n";
+	public boolean readLine(String line) {
+		return line != null && !line.equals("{ready}");
 	}
 }

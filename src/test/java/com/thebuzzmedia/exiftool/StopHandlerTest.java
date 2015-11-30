@@ -16,20 +16,18 @@
 
 package com.thebuzzmedia.exiftool;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class StreamArgumentMapperTest {
+import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class StopHandlerTest {
 
 	@Test
-	public void it_should_create_streaming_output() {
-		String input = "foo";
-		StreamArgumentMapper mapper = StreamArgumentMapper.streamArgumentMapper();
-		String output = mapper.map(input);
-
-		Assertions.assertThat(output)
-			.isNotNull()
-			.isNotEmpty()
-			.isEqualTo(input + "\n");
+	public void it_should_detect_end_of_stream() {
+		assertThat(stopHandler().readLine(null)).isFalse();
+		assertThat(stopHandler().readLine("{ready}")).isFalse();
+		assertThat(stopHandler().readLine("foo")).isTrue();
+		assertThat(stopHandler().readLine("")).isTrue();
 	}
 }

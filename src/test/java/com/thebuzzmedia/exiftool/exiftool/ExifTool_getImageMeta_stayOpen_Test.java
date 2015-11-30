@@ -22,11 +22,14 @@ import com.thebuzzmedia.exiftool.Feature;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.process.Command;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import com.thebuzzmedia.exiftool.tests.mocks.ReadStringResultAnswer;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +38,7 @@ import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,12 +52,14 @@ public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getIma
 	}
 
 	@Override
-	protected void mockExecutor() throws Exception  {
-		// Mock Executor
-		String firstLine = format("%s: %s", Tag.ARTIST.getName(), "foobar");
-		String secondLine = format("%s: %s", Tag.COMMENT.getName(), "foo");
-		ReadStringResultAnswer readAnswer = new ReadStringResultAnswer(firstLine, secondLine);
+	protected void mockExecutor(CommandExecutor executor, Map<Tag, String> tags) throws Exception  {
+		String[] lines = new String[tags.size()];
+		int i = 0;
+		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
+			lines[i++] = format("%s: %s", entry.getKey().getName(), entry.getValue());
+		}
 
+		ReadStringResultAnswer readAnswer = new ReadStringResultAnswer(lines);
 		CommandProcess process = mock(CommandProcess.class);
 		when(process.read(any(OutputHandler.class))).thenAnswer(readAnswer);
 		when(executor.start(any(Command.class))).thenReturn(process);
@@ -61,7 +67,7 @@ public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getIma
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void verifyExecution(Format format, Map<Tag, String> results) throws Exception {
+	protected void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> results) throws Exception {
 		ArgumentCaptor<Command> cmdCaptor = ArgumentCaptor.forClass(Command.class);
 		verify(executor).start(cmdCaptor.capture());
 
@@ -78,20 +84,23 @@ public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getIma
 			);
 
 		ArgumentCaptor<List> argsCaptor = ArgumentCaptor.forClass(List.class);
-		CommandProcess commandProcess = readPrivateField(exifTool, "process", CommandProcess.class);
-		verify(commandProcess).write(argsCaptor.capture());
+		CommandProcess process = readPrivateField(exifTool, "process", CommandProcess.class);
+
+		InOrder inOrder = inOrder(process);
+		inOrder.verify(process).write(argsCaptor.capture());
+		inOrder.verify(process).flush();
+		inOrder.verify(process).read(any(OutputHandler.class));
 
 		List<String> args = argsCaptor.getValue();
 		assertThat(args)
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(buildArgumentsList(format));
+			.isEqualTo(buildArgumentsList(image, format));
 
-		verify(commandProcess).flush();
-		verify(commandProcess, never()).close();
+		verify(process, never()).close();
 	}
 
-	private List<String> buildArgumentsList(Format format) {
+	private List<String> buildArgumentsList(File image, Format format) {
 		List<String> args = new LinkedList<String>();
 
 		if (format == Format.NUMERIC) {
@@ -101,7 +110,7 @@ public class ExifTool_getImageMeta_stayOpen_Test extends AbstractExifTool_getIma
 		args.add("-S\n");
 		args.add("-" + Tag.ARTIST.getName() + "\n");
 		args.add("-" + Tag.COMMENT.getName() + "\n");
-		args.add("/tmp/foo.png\n");
+		args.add(image.getAbsolutePath() + "\n");
 		args.add("-execute\n");
 		return args;
 	}

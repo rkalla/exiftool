@@ -49,7 +49,7 @@ public abstract class AbstractExifToolIT {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws Exception {
 		exifTool.close();
 		exifToolStayOpen.close();
 	}

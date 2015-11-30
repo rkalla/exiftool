@@ -24,9 +24,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
 import static java.util.Collections.unmodifiableMap;
 
-public class TagHandler implements OutputHandler {
+/**
+ * Read tags line by line.
+ *
+ * This class is not thread-safe and should be used to
+ * read exiftool output from one thread (should not be shared across
+ * several threads).
+ */
+class TagHandler implements OutputHandler {
 
 	/**
 	 * Class logger.
@@ -48,7 +56,7 @@ public class TagHandler implements OutputHandler {
 	/**
 	 * Create handler.
 	 */
-	public TagHandler() {
+	TagHandler() {
 		tags = new HashMap<Tag, String>();
 	}
 
@@ -58,7 +66,7 @@ public class TagHandler implements OutputHandler {
 	 *
 	 * @param size Expected size of tags to parse.
 	 */
-	public TagHandler(int size) {
+	TagHandler(int size) {
 		tags = new HashMap<Tag, String>(size);
 	}
 
@@ -67,7 +75,7 @@ public class TagHandler implements OutputHandler {
 		// If line is null, then this is the end.
 		// If line is strictly equals to "{ready}", then it means that stay_open feature
 		// is enabled and this is the end of the output.
-		if (line == null || line.equals("{ready}")) {
+		if (!stopHandler().readLine(line)) {
 			return false;
 		}
 
@@ -93,11 +101,11 @@ public class TagHandler implements OutputHandler {
 		return true;
 	}
 
-	public Map<Tag, String> getTags() {
+	Map<Tag, String> getTags() {
 		return unmodifiableMap(tags);
 	}
 
-	public int size() {
+	int size() {
 		return tags.size();
 	}
 }

@@ -20,18 +20,19 @@ package com.thebuzzmedia.exiftool.exiftool;
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.tests.mocks.ReadCommandResultAnswer;
 import com.thebuzzmedia.exiftool.process.Command;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
+import com.thebuzzmedia.exiftool.tests.mocks.ReadCommandResultAnswer;
 import org.mockito.ArgumentCaptor;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,16 +45,20 @@ public class ExifTool_getImageMeta_Test extends AbstractExifTool_getImageMeta_Te
 	}
 
 	@Override
-	protected void mockExecutor() throws Exception {
+	protected void mockExecutor(CommandExecutor executor, Map<Tag, String> tags) throws Exception {
 		// Mock Executor
-		String firstLine = format("%s: %s", Tag.ARTIST.getName(), "foobar");
-		String secondLine = format("%s: %s", Tag.COMMENT.getName(), "foo");
-		ReadCommandResultAnswer readAnswer = new ReadCommandResultAnswer(firstLine, secondLine);
+		String[] lines = new String[tags.size()];
+		int i = 0;
+		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
+			lines[i++] = format("%s: %s", entry.getKey().getName(), entry.getValue());
+		}
+
+		ReadCommandResultAnswer readAnswer = new ReadCommandResultAnswer(lines);
 		when(executor.execute(any(Command.class), any(OutputHandler.class))).thenAnswer(readAnswer);
 	}
 
 	@Override
-	protected void verifyExecution(Format format, Map<Tag, String> results) throws Exception {
+	protected void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> results) throws Exception {
 		ArgumentCaptor<Command> cmdCaptor = ArgumentCaptor.forClass(Command.class);
 		verify(executor).execute(cmdCaptor.capture(), any(OutputHandler.class));
 
@@ -61,19 +66,10 @@ public class ExifTool_getImageMeta_Test extends AbstractExifTool_getImageMeta_Te
 		assertThat(cmd.getArguments())
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(buildArgumentsList(format));
-
-		assertThat(results)
-			.isNotNull()
-			.isNotEmpty()
-			.hasSize(2)
-			.contains(
-				entry(Tag.ARTIST, "foobar"),
-				entry(Tag.COMMENT, "foo")
-			);
+			.isEqualTo(buildArgumentsList(image, format, results));
 	}
 
-	private List<String> buildArgumentsList(Format format) {
+	private List<String> buildArgumentsList(File image, Format format, Map<Tag, String> tags) {
 		List<String> args = new LinkedList<String>();
 		args.add("exiftool");
 
@@ -82,9 +78,12 @@ public class ExifTool_getImageMeta_Test extends AbstractExifTool_getImageMeta_Te
 		}
 
 		args.add("-S");
-		args.add("-" + Tag.ARTIST.getName());
-		args.add("-" + Tag.COMMENT.getName());
-		args.add("/tmp/foo.png");
+
+		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
+			args.add("-" + entry.getKey().getName());
+		}
+
+		args.add(image.getAbsolutePath());
 		args.add("-execute");
 
 		return args;

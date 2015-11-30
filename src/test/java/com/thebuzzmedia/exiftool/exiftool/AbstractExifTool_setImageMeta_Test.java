@@ -20,7 +20,7 @@ package com.thebuzzmedia.exiftool.exiftool;
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
+import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
@@ -37,10 +37,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Map;
 
 import static com.thebuzzmedia.exiftool.tests.MapUtils.newMap;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(CommandExecutors.class)
-public abstract class AbstractExifTool_getImageMeta_Test {
+public abstract class AbstractExifTool_setImageMeta_Test {
 
 	@Rule
 	public ExpectedException thrown = none();
@@ -59,7 +59,7 @@ public abstract class AbstractExifTool_getImageMeta_Test {
 	private CommandExecutor executor;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		executor = mock(CommandExecutor.class);
 
 		PowerMockito.mockStatic(CommandExecutors.class);
@@ -69,121 +69,110 @@ public abstract class AbstractExifTool_getImageMeta_Test {
 		when(executor.execute(any(Command.class))).thenReturn(resultVersion);
 
 		exifTool = createExifTool();
-		assertThat(exifTool.getVersion()).isEqualTo("9.36");
 
 		reset(executor);
 	}
-
-	protected abstract ExifTool createExifTool();
 
 	@Test
 	public void it_should_fail_if_image_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Image cannot be null and must be a valid stream of image data.");
-		exifTool.getImageMeta(null, Format.HUMAN_READABLE, Tag.values());
+		exifTool.setImageMeta(null, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
 	}
 
 	@Test
 	public void it_should_fail_if_format_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Format cannot be null.");
-		exifTool.getImageMeta(mock(File.class), null, Tag.values());
+		exifTool.setImageMeta(mock(File.class), null, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
 	}
 
 	@Test
 	public void it_should_fail_if_tags_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		exifTool.getImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
+		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
 	}
 
 	@Test
 	public void it_should_fail_if_tags_is_empty() throws Exception {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		exifTool.getImageMeta(mock(File.class), Format.HUMAN_READABLE, new Tag[]{ });
+		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, Collections.<Tag, String>emptyMap());
 	}
 
 	@Test
 	public void it_should_fail_with_unknown_file() throws Exception {
-		thrown.expect(UnreadableFileException.class);
+		thrown.expect(UnwritableFileException.class);
 		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
 
 		File image = new FileBuilder("foo.png")
 			.exists(false)
 			.build();
 
-		exifTool.getImageMeta(image, Format.HUMAN_READABLE, Tag.values());
+		exifTool.setImageMeta(image, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
 	}
 
 	@Test
-	public void it_should_fail_with_non_readable_file() throws Exception {
-		thrown.expect(UnreadableFileException.class);
+	public void it_should_fail_with_non_writable_file() throws Exception {
+		thrown.expect(UnwritableFileException.class);
 		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
 
 		File image = new FileBuilder("foo.png")
-			.canRead(false)
+			.canWrite(false)
 			.build();
 
-		exifTool.getImageMeta(image, Format.HUMAN_READABLE, Tag.values());
+		exifTool.setImageMeta(image, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
 	}
 
 	@Test
-	public void it_should_get_image_metadata() throws Exception {
-		// Given
-		Format format = Format.HUMAN_READABLE;
-		File image = new FileBuilder("foo.png").build();
-		Map<Tag, String> tags = newMap(
-			Tag.ARTIST, "foo",
-			Tag.COMMENT, "bar"
-		);
+	public void it_should_set_image_meta_data() throws Exception {
+		final File image = new FileBuilder("foo.png").build();
+		final Format format = Format.HUMAN_READABLE;
+		final Map<Tag, String> tags = newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar");
 
-		mockExecutor(executor, tags);
+		mockExecutor(executor);
 
-		// When
-		Map<Tag, String> results = exifTool.getImageMeta(image, format, Tag.ARTIST, Tag.COMMENT);
+		exifTool.setImageMeta(image, format, tags);
 
-		// Then
-		verifyExecution(exifTool, executor, image, format, results);
+		verifyExecution(exifTool, executor, image, format, tags);
 	}
 
 	@Test
-	public void it_should_get_image_metadata_in_numeric_format() throws Exception {
-		// Given
-		Format format = Format.NUMERIC;
-		File image = new FileBuilder("foo.png").build();
-		Map<Tag, String> tags = newMap(
-			Tag.ARTIST, "foo",
-			Tag.COMMENT, "bar"
-		);
+	public void it_should_set_image_meta_data_in_numeric_format() throws Exception {
+		final File image = new FileBuilder("foo.png").build();
+		final Map<Tag, String> tags = newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar");
+		final Format format = Format.NUMERIC;
 
-		mockExecutor(executor, tags);
+		mockExecutor(executor);
 
-		// When
-		Map<Tag, String> results = exifTool.getImageMeta(image, format, Tag.ARTIST, Tag.COMMENT);
+		exifTool.setImageMeta(image, tags);
 
-		// Then
-		verifyExecution(exifTool, executor, image, format, results);
+		verifyExecution(exifTool, executor, image, format, tags);
 	}
 
 	/**
-	 * Mock executor used by {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(java.io.File, com.thebuzzmedia.exiftool.Format, com.thebuzzmedia.exiftool.Tag...)}.
+	 * Create ExifTool instance.
 	 *
-	 * @param executor Mocked executor.
-	 * @param tags Tested tags.
-	 * @throws Exception
+	 * @return New instance.
 	 */
-	protected abstract void mockExecutor(CommandExecutor executor, Map<Tag, String> tags) throws Exception;
+	protected abstract ExifTool createExifTool() throws Exception;
 
 	/**
-	 * Check valid execution of {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(java.io.File, com.thebuzzmedia.exiftool.Format, com.thebuzzmedia.exiftool.Tag...)}.
+	 * Mock execution of {@link com.thebuzzmedia.exiftool.ExifTool#setImageMeta(java.io.File, com.thebuzzmedia.exiftool.Format, java.util.Map)}.
 	 *
-	 * @param exifTool Tested exiftool instance.
-	 * @param executor Mocked executor.
-	 * @param image Tested image.
+	 * @param executor Executor to mock.
+	 */
+	protected abstract void mockExecutor(CommandExecutor executor) throws Exception;
+
+	/**
+	 * Check valid execution of {@link com.thebuzzmedia.exiftool.ExifTool#setImageMeta(java.io.File, com.thebuzzmedia.exiftool.Format, java.util.Map)}.
+	 *
+	 * @param exifTool Tested exiftool wrapper.
+	 * @param executor Used executor.
 	 * @param format Used format.
-	 * @param results Tested tags.
-	 * @throws Exception
+	 * @param image Tested image.
+	 * @param tags Tested tags.
 	 */
-	protected abstract void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> results) throws Exception;
+	protected abstract void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> tags) throws Exception;
 }

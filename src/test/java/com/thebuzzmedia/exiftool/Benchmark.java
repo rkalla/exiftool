@@ -9,8 +9,7 @@ public class Benchmark {
 	public static final File[] IMAGES = new File("src/test/resources/images")
 			.listFiles();
 
-	public static void main(String[] args) throws IOException,
-			InterruptedException {
+	public static void main(String[] args) throws Exception {
 //		System.setProperty("exiftool.path", "D:\\Tools\\exiftool.exe");
 //		System.setProperty("exiftool.debug", "false");
 

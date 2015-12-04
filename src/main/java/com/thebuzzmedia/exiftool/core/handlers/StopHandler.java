@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.core.handlers;
 
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 /**
  * Check if line means it is the end of the stream.
+ *
  * End is detected if:
  * - Line is null.
  * - Output is strictly equals to "{ready}".
@@ -27,7 +28,7 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
  * This handler is thread safe, stateless and is implemented as
  * a singleton.
  */
-class StopHandler implements OutputHandler {
+public class StopHandler implements OutputHandler {
 
 	/**
 	 * Singleton instance.
@@ -39,7 +40,7 @@ class StopHandler implements OutputHandler {
 	 *
 	 * @return Singleton instance.
 	 */
-	static StopHandler stopHandler() {
+	public static StopHandler stopHandler() {
 		return INSTANCE;
 	}
 

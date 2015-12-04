@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.core.handlers;
 
 import org.junit.Test;
 
-import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
+import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StopHandlerTest {

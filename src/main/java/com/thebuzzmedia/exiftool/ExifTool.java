@@ -16,6 +16,7 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.handlers.TagHandler;
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
+import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
@@ -247,36 +248,6 @@ public class ExifTool implements AutoCloseable {
 	private static final Logger log = LoggerFactory.getLogger(ExifTool.class);
 
 	/**
-	 * Interval (in milliseconds) of inactivity before the cleanup thread wakes
-	 * up and cleans up the daemon ExifTool process and the read/write streams
-	 * used to communicate with it when the {@link Feature#STAY_OPEN} feature is
-	 * used.
-	 * <p/>
-	 * Ever time a call to <code>getImageMeta</code> is processed, the timer
-	 * keeping track of cleanup is reset; more specifically, this class has to
-	 * experience no activity for this duration of time before the cleanup
-	 * process is fired up and cleans up the host OS process and the stream
-	 * resources.
-	 * <p/>
-	 * Any subsequent calls to <code>getImageMeta</code> after a cleanup simply
-	 * re-initializes the resources.
-	 * <p/>
-	 * This system property can be set on startup with:<br/>
-	 * <code>
-	 * -Dexiftool.processCleanupDelay=600000
-	 * </code> or by calling {@link System#setProperty(String, String)} before
-	 * this class is loaded.
-	 * <p/>
-	 * Setting this value to 0 disables the automatic cleanup thread completely
-	 * and the caller will need to manually cleanup the external ExifTool
-	 * process and read/write streams by calling {@link #close()}.
-	 * <p/>
-	 * Default value is <code>600,000</code> (10 minutes).
-	 */
-	public static final long PROCESS_CLEANUP_DELAY = Long.getLong(
-		"exiftool.processCleanupDelay", 600000);
-
-	/**
 	 * Command Executor.
 	 * This executor will be used to execute exiftool process and commands.
 	 */
@@ -430,10 +401,10 @@ public class ExifTool implements AutoCloseable {
 
 		// Create a result map big enough to hold results for each of the tags
 		// and avoid collisions while inserting.
-		final TagHandler tagHandler = new TagHandler(tags.length * 3);
+		TagHandler tagHandler = new TagHandler(tags.length * 3);
 
 		// Build list of exiftool arguments.
-		final List<String> args = getImageMetaArguments(format, image, tags);
+		List<String> args = getImageMetaArguments(format, image, tags);
 
 		// Execute ExifTool command
 		strategy.execute(executor, path, args, tagHandler);
@@ -472,10 +443,10 @@ public class ExifTool implements AutoCloseable {
 
 		log.debug("Writing %d tags to image: %s", tags.size(), image);
 
-		final long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 
 		// Get arguments
-		final List<String> args = setImageMetaArguments(format, image, tags);
+		List<String> args = setImageMetaArguments(format, image, tags);
 
 		// Execute ExifTool command
 		strategy.execute(executor, path, args, stopHandler());

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.core.handlers;
 
+import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.handlers.TagHandler;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

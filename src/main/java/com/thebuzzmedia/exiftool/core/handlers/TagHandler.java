@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool;
+package com.thebuzzmedia.exiftool.core.handlers;
 
+import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
+import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static java.util.Collections.unmodifiableMap;
 
 /**
@@ -34,7 +35,7 @@ import static java.util.Collections.unmodifiableMap;
  * read exiftool output from one thread (should not be shared across
  * several threads).
  */
-class TagHandler implements OutputHandler {
+public class TagHandler implements OutputHandler {
 
 	/**
 	 * Class logger.
@@ -56,7 +57,7 @@ class TagHandler implements OutputHandler {
 	/**
 	 * Create handler.
 	 */
-	TagHandler() {
+	public TagHandler() {
 		tags = new HashMap<Tag, String>();
 	}
 
@@ -66,7 +67,7 @@ class TagHandler implements OutputHandler {
 	 *
 	 * @param size Expected size of tags to parse.
 	 */
-	TagHandler(int size) {
+	public TagHandler(int size) {
 		tags = new HashMap<Tag, String>(size);
 	}
 
@@ -101,11 +102,11 @@ class TagHandler implements OutputHandler {
 		return true;
 	}
 
-	Map<Tag, String> getTags() {
+	public Map<Tag, String> getTags() {
 		return unmodifiableMap(tags);
 	}
 
-	int size() {
+	public int size() {
 		return tags.size();
 	}
 }

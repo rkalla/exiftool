@@ -17,13 +17,12 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
+import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExecutor;
 
@@ -109,6 +108,11 @@ public class ExifToolBuilder {
 	private static final PathFunction PATH = new PathFunction();
 
 	/**
+	 * Function to get default cleanup interval.
+	 */
+	private static final DelayFunction DELAY = new DelayFunction();
+
+	/**
 	 * Function to get default executor environment.
 	 */
 	private static final ExecutorFunction EXECUTOR = new ExecutorFunction();
@@ -124,12 +128,16 @@ public class ExifToolBuilder {
 	private CommandExecutor executor;
 
 	/**
-	 * Set of active features.
+	 * Check if `stay_open` flag should be enabled.
 	 */
-	private final Set<Feature> features;
+	private boolean stayOpen;
+
+	/**
+	 * Cleanup Delay.
+	 */
+	private Long cleanupDelay;
 
 	public ExifToolBuilder() {
-		this.features = new HashSet<Feature>();
 	}
 
 	/**
@@ -163,7 +171,20 @@ public class ExifToolBuilder {
 	 */
 	public ExifToolBuilder enableStayOpen() {
 		log.debug("Enable 'stay_open' feature");
-		this.features.add(Feature.STAY_OPEN);
+		this.stayOpen = true;
+		return this;
+	}
+
+	/**
+	 * Enable `stay_open` feature.
+	 *
+	 * @param cleanupDelay Interval (in milliseconds) between automatic clean operation.
+	 * @return Current builder.
+	 */
+	public ExifToolBuilder enableStayOpen(long cleanupDelay) {
+		log.debug("Enable 'stay_open' feature");
+		this.stayOpen = true;
+		this.cleanupDelay = cleanupDelay;
 		return this;
 	}
 
@@ -174,7 +195,7 @@ public class ExifToolBuilder {
 	 */
 	public ExifToolBuilder disableStayOpen() {
 		log.debug("Disable 'stay_open' feature");
-		this.features.remove(Feature.STAY_OPEN);
+		this.stayOpen = false;
 		return this;
 	}
 
@@ -192,10 +213,16 @@ public class ExifToolBuilder {
 			log.debug("Create ExifTool instance");
 			log.debug(" - Path: %s", path);
 			log.debug(" - Executor: %s", executor);
-			log.debug(" - Features: %s", features);
+			log.debug(" - StayOpen: %s", stayOpen);
 		}
 
-		return new ExifTool(path, executor, features);
+		// Create strategy.
+		ExifToolStrategy strategy = stayOpen ?
+			new StayOpenStrategy(firstNonNull(cleanupDelay, DELAY)) :
+			new DefaultStrategy();
+
+		// ExifTool instance can be safely created
+		return new ExifTool(path, executor, strategy);
 	}
 
 	/**
@@ -253,6 +280,38 @@ public class ExifToolBuilder {
 		@Override
 		public String apply() {
 			return System.getProperty("exiftool.path", "exiftool");
+		}
+	}
+
+	/**
+	 * Return the interval (in milliseconds) of inactivity before the cleanup thread wakes
+	 * up and cleans up the daemon ExifTool process and the read/write streams
+	 * used to communicate with it when the {@link Feature#STAY_OPEN} feature is
+	 * used.
+	 *
+	 * Ever time a call to `getImageMeta` is processed, the timer
+	 * keeping track of cleanup is reset; more specifically, this class has to
+	 * experience no activity for this duration of time before the cleanup
+	 * process is fired up and cleans up the host OS process and the stream
+	 * resources.
+	 *
+	 * Any subsequent calls to `getImageMeta` after a cleanup simply
+	 * re-initializes the resources.
+	 *
+	 * This system property can be set on startup with `-Dexiftool.processCleanupDelay=600000`
+	 * or by calling {@link System#setProperty(String, String)} before
+	 * this class is loaded.
+	 *
+	 * Setting this value to 0 disables the automatic cleanup thread completely
+	 * and the caller will need to manually cleanup the external ExifTool
+	 * process and read/write streams by calling `close` method..
+	 *
+	 * Default value is `600,000` (10 minutes).
+	 */
+	private static class DelayFunction implements FactoryFunction<Long> {
+		@Override
+		public Long apply() {
+			return Long.getLong("exiftool.processCleanupDelay", 600000);
 		}
 	}
 

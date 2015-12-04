@@ -95,4 +95,17 @@ public final class Collections {
 
 		return outputs;
 	}
+
+	/**
+	 * Execute function on a collection of inputs.
+	 *
+	 * @param inputs Input list.
+	 * @param func Function to apply on each input.
+	 * @param <T> Type of input.
+	 */
+	public static <T> void each(Collection<T> inputs, Function<T> func) {
+		for (T input : inputs) {
+			func.apply(input);
+		}
+	}
 }

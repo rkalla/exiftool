@@ -32,4 +32,10 @@ public final class ReflectionUtils {
 		field.setAccessible(true);
 		return (T) field.get(o);
 	}
+
+	public static <T> void writePrivateField(Object o, String name, T value) throws NoSuchFieldException, IllegalAccessException {
+		Field field = o.getClass().getDeclaredField(name);
+		field.setAccessible(true);
+		field.set(o, value);
+	}
 }

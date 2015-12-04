@@ -17,63 +17,187 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
+import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
+import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thebuzzmedia.exiftool.tests.MapUtils.newMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class ExifTool_setImageMeta_Test extends AbstractExifTool_setImageMeta_Test {
+@RunWith(MockitoJUnitRunner.class)
+public class ExifTool_setImageMeta_Test {
 
-	@Override
-	protected ExifTool createExifTool(CommandExecutor executor) throws Exception {
-		return new ExifTool("exiftool", executor, Collections.<Feature>emptySet());
+	@Rule
+	public ExpectedException thrown = none();
+
+	private String path;
+
+	@Mock
+	private CommandExecutor executor;
+
+	@Mock
+	private ExifToolStrategy strategy;
+
+	@Captor
+	private ArgumentCaptor<List<String>> argsCaptor;
+
+	private ExifTool exifTool;
+
+	@Before
+	public void setUp() throws Exception {
+		path = "exiftool";
+
+		CommandResult result = new CommandResultBuilder()
+			.output("9.36")
+			.build();
+
+		when(executor.execute(any(Command.class))).thenReturn(result);
+
+		exifTool = new ExifTool(path, executor, strategy);
+
+		reset(executor);
 	}
 
-	@Override
-	protected void mockExecutor(CommandExecutor executor) throws Exception {
+	@Test
+	public void it_should_fail_if_image_is_null() throws Exception {
+		thrown.expect(NullPointerException.class);
+		thrown.expectMessage("Image cannot be null and must be a valid stream of image data.");
+		exifTool.setImageMeta(null, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
 	}
 
-	@Override
-	protected void verifyExecution(ExifTool exifTool, CommandExecutor executor, File image, Format format, Map<Tag, String> tags) throws Exception {
-		ArgumentCaptor<Command> cmdCaptor = ArgumentCaptor.forClass(Command.class);
-		verify(executor).execute(cmdCaptor.capture(), any(OutputHandler.class));
+	@Test
+	public void it_should_fail_if_format_is_null() throws Exception {
+		thrown.expect(NullPointerException.class);
+		thrown.expectMessage("Format cannot be null.");
+		exifTool.setImageMeta(mock(File.class), null, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+	}
 
-		List<String> expectedArgs = createArgumentsList(image, format, tags);
-		Command cmd = cmdCaptor.getValue();
-		assertThat(cmd.getArguments())
-			.isNotNull()
+	@Test
+	public void it_should_fail_if_tags_is_null() throws Exception {
+		thrown.expect(NullPointerException.class);
+		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
+		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
+	}
+
+	@Test
+	public void it_should_fail_if_tags_is_empty() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
+		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, Collections.<Tag, String>emptyMap());
+	}
+
+	@Test
+	public void it_should_fail_with_unknown_file() throws Exception {
+		thrown.expect(UnwritableFileException.class);
+		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+
+		File image = new FileBuilder("foo.png")
+			.exists(false)
+			.build();
+
+		exifTool.setImageMeta(image, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+	}
+
+	@Test
+	public void it_should_fail_with_non_writable_file() throws Exception {
+		thrown.expect(UnwritableFileException.class);
+		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+
+		File image = new FileBuilder("foo.png")
+			.canWrite(false)
+			.build();
+
+		exifTool.setImageMeta(image, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+	}
+
+	@Test
+	public void it_should_set_image_meta_data() throws Exception {
+		final File image = new FileBuilder("foo.png").build();
+		final Format format = Format.HUMAN_READABLE;
+		final Map<Tag, String> tags = newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar");
+
+		doAnswer(new WriteTagsAnswer())
+			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
+
+		exifTool.setImageMeta(image, format, tags);
+
+		verify(strategy).execute(same(executor), same(path), argsCaptor.capture(), any(OutputHandler.class));
+
+		List<String> args = argsCaptor.getValue();
+		assertThat(args)
 			.isNotEmpty()
-			.hasSameSizeAs(expectedArgs)
-			.isEqualTo(expectedArgs);
+			.isNotNull()
+			.hasSize(5)
+			.containsExactly(
+				"-S",
+				"-ApertureValue=foo",
+				"-Artist=bar",
+				"/tmp/foo.png",
+				"-execute"
+			);
 	}
 
-	private List<String> createArgumentsList(File file, Format format, Map<Tag, String> tags) {
-		List<String> args = new LinkedList<String>();
-		args.add("exiftool");
+	@Test
+	public void it_should_set_image_meta_data_in_numeric_format() throws Exception {
+		final File image = new FileBuilder("foo.png").build();
+		final Map<Tag, String> tags = newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar");
+		final Format format = Format.NUMERIC;
 
-		if (format == Format.NUMERIC) {
-			args.add("-n");
+		doAnswer(new WriteTagsAnswer())
+			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
+
+		exifTool.setImageMeta(image, format, tags);
+
+		verify(strategy).execute(same(executor), same(path), argsCaptor.capture(), any(OutputHandler.class));
+
+		List<String> args = argsCaptor.getValue();
+		assertThat(args)
+			.isNotEmpty()
+			.isNotNull()
+			.hasSize(6)
+			.containsExactly(
+				"-n",
+				"-S",
+				"-ApertureValue=foo",
+				"-Artist=bar",
+				"/tmp/foo.png",
+				"-execute"
+			);
+	}
+
+	private static class WriteTagsAnswer implements Answer {
+		@Override
+		public Object answer(InvocationOnMock invocation) throws Throwable {
+			return "{ready}";
 		}
-
-		args.add("-S");
-
-		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
-			args.add("-" + entry.getKey().getName() + "=" + entry.getValue());
-		}
-
-		args.add(file.getAbsolutePath());
-		args.add("-execute");
-
-		return args;
 	}
 }

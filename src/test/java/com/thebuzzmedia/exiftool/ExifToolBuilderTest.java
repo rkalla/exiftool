@@ -17,6 +17,8 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
+import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
@@ -30,8 +32,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.Set;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,27 +77,21 @@ public class ExifToolBuilderTest {
 			.isEqualTo(executor);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void it_should_enable_or_disable_stay_open_feature() throws Exception {
 		ExifToolBuilder r1 = builder.enableStayOpen();
 		assertThat(r1).isSameAs(builder);
 
-		Set<Feature> f1 = readPrivateField(builder, "features", Set.class);
-		assertThat(f1)
-			.isNotNull()
-			.contains(Feature.STAY_OPEN);
+		boolean flag1 = readPrivateField(builder, "stayOpen", Boolean.class);
+		assertThat(flag1).isTrue();
 
 		ExifToolBuilder r2 = builder.disableStayOpen();
 		assertThat(r2).isSameAs(builder);
 
-		Set<Feature> f2 = readPrivateField(builder, "features", Set.class);
-		assertThat(f2)
-			.isNotNull()
-			.doesNotContain(Feature.STAY_OPEN);
+		boolean flag2 = readPrivateField(builder, "stayOpen", Boolean.class);
+		assertThat(flag2).isFalse();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void it_should_create_exiftool_with_custom_props() throws Exception {
 		CommandExecutor executor = mock(CommandExecutor.class);
@@ -123,11 +117,10 @@ public class ExifToolBuilderTest {
 			.isNotNull()
 			.isEqualTo(executor);
 
-		Set<Feature> features = readPrivateField(exifTool, "features", Set.class);
-		assertThat(features)
+		ExifToolStrategy strategy = readPrivateField(exifTool, "strategy", ExifToolStrategy.class);
+		assertThat(strategy)
 			.isNotNull()
-			.isNotEmpty()
-			.contains(Feature.STAY_OPEN);
+			.isExactlyInstanceOf(StayOpenStrategy.class);
 	}
 
 	@Test
@@ -169,7 +162,6 @@ public class ExifToolBuilderTest {
 			.isEqualTo("exiftool");
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void it_should_not_enable_stay_open_by_default() throws Exception {
 		CommandExecutor executor = mock(CommandExecutor.class);
@@ -183,10 +175,10 @@ public class ExifToolBuilderTest {
 			.executor(executor)
 			.build();
 
-		Set<Feature> features = readPrivateField(exifTool, "features", Set.class);
-		assertThat(features)
+		ExifToolStrategy strategy = readPrivateField(exifTool, "strategy", ExifToolStrategy.class);
+		assertThat(strategy)
 			.isNotNull()
-			.isEmpty();
+			.isExactlyInstanceOf(DefaultStrategy.class);
 	}
 
 	@Test

@@ -23,16 +23,17 @@ public interface CommandExecutor {
 
 	/**
 	 * Execute command and build the result.
-	 * Note that execution is synchronous.
 	 *
-	 * @param command Command.
+	 * **NOTE:** Execution is synchronous.
+	 *
+	 * @param command Command input.
 	 * @return Result of execution.
 	 */
 	CommandResult execute(Command command);
 
 	/**
 	 * Execute command and build the result.
-	 * Note that execution is synchronous.
+	 * **NOTE:** Execution is synchronous.
 	 *
 	 * @param command Command.
 	 * @param handler Custom output handler.

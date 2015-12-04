@@ -19,9 +19,7 @@ package com.thebuzzmedia.exiftool;
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
-import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
-import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
@@ -30,20 +28,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import static com.thebuzzmedia.exiftool.StopHandler.stopHandler;
-import static com.thebuzzmedia.exiftool.StreamArgumentMapper.streamArgumentMapper;
-import static com.thebuzzmedia.exiftool.commons.Collections.map;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
-import static java.util.Collections.unmodifiableSet;
 
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
@@ -285,27 +277,6 @@ public class ExifTool implements AutoCloseable {
 		"exiftool.processCleanupDelay", 600000);
 
 	/**
-	 * Name used to identify the (optional) cleanup {@link Thread}.
-	 * <p/>
-	 * This is only provided to make debugging and profiling easier for
-	 * implementors making use of this class such that the resources this class
-	 * creates and uses (i.e. Threads) are readily identifiable in a running VM.
-	 * <p/>
-	 * Default value is "<code>ExifTool Cleanup Thread</code>".
-	 */
-	protected static final String CLEANUP_THREAD_NAME = "ExifTool Cleanup Thread";
-
-	private Timer cleanupTimer;
-
-	private TimerTask currentCleanupTask;
-
-	/**
-	 * Set of features enabled on this exif tool
-	 * instance.
-	 */
-	private final Set<Feature> features;
-
-	/**
 	 * Command Executor.
 	 * This executor will be used to execute exiftool process and commands.
 	 */
@@ -324,7 +295,12 @@ public class ExifTool implements AutoCloseable {
 	 */
 	private final String version;
 
-	private CommandProcess process;
+	/**
+	 * ExifTool strategy.
+	 * This strategy implement how exiftool is effectively used (as one-shot
+	 * process or with `stay_open` flag).
+	 */
+	private final ExifToolStrategy strategy;
 
 	/**
 	 * Create new ExifTool instance.
@@ -332,87 +308,40 @@ public class ExifTool implements AutoCloseable {
 	 * If feature is not available on this specific exiftool version, then
 	 * an it an {@link UnsupportedFeatureException} will be thrown.
 	 *
-	 * @param features List of features to activate.
-	 * @throws UnsupportedFeatureException If feature is not available for this exiftool version.
+	 * @param path ExifTool path.
+	 * @param executor Executor used to handle command line.
+	 * @param strategy Execution strategy.
 	 */
-	ExifTool(String path, CommandExecutor executor, Set<Feature> features) {
+	ExifTool(String path, CommandExecutor executor, ExifToolStrategy strategy) {
 		this.executor = notNull(executor, "Executor should not be null");
 		this.path = notNull(path, "ExifTool path should not be null");
 		this.version = parseVersion();
-		this.features = parseFeature(features);
-
-		/*
-		 * Now that initialization is done, init the cleanup timer if we are
-		 * using STAY_OPEN and the delay time set is non-zero.
-		 */
-		if (isFeatureEnabled(Feature.STAY_OPEN) && PROCESS_CLEANUP_DELAY > 0) {
-			this.cleanupTimer = new Timer(CLEANUP_THREAD_NAME, true);
-
-			// Start the first cleanup task counting down.
-			resetCleanupTask();
-		}
+		this.strategy = strategy;
 	}
 
 	/**
 	 * Parse Version from this exiftool instance.
+	 *
 	 * This function need to execute exiftool external process.
+	 * Executed command is: `[exiftool] -ver`
 	 *
-	 * Executed command is:
-	 * <exiftool> -ver
+	 * Where:
 	 *
-	 * where:
-	 * - <exiftool> is the path to exiftool executable.
-	 * - -ver is the only one argument.
+	 * - `[exiftool]` is the path to exiftool executable.
+	 * - `-ver` is the only one arguments.
 	 *
 	 * This function should remain private since it is used directly in the constructor (and we
-	 * don't want to escape this object).
+	 * don't want to escape `this` object).
 	 *
-	 * @return Exiftool version, null if command failed.
+	 * @return Exiftool version, `null` if command failed.
 	 */
 	private String parseVersion() {
 		log.debug("Checking exiftool version");
-
-		Command command = CommandBuilder.builder(path)
+		CommandResult result = executor.execute(CommandBuilder.builder(path)
 			.addArgument("-ver")
-			.build();
+			.build());
 
-		CommandResult result = executor.execute(command);
 		return result.isSuccess() ? result.getOutput() : null;
-	}
-
-	/**
-	 * This function will returned available feature from this exiftool instances.
-	 *
-	 * Each feature given in parameters is checked:
-	 * - If feature is supported by this exiftool instance, then OK.
-	 * - Otherwise, an instance of {@link UnsupportedFeatureException} is thrown.
-	 *
-	 * If an instance of {@link UnsupportedFeatureException} is thrown, it means that:
-	 * - You should update exiftool.
-	 * - If you can't update exiftool, then you should not use this feature.
-	 *
-	 * This function should remain private since it is used directly in the constructor (and we
-	 * don't want to escape this object).
-	 *
-	 * @param features Features to check.
-	 * @return Set of available features.
-	 * @throws UnsupportedFeatureException If a feature is not supported.
-	 */
-	private Set<Feature> parseFeature(Set<Feature> features) {
-		log.debug("Parsing activated features");
-
-		// Store it in a set, this will avoid duplicates
-		for (Feature feature : features) {
-			boolean supported = feature.isSupported(version);
-			if (supported) {
-				log.debug("Feature %s SUPPORTED", feature);
-			} else {
-				log.error("Feature %s NOT SUPPORTED", feature);
-				throw new UnsupportedFeatureException(version, feature);
-			}
-		}
-
-		return unmodifiableSet(features);
 	}
 
 	/**
@@ -433,49 +362,7 @@ public class ExifTool implements AutoCloseable {
 	 */
 	@Override
 	public void close() throws Exception {
-		if (!isRunning()) {
-			// no-op if the underlying process and streams have already been closed
-			// OR if stayOpen was never used in the first place in which case
-			// nothing is open right now anyway.
-			return;
-		}
-
-		// First, try to stop cleanup task
-		// If task is not stopped, it may be executed later
-
-		try {
-			log.debug("Attempting to stop cleanup task");
-			stopCleanupTask();
-			log.debug("Cleanup task successfully stopped");
-		}
-		catch (Exception ex) {
-			log.warn("Cleanup task failed to stop");
-			log.warn(ex.getMessage(), ex);
-		}
-
-		// Then, stop current process
-
-		try {
-			// If ExifTool was used in stayOpen mode but getImageMeta was never
-			// called then the streams were never initialized and there is nothing
-			// to shut down or destroy, otherwise we need to close down all the
-			// resources in use.
-			log.debug("Attempting to close ExifTool daemon process, issuing '-stay_open\\nFalse\\n' command...");
-			process.close();
-			log.debug("ExifTool daemon process successfully closed");
-		}
-		catch (Exception ex) {
-			// Log some warnings.
-			log.warn("ExifTool daemon failed to stop");
-			log.warn(ex.getMessage(), ex);
-
-			// Re-throw the error, this will let the caller do what he wants with the exception.
-			throw ex;
-		}
-		finally {
-			// Dot not forget to set it to null.
-			process = null;
-		}
+		strategy.close();
 	}
 
 	/**
@@ -485,28 +372,15 @@ public class ExifTool implements AutoCloseable {
 	 *
 	 * Any dependent processes and streams can be shutdown using
 	 * {@link #close()} and this class will automatically re-create them on the
-	 * next call to <code>getImageMeta</code> if necessary.
+	 * next call to `getImageMeta` if necessary.
 	 *
-	 * @return <code>true</code> if there is an external ExifTool process in
+	 * @return `true` if there is an external ExifTool process in
 	 * daemon mode associated with this class utilizing the
 	 * {@link Feature#STAY_OPEN} feature, otherwise returns
-	 * <code>false</code>.
+	 * `false<`.
 	 */
 	public boolean isRunning() {
-		return process != null && process.isRunning();
-	}
-
-	// Implement finalizer.
-	// This is just a small security: it should not prevent caller
-	// to explicitly close the exiftool process (but add this finalizer
-	// if someone forget).
-	@Override
-	protected void finalize() throws Throwable {
-		// Be sure process is closed
-		close();
-
-		// Just delegate to original finalizer implementation
-		super.finalize();
+		return strategy.isRunning();
 	}
 
 	/**
@@ -516,22 +390,6 @@ public class ExifTool implements AutoCloseable {
 	 */
 	public String getVersion() {
 		return version;
-	}
-
-	/**
-	 * Used to determine if the given {@link Feature} has been enabled for this
-	 * particular instance of {@link ExifTool}.
-	 * <p/>
-	 *
-	 * @param feature The feature to check if it has been enabled for us or not on
-	 * this instance.
-	 * @return <code>true</code> if the given {@link Feature} is currently
-	 * enabled on this instance of {@link ExifTool}, otherwise returns
-	 * <code>false</code>.
-	 * @throws NullPointerException if <code>feature</code> is <code>null</code>.
-	 */
-	public boolean isFeatureEnabled(Feature feature) throws IllegalArgumentException {
-		return features.contains(notNull(feature, "Feature cannot be null"));
 	}
 
 	/**
@@ -577,63 +435,13 @@ public class ExifTool implements AutoCloseable {
 		// Build list of exiftool arguments.
 		final List<String> args = getImageMetaArguments(format, image, tags);
 
-		// Using ExifTool in daemon mode (-stay_open True) executes different
-		// code paths below. So establish the flag for this once and it is
-		// reused a multitude of times later in this method to figure out where
-		// to branch to.
-		final boolean stayOpen = features.contains(Feature.STAY_OPEN);
-
-		// Execute exiftool
-		if (stayOpen) {
-			doGetImageMetaStayOpen(tagHandler, args);
-		} else {
-			doGetImageMeta(tagHandler, args);
-		}
+		// Execute ExifTool command
+		strategy.execute(executor, path, args, tagHandler);
 
 		// Add some debugging log
 		log.debug("Image Meta Processed [queried %s tags and found %s values]", tags.length, tagHandler.size());
 
 		return tagHandler.getTags();
-	}
-
-	/**
-	 * Parse image metadata.
-	 * If exiftool process is not already started, then it will be opened
-	 * with stay_open flag.
-	 *
-	 * @param tagHandler Tag handler, will be executed for each line output.
-	 * @param args Command arguments.
-	 * @throws IOException If something bad happen process input/output operations.
-	 */
-	private void doGetImageMetaStayOpen(TagHandler tagHandler, List<String> args) throws IOException {
-		log.debug("Using ExifTool in daemon mode (-stay_open True)...");
-
-		// Always reset the cleanup task.
-		resetCleanupTask();
-
-		// Start deamon process if it is not already started.
-		start();
-
-		process.write(map(args, streamArgumentMapper()));
-		process.flush();
-		process.read(tagHandler);
-	}
-
-	/**
-	 * Parse image metadata using new exiftool process.
-	 * Process is automatically closed when finished.
-	 *
-	 * @param tagHandler Tag handler, will be executed for each line output.
-	 * @param args Command arguments.
-	 */
-	private void doGetImageMeta(TagHandler tagHandler, List<String> args) {
-		log.debug("Using ExifTool in non-daemon mode (-stay_open False)...");
-
-		Command cmd = CommandBuilder.builder(path)
-			.addAll(args)
-			.build();
-
-		executor.execute(cmd, tagHandler);
 	}
 
 	/**
@@ -662,124 +470,17 @@ public class ExifTool implements AutoCloseable {
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
 		isWritable(image, "Unable to read the given image [%s], ensure that the image exists at the given path and that the executing Java process has permissions to read it.", image);
 
-		final long startTime = System.currentTimeMillis();
-
 		log.debug("Writing %d tags to image: %s", tags.size(), image);
 
-		// Using ExifTool in daemon mode (-stay_open True) executes different
-		// code paths below. So establish the flag for this once and it is
-		// reused a multitude of times later in this method to figure out where
-		// to branch to.
-		final boolean stayOpen = features.contains(Feature.STAY_OPEN);
+		final long startTime = System.currentTimeMillis();
 
-		if (stayOpen) {
-			doSetImageMetaStayOpen(image, format, tags);
-		} else {
-			doSetImageMeta(image, format, tags);
-		}
+		// Get arguments
+		final List<String> args = setImageMetaArguments(format, image, tags);
+
+		// Execute ExifTool command
+		strategy.execute(executor, path, args, stopHandler());
 
 		log.debug("Image Meta Processed in %d ms [write %d tags]", System.currentTimeMillis() - startTime, tags.size());
-	}
-
-	/**
-	 * Write image metadata using stay_open flag.
-	 * If daemon process is not already started, it will be automatically open.
-	 *
-	 * @param image Image.
-	 * @param format Specified format.
-	 * @param tags Tags to write.
-	 * @throws IOException If an error occurs during write operation on opened process.
-	 */
-	private void doSetImageMetaStayOpen(File image, Format format, Map<Tag, String> tags) throws IOException {
-		// Always reset the cleanup task.
-		resetCleanupTask();
-
-		// Start deamon process if it is not already started.
-		start();
-
-		process.write(map(setImageMetaArguments(format, image, tags), streamArgumentMapper()));
-		process.flush();
-		process.read(stopHandler());
-	}
-
-	/**
-	 * Write image metadata.
-	 * A new process will be started and closed at the end of the operation.
-	 *
-	 * @param image Image.
-	 * @param format Specified format.
-	 * @param tags Tags to write.
-	 */
-	private void doSetImageMeta(File image, Format format, Map<Tag, String> tags) {
-		log.debug("Using ExifTool in non-daemon mode (-stay_open False)...");
-
-		// Since we are not using a stayOpen process, we need to setup the
-		// execution arguments completely each time.
-		Command cmd = CommandBuilder.builder(path)
-			.addAll(setImageMetaArguments(format, image, tags))
-			.build();
-
-		executor.execute(cmd, stopHandler());
-	}
-
-	/**
-	 * Helper method used to make canceling the current task and scheduling a
-	 * new one easier.
-	 *
-	 * It is annoying that we cannot just reset the timer on the task, but that
-	 * isn't the way the java.util.Timer class was designed unfortunately.
-	 */
-	private void resetCleanupTask() {
-		// no-op if the timer was never created.
-		if (cleanupTimer == null) {
-			return;
-		}
-
-		stopCleanupTask();
-		startCleanupTask();
-	}
-
-	/**
-	 * Start new clean task.
-	 *
-	 * This task will be scheduled and will run in the
-	 * specified delay.
-	 *
-	 * If no timer has been initialized, then this method
-	 * is a no-op.
-	 */
-	private void startCleanupTask() {
-		// no-op if the timer was never created.
-		if (cleanupTimer == null) {
-			return;
-		}
-
-		log.debug("Starting cleanup task");
-
-		// Create task
-		currentCleanupTask = new CleanupTimerTask(this);
-
-		// Schedule a new cleanup task.
-		cleanupTimer.schedule(currentCleanupTask, PROCESS_CLEANUP_DELAY, PROCESS_CLEANUP_DELAY);
-	}
-
-	/**
-	 * Stop pending clean task.
-	 *
-	 * If no timer has been initialized, then this method
-	 * is a no-op.
-	 */
-	private void stopCleanupTask() {
-		// no-op if the timer was never created.
-		if (cleanupTimer == null) {
-			return;
-		}
-
-		if (currentCleanupTask != null) {
-			log.debug("Stopping cleanup task");
-			currentCleanupTask.cancel();
-			currentCleanupTask = null;
-		}
 	}
 
 	/**
@@ -846,55 +547,5 @@ public class ExifTool implements AutoCloseable {
 		args.add("-execute");
 
 		return args;
-	}
-
-	/**
-	 * Start exiftool process with stay_open flag.
-	 * If exiftool process is already started, then this function is a no-op.
-	 */
-	private void start() {
-		// If this is our first time calling getImageMeta with a "stayOpen"
-		// connection, set up the persistent process and run it so it is
-		// ready to receive commands from us.
-		if (process == null || process.isClosed()) {
-			log.debug("Start exiftool process");
-
-			Command cmd = CommandBuilder.builder(path)
-				.addArgument("-stay_open", "True", "-@", "-")
-				.build();
-
-			process = executor.start(cmd);
-		}
-	}
-
-	/**
-	 * Class used to represent the {@link TimerTask} used by the internal auto
-	 * cleanup {@link Timer} to call {@link ExifTool#close()} after a specified
-	 * interval of inactivity.
-	 *
-	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 1.1
-	 */
-	private class CleanupTimerTask extends TimerTask {
-		private ExifTool owner;
-
-		public CleanupTimerTask(ExifTool owner) throws IllegalArgumentException {
-			if (owner == null)
-				throw new IllegalArgumentException(
-					"owner cannot be null and must refer to the ExifTool instance creating this task.");
-
-			this.owner = owner;
-		}
-
-		@Override
-		public void run() {
-			log.debug("\tAuto cleanup task running...");
-			try {
-				owner.close();
-			}
-			catch (Exception ex) {
-				log.error(ex.getMessage(), ex);
-			}
-		}
 	}
 }

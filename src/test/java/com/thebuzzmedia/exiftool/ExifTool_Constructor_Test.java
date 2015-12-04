@@ -17,22 +17,15 @@
 
 package com.thebuzzmedia.exiftool;
 
-import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Collections;
-
-import static java.util.Collections.singleton;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,104 +33,42 @@ import static org.mockito.Mockito.when;
 
 public class ExifTool_Constructor_Test {
 
-	@Rule
-	public ExpectedException thrown = none();
+	@Test
+	public void it_should_create_exiftool_instance_and_get_version() throws Exception {
+		String path = "exiftool";
+		CommandExecutor executor = mock(CommandExecutor.class);
+		ExifToolStrategy strategy = mock(ExifToolStrategy.class);
 
-	private CommandExecutor executor;
-
-	private CommandResult v9_36;
-
-	private CommandResult v5_0;
-
-	@Before
-	public void setUp() {
-		executor = mock(CommandExecutor.class);
-
-		v9_36 = new CommandResultBuilder()
+		CommandResult v9_36 = new CommandResultBuilder()
 			.output("9.36")
 			.build();
 
-		v5_0 = new CommandResultBuilder()
-			.output("5.0")
-			.build();
-	}
-
-	@Test
-	public void it_should_initialize_exiftool_without_features() {
 		when(executor.execute(any(Command.class))).thenReturn(v9_36);
 
-		ExifTool exifTool = new ExifTool("exiftool", executor, Collections.<Feature>emptySet());
+		ExifTool exifTool = new ExifTool(path, executor, strategy);
 
-		assertThat(exifTool.getVersion())
+		assertThat(readPrivateField(exifTool, "path", String.class))
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo("9.36");
+			.isEqualTo(path);
 
-		assertThat(exifTool.isFeatureEnabled(Feature.STAY_OPEN))
-			.isFalse();
+		assertThat(readPrivateField(exifTool, "executor", CommandExecutor.class))
+			.isNotNull()
+			.isEqualTo(executor);
 
-		ArgumentCaptor<Command> argCommand = ArgumentCaptor.forClass(Command.class);
-		verify(executor).execute(argCommand.capture());
+		assertThat(readPrivateField(exifTool, "strategy", ExifToolStrategy.class))
+			.isNotNull()
+			.isEqualTo(strategy);
 
-		Command command = argCommand.getValue();
-		assertThat(command.toString()).isEqualTo("exiftool -ver");
-	}
+		ArgumentCaptor<Command> cmdCaptor = ArgumentCaptor.forClass(Command.class);
+		verify(executor).execute(cmdCaptor.capture());
 
-	@Test
-	public void it_should_initialize_exiftool_with_stay_open_feature() {
-		when(executor.execute(any(Command.class))).thenReturn(v9_36);
-
-		ExifTool exifTool = new ExifTool("exiftool", executor, singleton(Feature.STAY_OPEN));
-
-		assertThat(exifTool.getVersion())
+		Command cmd = cmdCaptor.getValue();
+		assertThat(cmd).isNotNull();
+		assertThat(cmd.getArguments())
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo("9.36");
-
-		assertThat(exifTool.isFeatureEnabled(Feature.STAY_OPEN)).isTrue();
-
-		ArgumentCaptor<Command> argCommand = ArgumentCaptor.forClass(Command.class);
-		verify(executor).execute(argCommand.capture());
-
-		Command command = argCommand.getValue();
-		assertThat(command.toString()).isEqualTo("exiftool -ver");
-	}
-
-	@Test
-	public void it_should_not_initialize_exiftool_with_stay_open_feature_if_it_is_not_supported() {
-		thrown.expect(UnsupportedFeatureException.class);
-		thrown.expectMessage(
-			"Use of feature [STAY_OPEN] requires version 8.36 or higher of the native ExifTool program. " +
-			"The version of ExifTool referenced by the system property 'exiftool.path' is not high enough. " +
-			"You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception."
-		);
-
-		when(executor.execute(any(Command.class))).thenReturn(v5_0);
-		new ExifTool("exiftool", executor, singleton(Feature.STAY_OPEN));
-	}
-
-	@Test
-	public void it_should_check_if_feature_is_enabled() {
-		when(executor.execute(any(Command.class))).thenReturn(v9_36);
-		ExifTool exifTool = new ExifTool("exiftool", executor, singleton(Feature.STAY_OPEN));
-		assertThat(exifTool.isFeatureEnabled(Feature.STAY_OPEN)).isTrue();
-	}
-
-	@Test
-	public void it_should_check_if_feature_is_not_enabled() {
-		when(executor.execute(any(Command.class))).thenReturn(v9_36);
-		ExifTool exifTool = new ExifTool("exiftool", executor, Collections.<Feature>emptySet());
-		assertThat(exifTool.isFeatureEnabled(Feature.STAY_OPEN)).isFalse();
-	}
-
-	@Test
-	public void it_should_fail_check_if_feature_is_not_enabled_with_null() {
-		thrown.expect(NullPointerException.class);
-		thrown.expectMessage("Feature cannot be null");
-
-		when(executor.execute(any(Command.class))).thenReturn(v9_36);
-		ExifTool exifTool = new ExifTool("exiftool", executor, Collections.<Feature>emptySet());
-
-		exifTool.isFeatureEnabled(null);
+			.hasSize(2)
+			.containsExactly(path, "-ver");
 	}
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.commons.io;
 
 import com.thebuzzmedia.exiftool.commons.io.IOs;
 import com.thebuzzmedia.exiftool.process.OutputHandler;

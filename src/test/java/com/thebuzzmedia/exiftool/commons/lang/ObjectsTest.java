@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.commons.lang;
 
 import com.thebuzzmedia.exiftool.commons.lang.Objects;
 import org.junit.Test;

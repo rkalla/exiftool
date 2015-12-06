@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.commons.iterables;
 
 import com.thebuzzmedia.exiftool.commons.iterables.Collections;
 import com.thebuzzmedia.exiftool.commons.iterables.Mapper;

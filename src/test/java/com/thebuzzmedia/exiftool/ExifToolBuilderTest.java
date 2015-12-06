@@ -29,36 +29,61 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ CommandExecutors.class })
+@PrepareForTest({
+	CommandExecutors.class
+})
 public class ExifToolBuilderTest {
 
 	@Rule
-	public SystemPropertyRule exifToolProp = new SystemPropertyRule("exiftool.path");
+	public SystemPropertyRule exifToolProps = new SystemPropertyRule(
+		"exiftool.path",
+		"exiftool.processCleanupDelay"
+	);
+
+	@Mock
+	private CommandExecutor executor;
+
+	@Mock
+	private ExecutionStrategy strategy;
+
+	private String path;
 
 	private ExifToolBuilder builder;
 
 	@Before
 	public void setUp() {
-		builder = new ExifToolBuilder();
+		initMocks(this);
 		mockStatic(CommandExecutors.class);
+
+		builder = new ExifToolBuilder();
+		path = "/foo";
+
+		// Mock ExifTool Version
+		CommandResult v9_36 = new CommandResultBuilder()
+			.output("9.36")
+			.build();
+
+		when(executor.execute(any(Command.class))).thenReturn(v9_36);
 	}
 
 	@Test
 	public void it_should_update_path() throws Exception {
-		String path = "/foo";
-		ExifToolBuilder res = builder.path(path);
+		ExifToolBuilder res = builder.withPath(path);
 
 		assertThat(res).isSameAs(builder);
 		assertThat(readPrivateField(builder, "path", String.class))
@@ -68,8 +93,7 @@ public class ExifToolBuilderTest {
 
 	@Test
 	public void it_should_update_executor() throws Exception {
-		CommandExecutor executor = mock(CommandExecutor.class);
-		ExifToolBuilder res = builder.executor(executor);
+		ExifToolBuilder res = builder.withExecutor(executor);
 
 		assertThat(res).isSameAs(builder);
 		assertThat(readPrivateField(builder, "executor", CommandExecutor.class))
@@ -78,34 +102,43 @@ public class ExifToolBuilderTest {
 	}
 
 	@Test
-	public void it_should_enable_or_disable_stay_open_feature() throws Exception {
+	public void it_should_enable_stay_open_feature() throws Exception {
+		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isNull();
+
 		ExifToolBuilder r1 = builder.enableStayOpen();
 		assertThat(r1).isSameAs(builder);
+		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
+		assertThat(readPrivateField(builder, "cleanupDelay", Long.class)).isNull();
+	}
 
-		boolean flag1 = readPrivateField(builder, "stayOpen", Boolean.class);
-		assertThat(flag1).isTrue();
+	@Test
+	public void it_should_enable_stay_open_feature_with_delay() throws Exception {
+		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isNull();
+		assertThat(readPrivateField(builder, "cleanupDelay", Boolean.class)).isNull();
 
-		ExifToolBuilder r2 = builder.disableStayOpen();
-		assertThat(r2).isSameAs(builder);
+		long delay = 10000;
+		ExifToolBuilder r1 = builder.enableStayOpen(delay);
 
-		boolean flag2 = readPrivateField(builder, "stayOpen", Boolean.class);
-		assertThat(flag2).isFalse();
+		assertThat(r1).isSameAs(builder);
+		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
+		assertThat(readPrivateField(builder, "cleanupDelay", Long.class)).isEqualTo(delay);
+	}
+
+	@Test
+	public void it_should_override_strategy() throws Exception {
+		assertThat(readPrivateField(builder, "strategy", ExecutionStrategy.class)).isNull();
+
+		ExifToolBuilder r1 = builder.withStrategy(strategy);
+
+		assertThat(r1).isSameAs(builder);
+		assertThat(readPrivateField(builder, "strategy", ExecutionStrategy.class)).isSameAs(strategy);
 	}
 
 	@Test
 	public void it_should_create_exiftool_with_custom_props() throws Exception {
-		CommandExecutor executor = mock(CommandExecutor.class);
-		String path = "/foo";
-
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
-
 		ExifTool exifTool = builder
-			.path(path)
-			.executor(executor)
+			.withPath(path)
+			.withExecutor(executor)
 			.enableStayOpen()
 			.build();
 
@@ -117,7 +150,7 @@ public class ExifToolBuilderTest {
 			.isNotNull()
 			.isEqualTo(executor);
 
-		ExifToolStrategy strategy = readPrivateField(exifTool, "strategy", ExifToolStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(StayOpenStrategy.class);
@@ -125,18 +158,10 @@ public class ExifToolBuilderTest {
 
 	@Test
 	public void it_should_create_exiftool_and_get_path_from_system_property() throws Exception {
-		String path = "/foo";
 		System.setProperty("exiftool.path", path);
 
-		CommandExecutor executor = mock(CommandExecutor.class);
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
-
 		ExifTool exifTool = builder
-			.executor(executor)
+			.withExecutor(executor)
 			.build();
 
 		assertThat(readPrivateField(exifTool, "path", String.class))
@@ -145,16 +170,9 @@ public class ExifToolBuilderTest {
 	}
 
 	@Test
-	public void it_should_create_exiftool_and_get_from_default() throws Exception {
-		CommandExecutor executor = mock(CommandExecutor.class);
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
-
+	public void it_should_create_exiftool_and_get_path_from_default() throws Exception {
 		ExifTool exifTool = builder
-			.executor(executor)
+			.withExecutor(executor)
 			.build();
 
 		assertThat(readPrivateField(exifTool, "path", String.class))
@@ -163,19 +181,49 @@ public class ExifToolBuilderTest {
 	}
 
 	@Test
-	public void it_should_not_enable_stay_open_by_default() throws Exception {
-		CommandExecutor executor = mock(CommandExecutor.class);
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
+	public void it_should_create_exiftool_and_get_delay_from_default_property() throws Exception {
+		long delay = 100;
+		System.setProperty("exiftool.processCleanupDelay", String.valueOf(delay));
 
 		ExifTool exifTool = builder
-			.executor(executor)
+			.withExecutor(executor)
+			.enableStayOpen()
 			.build();
 
-		ExifToolStrategy strategy = readPrivateField(exifTool, "strategy", ExifToolStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+			.isNotNull()
+			.isExactlyInstanceOf(StayOpenStrategy.class);
+
+		Scheduler scheduler = readPrivateField(strategy, "scheduler", Scheduler.class);
+		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(delay);
+		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(TimeUnit.MILLISECONDS);
+	}
+
+	@Test
+	public void it_should_create_exiftool_and_get_delay_from_default() throws Exception {
+		ExifTool exifTool = builder
+			.withExecutor(executor)
+			.enableStayOpen()
+			.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+			.isNotNull()
+			.isExactlyInstanceOf(StayOpenStrategy.class);
+
+		Scheduler scheduler = readPrivateField(strategy, "scheduler", Scheduler.class);
+		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(600000);
+		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(TimeUnit.MILLISECONDS);
+	}
+
+	@Test
+	public void it_should_not_enable_stay_open_by_default() throws Exception {
+		ExifTool exifTool = builder
+			.withExecutor(executor)
+			.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(DefaultStrategy.class);
@@ -183,21 +231,25 @@ public class ExifToolBuilderTest {
 
 	@Test
 	public void it_should_create_with_default_executor() throws Exception {
-		CommandExecutor executor = mock(CommandExecutor.class);
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
-
 		PowerMockito.when(CommandExecutors.newExecutor()).thenReturn(executor);
 
 		ExifTool exifTool = builder
-			.executor(executor)
 			.build();
 
 		assertThat(readPrivateField(exifTool, "executor", CommandExecutor.class))
 			.isNotNull()
 			.isEqualTo(executor);
+	}
+
+	@Test
+	public void it_should_create_with_custom_strategy() throws Exception {
+		ExifTool exifTool = builder
+			.withExecutor(executor)
+			.withStrategy(strategy)
+			.build();
+
+		assertThat(readPrivateField(exifTool, "strategy", ExecutionStrategy.class))
+			.isNotNull()
+			.isEqualTo(strategy);
 	}
 }

@@ -64,7 +64,7 @@ public class ExifTool_getImageMeta_Test {
 	private CommandExecutor executor;
 
 	@Mock
-	private ExifToolStrategy strategy;
+	private ExecutionStrategy strategy;
 
 	@Captor
 	private ArgumentCaptor<List<String>> argsCaptor;
@@ -119,7 +119,7 @@ public class ExifTool_getImageMeta_Test {
 	@Test
 	public void it_should_fail_with_unknown_file() throws Exception {
 		thrown.expect(UnreadableFileException.class);
-		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given withPath and that the executing Java process has permissions to read it.");
 
 		File image = new FileBuilder("foo.png")
 			.exists(false)
@@ -131,7 +131,7 @@ public class ExifTool_getImageMeta_Test {
 	@Test
 	public void it_should_fail_with_non_readable_file() throws Exception {
 		thrown.expect(UnreadableFileException.class);
-		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given path and that the executing Java process has permissions to read it.");
+		thrown.expectMessage("Unable to read the given image [/tmp/foo.png], ensure that the image exists at the given withPath and that the executing Java process has permissions to read it.");
 
 		File image = new FileBuilder("foo.png")
 			.canRead(false)

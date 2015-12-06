@@ -1,5 +1,6 @@
 /**
  * Copyright 2011 The Buzz Media, LLC
+ * Copyright 2015 Mickael Jeanroy <mickael.jeanroy@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +25,31 @@ import java.util.List;
 /**
  * ExifTool execution strategy.
  *
- * Available strategies are, for instance:
- * - Execution using a one-shot process.
- * - Execution using `stay_open` flag: this strategy means that a process
- *   is started and re-used for next executions.
+ * <p />
+ *
+ * For instance:
+ * <ul>
+ *   <li>Execution using a one-shot process.</li>
+ *   <li>Execution using {@code stay_open} flag: this strategy means that a process is started and re-used for next executions.</li>
+ * </ul>
  *
  * Each implementation will define the main logic for reading and
  * writing metadata (this is the main purpose for the {@link #execute} method.
  *
+ * <p />
+ *
  * Implementation should also define a close method: this method
  * will be used to stop remaining process and clean previous execution.
+ * Calling {@link #close} method should not prevent instances to be used
+ * for a next execution.
  */
-public interface ExifToolStrategy extends AutoCloseable {
+public interface ExecutionStrategy extends AutoCloseable {
 
 	/**
 	 * Execute exiftool command.
 	 *
-	 * @param executor ExifTool executor.
-	 * @param exifTool ExifTool path.
+	 * @param executor ExifTool withExecutor.
+	 * @param exifTool ExifTool withPath.
 	 * @param arguments Command line arguments.
 	 * @param handler Handler to read command output.
 	 */

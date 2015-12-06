@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 public class FileBuilder {
 
 	/**
-	 * File name (this is the name, not the full path).
+	 * File name (this is the name, not the full withPath).
 	 * Must be initialized on construction.
 	 */
 	private final String name;
 
 	/**
-	 * Full path of file.
+	 * Full withPath of file.
 	 * Default is `/tmp`.
 	 */
 	private String path;
@@ -87,9 +87,9 @@ public class FileBuilder {
 	}
 
 	/**
-	 * Update file `path`.
+	 * Update file `withPath`.
 	 *
-	 * @param path New path.
+	 * @param path New withPath.
 	 * @return Current builder.
 	 */
 	public FileBuilder path(String path) {

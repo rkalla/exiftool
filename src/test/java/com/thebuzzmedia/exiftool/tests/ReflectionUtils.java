@@ -17,6 +17,7 @@
 package com.thebuzzmedia.exiftool.tests;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Reflection Utilities used in unit tests.
@@ -36,6 +37,14 @@ public final class ReflectionUtils {
 	public static <T> void writePrivateField(Object o, String name, T value) throws NoSuchFieldException, IllegalAccessException {
 		Field field = o.getClass().getDeclaredField(name);
 		field.setAccessible(true);
+
+		// Remove final modifier
+		int modifiers = field.getModifiers();
+		Field modifierField = field.getClass().getDeclaredField("modifiers");
+		modifiers = modifiers & ~Modifier.FINAL;
+		modifierField.setAccessible(true);
+		modifierField.setInt(field, modifiers);
+
 		field.set(o, value);
 	}
 }

@@ -23,7 +23,7 @@ package com.thebuzzmedia.exiftool;
  * <p/>
  * These flags are different from {@link Tag}s in that a "feature" is
  * determined to be a special functionality of the underlying ExifTool
- * executable that requires a different code-path in this class to take
+ * executable that requires a different code-withPath in this class to take
  * advantage of; for example, <code>-stay_open True</code> support.
  *
  * @author Riyad Kalla (software@thebuzzmedia.com)

@@ -17,7 +17,7 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
-import com.thebuzzmedia.exiftool.ExifToolStrategy;
+import com.thebuzzmedia.exiftool.ExecutionStrategy;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
@@ -34,18 +34,21 @@ import java.util.List;
  *
  * For each execution, a one-shot process is:
  * <ul>
- *   <li>Created using executor.</li>
+ *   <li>Created using withExecutor.</li>
  *   <li>Used to execute command line.</li>
  *   <li>Closed at the end of the execution.</li>
  * </ul>
  */
-public class DefaultStrategy implements ExifToolStrategy {
+public class DefaultStrategy implements ExecutionStrategy {
 
 	/**
 	 * Class Logger.
 	 */
 	private static final Logger log = LoggerFactory.getLogger(DefaultStrategy.class);
 
+	/**
+	 * Create strategy.
+	 */
 	public DefaultStrategy() {
 	}
 

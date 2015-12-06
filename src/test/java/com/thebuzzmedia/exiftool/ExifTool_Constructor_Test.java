@@ -37,7 +37,7 @@ public class ExifTool_Constructor_Test {
 	public void it_should_create_exiftool_instance_and_get_version() throws Exception {
 		String path = "exiftool";
 		CommandExecutor executor = mock(CommandExecutor.class);
-		ExifToolStrategy strategy = mock(ExifToolStrategy.class);
+		ExecutionStrategy strategy = mock(ExecutionStrategy.class);
 
 		CommandResult v9_36 = new CommandResultBuilder()
 			.output("9.36")
@@ -56,7 +56,7 @@ public class ExifTool_Constructor_Test {
 			.isNotNull()
 			.isEqualTo(executor);
 
-		assertThat(readPrivateField(exifTool, "strategy", ExifToolStrategy.class))
+		assertThat(readPrivateField(exifTool, "strategy", ExecutionStrategy.class))
 			.isNotNull()
 			.isEqualTo(strategy);
 

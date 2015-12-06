@@ -45,7 +45,6 @@ public abstract class AbstractExifToolIT {
 	@Before
 	public void setUp() {
 		exifTool = new ExifToolBuilder()
-			.disableStayOpen()
 			.build();
 
 		exifToolStayOpen = new ExifToolBuilder()

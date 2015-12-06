@@ -42,7 +42,7 @@ class DefaultCommandExecutor implements CommandExecutor {
 	private static final Logger log = LoggerFactory.getLogger(DefaultCommandExecutor.class);
 
 	/**
-	 * Create default executor.
+	 * Create default withExecutor.
 	 */
 	DefaultCommandExecutor() {
 	}

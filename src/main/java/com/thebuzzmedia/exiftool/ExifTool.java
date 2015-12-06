@@ -61,7 +61,7 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * ## Usage
  *
  * Assuming ExifTool is installed on the host system correctly and either in the
- * system path, using this class to communicate with ExifTool is as simple as
+ * system withPath, using this class to communicate with ExifTool is as simple as
  * creating an instance:
  *
  * ```java
@@ -69,15 +69,15 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * ```
  *
  * This mode assume that:
- * - Path is set as an environment variable (i.e. `-Dexiftool.path=/usr/local/exiftool/bin/exiftool`).
+ * - Path is set as an environment variable (i.e. `-Dexiftool.withPath=/usr/local/exiftool/bin/exiftool`).
  * - Or globally available.
  *
- * If you want to set the path of ExifTool, you can also specify it during creation:
+ * If you want to set the withPath of ExifTool, you can also specify it during creation:
  *
  * ```java
  * ExifTool tool = new ExifToolBuilder()
- *   .path("/usr/local/exiftool/bin/exiftool")
- *   .build();
+ * .withPath("/usr/local/exiftool/bin/exiftool")
+ * .build();
  * ```
  *
  * Once created, usage is as simple as making calls to {@link #getImageMeta(File, Tag...)} or
@@ -249,13 +249,13 @@ public class ExifTool implements AutoCloseable {
 
 	/**
 	 * Command Executor.
-	 * This executor will be used to execute exiftool process and commands.
+	 * This withExecutor will be used to execute exiftool process and commands.
 	 */
 	private final CommandExecutor executor;
 
 	/**
 	 * Exiftool Path.
-	 * Path is first read from `exiftool.path` system property,
+	 * Path is first read from `exiftool.withPath` system property,
 	 * otherwise `exiftool` must be globally available.
 	 */
 	private final String path;
@@ -267,11 +267,11 @@ public class ExifTool implements AutoCloseable {
 	private final String version;
 
 	/**
-	 * ExifTool strategy.
+	 * ExifTool execution strategy.
 	 * This strategy implement how exiftool is effectively used (as one-shot
 	 * process or with `stay_open` flag).
 	 */
-	private final ExifToolStrategy strategy;
+	private final ExecutionStrategy strategy;
 
 	/**
 	 * Create new ExifTool instance.
@@ -279,13 +279,13 @@ public class ExifTool implements AutoCloseable {
 	 * If feature is not available on this specific exiftool version, then
 	 * an it an {@link UnsupportedFeatureException} will be thrown.
 	 *
-	 * @param path ExifTool path.
+	 * @param path ExifTool withPath.
 	 * @param executor Executor used to handle command line.
 	 * @param strategy Execution strategy.
 	 */
-	ExifTool(String path, CommandExecutor executor, ExifToolStrategy strategy) {
+	ExifTool(String path, CommandExecutor executor, ExecutionStrategy strategy) {
 		this.executor = notNull(executor, "Executor should not be null");
-		this.path = notNull(path, "ExifTool path should not be null");
+		this.path = notNull(path, "ExifTool withPath should not be null");
 		this.version = parseVersion();
 		this.strategy = strategy;
 	}
@@ -293,18 +293,19 @@ public class ExifTool implements AutoCloseable {
 	/**
 	 * Parse Version from this exiftool instance.
 	 *
+	 * <p />
+	 *
 	 * This function need to execute exiftool external process.
-	 * Executed command is: `[exiftool] -ver`
-	 *
-	 * Where:
-	 *
-	 * - `[exiftool]` is the path to exiftool executable.
-	 * - `-ver` is the only one arguments.
+	 * Executed command is: {@code [exiftool] -ver}, where:
+	 * <ul>
+	 *   <li>{@code [exiftool]} is the withPath to exiftool executable.</li>
+	 *   <li>{@code -ver} is the only one arguments.</li>
+	 * </ul>
 	 *
 	 * This function should remain private since it is used directly in the constructor (and we
-	 * don't want to escape `this` object).
+	 * don't want to escape {@code this} object).
 	 *
-	 * @return Exiftool version, `null` if command failed.
+	 * @return Exiftool version, {@code null} if command failed.
 	 */
 	private String parseVersion() {
 		log.debug("Checking exiftool version");
@@ -316,20 +317,14 @@ public class ExifTool implements AutoCloseable {
 	}
 
 	/**
-	 * Used to shutdown the external ExifTool process and close the read/write
-	 * streams used to communicate with it when {@link Feature#STAY_OPEN} is
-	 * enabled.
+	 * This method should be used to clean previous execution.
 	 *
-	 * **NOTE**: Calling this method does not preclude this
+	 * <p />
+	 *
+	 * <strong>NOTE</strong>: Calling this method does not preclude this
 	 * instance of {@link ExifTool} from being re-used, it merely disposes of
 	 * the native and internal resources until the next call to
-	 * <code>getImageMeta</code> causes them to be re-instantiated.
-	 *
-	 * The cleanup thread will automatically call this after an interval of
-	 * inactivity defined by {@link #PROCESS_CLEANUP_DELAY}.
-	 *
-	 * Calling this method on an instance of this class without
-	 * {@link Feature#STAY_OPEN} support enabled has no effect.
+	 * {@code getImageMeta} causes them to be re-instantiated.
 	 */
 	@Override
 	public void close() throws Exception {
@@ -337,18 +332,17 @@ public class ExifTool implements AutoCloseable {
 	}
 
 	/**
-	 * For {@link ExifTool} instances with {@link Feature#STAY_OPEN} support
-	 * enabled, this method is used to determine if there is currently a running
+	 * This method is used to determine if there is currently a running
 	 * ExifTool process associated with this class.
+	 *
+	 * <p />
 	 *
 	 * Any dependent processes and streams can be shutdown using
 	 * {@link #close()} and this class will automatically re-create them on the
-	 * next call to `getImageMeta` if necessary.
+	 * next call to {@link #getImageMeta} if necessary.
 	 *
-	 * @return `true` if there is an external ExifTool process in
-	 * daemon mode associated with this class utilizing the
-	 * {@link Feature#STAY_OPEN} feature, otherwise returns
-	 * `false<`.
+	 * @return {@code true} if there is an external ExifTool process is still
+	 * running otherwise returns {@code false}.
 	 */
 	public boolean isRunning() {
 		return strategy.isRunning();
@@ -395,7 +389,7 @@ public class ExifTool implements AutoCloseable {
 		notNull(image, "Image cannot be null and must be a valid stream of image data.");
 		notNull(format, "Format cannot be null.");
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		isReadable(image, "Unable to read the given image [%s], ensure that the image exists at the given path and that the executing Java process has permissions to read it.", image);
+		isReadable(image, "Unable to read the given image [%s], ensure that the image exists at the given withPath and that the executing Java process has permissions to read it.", image);
 
 		log.debug("Querying %s tags from image: %s", tags.length, image);
 
@@ -439,7 +433,7 @@ public class ExifTool implements AutoCloseable {
 		notNull(image, "Image cannot be null and must be a valid stream of image data.");
 		notNull(format, "Format cannot be null.");
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		isWritable(image, "Unable to read the given image [%s], ensure that the image exists at the given path and that the executing Java process has permissions to read it.", image);
+		isWritable(image, "Unable to read the given image [%s], ensure that the image exists at the given withPath and that the executing Java process has permissions to read it.", image);
 
 		log.debug("Writing %d tags to image: %s", tags.size(), image);
 

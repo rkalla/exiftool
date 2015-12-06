@@ -8,7 +8,7 @@ public class Example {
 			.listFiles();
 
 	public static void main(String[] args) throws Exception {
-//		System.setProperty("imgscalr.ext.exiftool.path",
+//		System.setProperty("imgscalr.ext.exiftool.withPath",
 //				"D:\\Tools\\exiftool.exe");
 //		System.setProperty("imgscalr.ext.exiftool.debug", "false");
 

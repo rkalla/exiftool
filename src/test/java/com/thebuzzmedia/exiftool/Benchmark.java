@@ -10,7 +10,7 @@ public class Benchmark {
 			.listFiles();
 
 	public static void main(String[] args) throws Exception {
-//		System.setProperty("exiftool.path", "D:\\Tools\\exiftool.exe");
+//		System.setProperty("exiftool.withPath", "D:\\Tools\\exiftool.exe");
 //		System.setProperty("exiftool.debug", "false");
 
 		System.out.println("Benchmark [tags=" + TAGS.length + ", images="
@@ -21,7 +21,6 @@ public class Benchmark {
 				+ " total operations.\n");
 
 		ExifTool tool = new ExifToolBuilder()
-			.disableStayOpen()
 			.build();
 
 		ExifTool toolSO = new ExifToolBuilder()

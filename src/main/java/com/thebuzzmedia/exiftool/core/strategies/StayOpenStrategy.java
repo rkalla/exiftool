@@ -17,8 +17,8 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
-import com.thebuzzmedia.exiftool.ExifToolStrategy;
-import com.thebuzzmedia.exiftool.commons.Function;
+import com.thebuzzmedia.exiftool.ExecutionStrategy;
+import com.thebuzzmedia.exiftool.Scheduler;
 import com.thebuzzmedia.exiftool.commons.Mapper;
 import com.thebuzzmedia.exiftool.exceptions.ExifToolException;
 import com.thebuzzmedia.exiftool.logs.Logger;
@@ -30,17 +30,13 @@ import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.RunnableScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import static com.thebuzzmedia.exiftool.commons.Collections.each;
 import static com.thebuzzmedia.exiftool.commons.Collections.map;
 
 /**
  * Execution strategy that use {@code exiftool} with the {@code stay_open} feature.
  */
-public class StayOpenStrategy implements ExifToolStrategy {
+public class StayOpenStrategy implements ExecutionStrategy {
 
 	/**
 	 * Class Logger.
@@ -54,23 +50,11 @@ public class StayOpenStrategy implements ExifToolStrategy {
 	private static final ArgumentMapper MAPPER = new ArgumentMapper();
 
 	/**
-	 * Implementation of function used to cancel scheduled future.
-	 */
-	private static final CancelFunction CANCEL_FN = new CancelFunction();
-
-	/**
-	 * Delay between automatic cleanup execution.
-	 * If this delay is less than or equal to zero, then the automatic task
-	 * will not be executed.
-	 */
-	private final long delay;
-
-	/**
 	 * Scheduler: will be used to perform automatic cleanup.
 	 * If automatic cleanup is disabled (if delay is equal or less than zero),
 	 * then it will be set to `null`.
 	 */
-	private final ScheduledThreadPoolExecutor scheduler;
+	private final Scheduler scheduler;
 
 	/**
 	 * Process opened when the first execution is called.
@@ -80,24 +64,12 @@ public class StayOpenStrategy implements ExifToolStrategy {
 
 	/**
 	 * Create strategy.
+	 * Scheduler provided in parameter will be used to clean resources (exiftool process).
 	 *
-	 * <p>
-	 *
-	 * If {@code delay} in parameter is greater than zero, then a task will
-	 * be automatically scheduled to clean resources. Otherwise, closing resources
-	 * is up to the caller.
-	 *
-	 * @param delay Delay between automatic cleanup.
+	 * @param scheduler Delay between automatic cleanup.
 	 */
-	public StayOpenStrategy(long delay) {
-		this.delay = delay;
-
-		if (delay > 0) {
-			this.scheduler = new ScheduledThreadPoolExecutor(1);
-			this.scheduler.setRemoveOnCancelPolicy(true);
-		} else {
-			this.scheduler = null;
-		}
+	public StayOpenStrategy(Scheduler scheduler) {
+		this.scheduler = scheduler;
 	}
 
 	@Override
@@ -105,11 +77,25 @@ public class StayOpenStrategy implements ExifToolStrategy {
 		log.debug("Using ExifTool in daemon mode (-stay_open True)...");
 		List<String> newArgs = map(arguments, MAPPER);
 
-		// Start deamon process if it is not already started.
-		start(executor, exifTool);
+		// Start daemon process if it is not already started.
+		// If this is our first time calling getImageMeta with a "stayOpen"
+		// connection, set up the persistent process and run it so it is
+		// ready to receive commands from us.
+		if (process == null || process.isClosed()) {
+			log.debug("Start exiftool process");
+			process = executor.start(CommandBuilder.builder(exifTool)
+				.addArgument("-stay_open", "True", "-@", "-")
+				.build());
+		}
 
 		// Always reset the cleanup task.
-		resetCleanupTask();
+		scheduler.stop();
+		scheduler.start(new Runnable() {
+			@Override
+			public void run() {
+				safeClose();
+			}
+		});
 
 		try {
 			process.write(newArgs);
@@ -141,11 +127,11 @@ public class StayOpenStrategy implements ExifToolStrategy {
 	// if someone forget).
 	@Override
 	protected void finalize() throws Throwable {
-		// Be sure process is closed
-		close();
-
 		// Just delegate to original finalizer implementation
 		super.finalize();
+
+		// Be sure process is closed
+		close();
 	}
 
 	/**
@@ -154,11 +140,11 @@ public class StayOpenStrategy implements ExifToolStrategy {
 	 */
 	private void closeScheduler() {
 		// Try to stop cleanup task
-		// **Note:** If task is not stopped, it may be executed later
+		// Note: If task is not stopped, it may be executed later
 
 		try {
 			log.debug("Attempting to stop cleanup task");
-			stopCleanupTask();
+			scheduler.stop();
 			log.debug("Cleanup task successfully stopped");
 		}
 		catch (Exception ex) {
@@ -215,80 +201,6 @@ public class StayOpenStrategy implements ExifToolStrategy {
 	}
 
 	/**
-	 * Helper method used to make canceling the current task and scheduling a
-	 * new one easier.
-	 *
-	 * It is annoying that we cannot just reset the timer on the task, but that
-	 * isn't the way the java.util.Timer class was designed unfortunately.
-	 */
-	private void resetCleanupTask() {
-		// no-op if the timer was never created.
-		if (scheduler != null) {
-			stopCleanupTask();
-			startCleanupTask();
-		}
-	}
-
-	/**
-	 * Start new clean task.
-	 *
-	 * This task will be scheduled and will run in the
-	 * specified delay.
-	 *
-	 * If no timer has been initialized, then this method
-	 * is a no-op.
-	 */
-	private void startCleanupTask() {
-		// no-op if the timer was never created.
-		if (scheduler != null) {
-			log.debug("Starting cleanup task");
-
-			// Create task
-			Runnable task = new Runnable() {
-				@Override
-				public void run() {
-					safeClose();
-				}
-			};
-
-			// Schedule, using given delay
-			scheduler.schedule(task, delay, TimeUnit.MILLISECONDS);
-		}
-	}
-
-	/**
-	 * Stop pending clean task.
-	 *
-	 * If no timer has been initialized, then this method
-	 * is a no-op.
-	 */
-	private void stopCleanupTask() {
-		// no-op if the timer was never created.
-		if (scheduler != null) {
-			log.debug("Stopping cleanup task");
-
-			// Cancel pending task.
-			each(scheduler.getQueue(), CANCEL_FN);
-
-			// Then, purge scheduler.
-			// Pure operation remove cancelled tasks from the executor used by this scheduler.
-			scheduler.purge();
-		}
-	}
-
-	private void start(CommandExecutor executor, String exifTool) {
-		// If this is our first time calling getImageMeta with a "stayOpen"
-		// connection, set up the persistent process and run it so it is
-		// ready to receive commands from us.
-		if (process == null || process.isClosed()) {
-			log.debug("Start exiftool process");
-			process = executor.start(CommandBuilder.builder(exifTool)
-				.addArgument("-stay_open", "True", "-@", "-")
-				.build());
-		}
-	}
-
-	/**
 	 * Argument Mapper.
 	 * This mapper should be used to concatenate a line break after
 	 * each input.
@@ -304,23 +216,6 @@ public class StayOpenStrategy implements ExifToolStrategy {
 		@Override
 		public String map(String input) {
 			return input + BR;
-		}
-	}
-
-	/**
-	 * Function that should be used to cancel instance
-	 * of {@link java.util.concurrent.RunnableScheduledFuture} objects.
-	 *
-	 * This implementation assume that given parameter will always be instance of
-	 * {@link java.util.concurrent.RunnableScheduledFuture}, since there will be no additional
-	 * check before cast.
-	 *
-	 * Note that this should not be a problem with the scheduler used in this class.
-	 */
-	private static class CancelFunction implements Function<Runnable> {
-		@Override
-		public void apply(Runnable input) {
-			((RunnableScheduledFuture) input).cancel(false);
 		}
 	}
 }

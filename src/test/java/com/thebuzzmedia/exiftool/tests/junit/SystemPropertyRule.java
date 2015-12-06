@@ -18,6 +18,13 @@ package com.thebuzzmedia.exiftool.tests.junit;
 
 import org.junit.rules.ExternalResource;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Collections.addAll;
+
 /**
  * Clear system property before each test, and restore value
  * after each test.
@@ -25,38 +32,47 @@ import org.junit.rules.ExternalResource;
 public class SystemPropertyRule extends ExternalResource {
 
 	/**
-	 * Property name.
+	 * Property names.
 	 */
-	private final String prop;
+	private final Set<String> props;
 
 	/**
-	 * Property value.
+	 * Property values.
 	 * Will be initialized before each test and used after
 	 * each test to restore property value.
 	 */
-	private String value;
+	private Map<String, String> values;
 
 	/**
 	 * Create rule with property name.
 	 *
 	 * @param prop Property name.
 	 */
-	public SystemPropertyRule(String prop) {
-		this.prop = prop;
+	public SystemPropertyRule(String prop, String... other) {
+		props = new HashSet<String>();
+		props.add(prop);
+		addAll(props, other);
 	}
 
 	@Override
 	protected void before() throws Throwable {
-		value = System.getProperty(prop);
-		System.clearProperty(prop);
+		values = new HashMap<String, String>();
+		for (String prop : props) {
+			values.put(prop, System.getProperty(prop));
+			System.clearProperty(prop);
+		}
 	}
 
 	@Override
 	protected void after() {
-		if (value == null) {
-			System.clearProperty(prop);
-		} else {
-			System.setProperty(prop, value);
+		for (Map.Entry<String, String> entry : values.entrySet()) {
+			String prop = entry.getKey();
+			String value = entry.getValue();
+			if (value == null) {
+				System.clearProperty(prop);
+			} else {
+				System.setProperty(prop, value);
+			}
 		}
 	}
 }

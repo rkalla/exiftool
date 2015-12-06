@@ -35,12 +35,12 @@ public final class CommandExecutors {
 	}
 
 	/**
-	 * Create a fresh new executor.
+	 * Create a fresh new withExecutor.
 	 *
 	 * @return Executor.
 	 */
 	public static CommandExecutor newExecutor() {
-		log.debug("Create new default command executor");
+		log.debug("Create new default command withExecutor");
 		return new DefaultCommandExecutor();
 	}
 }

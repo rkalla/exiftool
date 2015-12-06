@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Command Line interface.
  * A command line is defined by:
- * - Executable path (or executable name if it is globally available).
+ * - Executable withPath (or executable name if it is globally available).
  * - List of arguments: may be empty.
  *
  * Each of these should be returned in the {@link #getArguments()} method:

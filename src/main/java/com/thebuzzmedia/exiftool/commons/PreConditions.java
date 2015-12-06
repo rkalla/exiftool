@@ -36,17 +36,16 @@ public final class PreConditions {
 	/**
 	 * Ensures that an object reference passed as a parameter to the calling method is not null.
 	 *
-	 * @param val Value to check.
+	 * @param val     Value to check.
 	 * @param message Message passed to NullPointerException.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
-	 * @param <T> Type of parameter.
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param <T>     Type of parameter.
 	 * @return Original value if it is not null.
 	 * @throws java.lang.NullPointerException If {@code val} is null.
 	 */
 	public static <T> T notNull(T val, String message, Object... params) {
 		if (val == null) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new NullPointerException(msg);
+			throw new NullPointerException(errorMessage(message, params));
 		}
 
 		return val;
@@ -58,19 +57,17 @@ public final class PreConditions {
 	 * - Not empty.
 	 * - Not blank (i.e contains at least one character other than space).
 	 *
-	 * @param val Value to check.
+	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException If {@code val} is null.
+	 * @throws java.lang.NullPointerException     If {@code val} is null.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty or blank.
 	 */
 	public static String notBlank(String val, String message, Object... params) {
 		notNull(val, message, params);
-
 		if (val.length() == 0 || val.trim().length() == 0) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new IllegalArgumentException(msg);
+			throw new IllegalArgumentException(errorMessage(message, params));
 		}
 
 		return val;
@@ -81,19 +78,17 @@ public final class PreConditions {
 	 * - Not null.
 	 * - Not empty.
 	 *
-	 * @param val Value to check.
+	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException If {@code val} is null.
+	 * @throws java.lang.NullPointerException     If {@code val} is null.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
 	 */
 	public static <T> T[] notEmpty(T[] val, String message, Object... params) {
 		notNull(val, message, params);
-
 		if (val.length == 0) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new IllegalArgumentException(msg);
+			throw new IllegalArgumentException(errorMessage(message, params));
 		}
 
 		return val;
@@ -104,19 +99,17 @@ public final class PreConditions {
 	 * - Not null.
 	 * - Not empty.
 	 *
-	 * @param val Value to check.
+	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException If {@code val} is null.
+	 * @throws java.lang.NullPointerException     If {@code val} is null.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
 	 */
 	public static <T, U> Map<T, U> notEmpty(Map<T, U> val, String message, Object... params) {
 		notNull(val, message, params);
-
 		if (val.size() == 0) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new IllegalArgumentException(msg);
+			throw new IllegalArgumentException(errorMessage(message, params));
 		}
 
 		return val;
@@ -127,41 +120,58 @@ public final class PreConditions {
 	 * - Not null.
 	 * - Not empty.
 	 *
-	 * @param val Value to check.
+	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException If {@code val} is null.
+	 * @throws java.lang.NullPointerException     If {@code val} is null.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
 	 */
 	public static <T> Iterable<T> notEmpty(Iterable<T> val, String message, Object... params) {
 		notNull(val, message, params);
 
 		if (!val.iterator().hasNext()) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new IllegalArgumentException(msg);
+			throw new IllegalArgumentException(errorMessage(message, params));
 		}
 
 		return val;
 	}
 
 	/**
+	 * Check if given number is strictly positive (strictly greater than zero).
+	 *
+	 * @param nb      Number.
+	 * @param message Error message.
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param <T>     Type of number.
+	 * @return Original number.
+	 * @throws NullPointerException     If {@code nb} is null.
+	 * @throws IllegalArgumentException If {@code nb} is less than or equal to zero.
+	 */
+	public static <T extends Number> T isPositive(T nb, String message, Object... params) {
+		notNull(nb, message, params);
+		if (nb.doubleValue() <= 0) {
+			throw new IllegalArgumentException(errorMessage(message, params));
+		}
+
+		return nb;
+	}
+
+	/**
 	 * Check that a given file exist and is readable.
 	 *
-	 * @param file File to check.
+	 * @param file    File to check.
 	 * @param message Error message.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original file.
-	 * @throws NullPointerException If {@code file} is null.
+	 * @throws NullPointerException    If {@code file} is null.
 	 * @throws UnreadableFileException If {@code file} does not exist.
 	 * @throws UnreadableFileException If {@code file} cannot be read.
 	 */
 	public static File isReadable(File file, String message, Object... params) {
 		notNull(file, message, params);
-
 		if (!file.exists() || !file.canRead()) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new UnreadableFileException(file, msg);
+			throw new UnreadableFileException(file, errorMessage(message, params));
 		}
 
 		return file;
@@ -170,22 +180,24 @@ public final class PreConditions {
 	/**
 	 * Check that a given file exist and is writable.
 	 *
-	 * @param file File to check.
+	 * @param file    File to check.
 	 * @param message Error message.
-	 * @param params Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original file.
-	 * @throws NullPointerException If {@code file} is null.
+	 * @throws NullPointerException    If {@code file} is null.
 	 * @throws UnreadableFileException If {@code file} does not exist.
 	 * @throws UnreadableFileException If {@code file} cannot be updated.
 	 */
 	public static File isWritable(File file, String message, Object... params) {
 		notNull(file, message, params);
-
 		if (!file.exists() || !file.canWrite()) {
-			String msg = params.length > 0 ? format(message, params) : message;
-			throw new UnwritableFileException(file, msg);
+			throw new UnwritableFileException(file, errorMessage(message, params));
 		}
 
 		return file;
+	}
+
+	private static String errorMessage(String message, Object[] params) {
+		return params.length > 0 ? format(format(message, params)) : message;
 	}
 }

@@ -18,6 +18,7 @@ package com.thebuzzmedia.exiftool.commons;
 
 import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
 import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
+import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -112,13 +113,13 @@ public class PreConditionsTest {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage(message);
 
-		PreConditions.notEmpty(new String[]{ }, message);
+		PreConditions.notEmpty(new String[]{}, message);
 	}
 
 	@Test
 	public void it_should_not_fail_with_valid_array() {
 		String message = "should not be empty";
-		String[] val = new String[] { "foo" };
+		String[] val = new String[]{"foo"};
 
 		String[] results = PreConditions.notEmpty(val, message);
 
@@ -192,6 +193,42 @@ public class PreConditionsTest {
 	}
 
 	@Test
+	public void it_should_fail_with_null_number() {
+		String message = "should be readable";
+		thrown.expect(NullPointerException.class);
+		thrown.expectMessage(message);
+
+		PreConditions.isPositive(null, message);
+	}
+
+	@Test
+	public void it_should_fail_with_negative_number() {
+		String message = "should be readable";
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage(message);
+
+		PreConditions.isPositive(-1, message);
+	}
+
+	@Test
+	public void it_should_fail_with_zero() {
+		String message = "should be readable";
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage(message);
+
+		PreConditions.isPositive(0, message);
+	}
+
+	@Test
+	public void it_should_not_fail_with_positive_number() {
+		String message = "should be readable";
+
+		int nb = PreConditions.isPositive(1, message);
+
+		assertThat(nb).isEqualTo(1);
+	}
+
+	@Test
 	public void it_should_not_be_readable_with_null_file() {
 		String message = "should be readable";
 		thrown.expect(NullPointerException.class);
@@ -206,8 +243,9 @@ public class PreConditionsTest {
 		thrown.expect(UnreadableFileException.class);
 		thrown.expectMessage(message);
 
-		File file = mock(File.class);
-		when(file.exists()).thenReturn(false);
+		File file = new FileBuilder("foo.png")
+			.exists(false)
+			.build();
 
 		PreConditions.isReadable(file, message);
 	}
@@ -218,9 +256,9 @@ public class PreConditionsTest {
 		thrown.expect(UnreadableFileException.class);
 		thrown.expectMessage(message);
 
-		File file = mock(File.class);
-		when(file.exists()).thenReturn(true);
-		when(file.canRead()).thenReturn(false);
+		File file = new FileBuilder("foo.png")
+			.canRead(false)
+			.build();
 
 		PreConditions.isReadable(file, message);
 	}
@@ -228,10 +266,7 @@ public class PreConditionsTest {
 	@Test
 	public void it_should_not_fail_with_readable_file() {
 		String message = "should be readable";
-
-		File file = mock(File.class);
-		when(file.exists()).thenReturn(true);
-		when(file.canRead()).thenReturn(true);
+		File file = new FileBuilder("foo.png").build();
 
 		File result = PreConditions.isReadable(file, message);
 
@@ -255,8 +290,9 @@ public class PreConditionsTest {
 		thrown.expect(UnwritableFileException.class);
 		thrown.expectMessage(message);
 
-		File file = mock(File.class);
-		when(file.exists()).thenReturn(false);
+		File file = new FileBuilder("foo.png")
+			.exists(false)
+			.build();
 
 		PreConditions.isWritable(file, message);
 	}
@@ -267,9 +303,9 @@ public class PreConditionsTest {
 		thrown.expect(UnwritableFileException.class);
 		thrown.expectMessage(message);
 
-		File file = mock(File.class);
-		when(file.exists()).thenReturn(true);
-		when(file.canWrite()).thenReturn(false);
+		File file = new FileBuilder("foo.png")
+			.canWrite(false)
+			.build();
 
 		PreConditions.isWritable(file, message);
 	}
@@ -277,10 +313,7 @@ public class PreConditionsTest {
 	@Test
 	public void it_should_not_fail_with_writable_file() {
 		String message = "should be writable";
-
-		File file = mock(File.class);
-		when(file.exists()).thenReturn(true);
-		when(file.canWrite()).thenReturn(true);
+		File file = new FileBuilder("foo.png").build();
 
 		File result = PreConditions.isWritable(file, message);
 

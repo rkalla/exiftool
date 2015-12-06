@@ -17,7 +17,6 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
-import com.thebuzzmedia.exiftool.exceptions.ProcessException;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -217,7 +216,7 @@ public class DefaultCommandProcessTest {
 	}
 
 	@Test
-	public void it_should_read_from_input() {
+	public void it_should_read_from_input() throws Exception {
 		String firstLine = "first-line";
 		String secondLine = "second-line";
 		String output = firstLine + BR + secondLine;
@@ -234,7 +233,7 @@ public class DefaultCommandProcessTest {
 
 	@Test
 	public void it_should_not_read_from_closed_process() throws Exception {
-		thrown.expect(ProcessException.class);
+		thrown.expect(IllegalStateException.class);
 		thrown.expectMessage("Cannot read from closed process");
 		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.close();
@@ -242,7 +241,7 @@ public class DefaultCommandProcessTest {
 	}
 
 	@Test
-	public void it_should_read_from_input_and_use_handler() {
+	public void it_should_read_from_input_and_use_handler() throws Exception {
 		String firstLine = "first-line";
 		String secondLine = "{ready}";
 		String thirdLine = "third-line";
@@ -288,7 +287,7 @@ public class DefaultCommandProcessTest {
 
 	@Test
 	public void it_should_catch_write_failure() throws Exception {
-		thrown.expect(ProcessException.class);
+		thrown.expect(IOException.class);
 
 		OutputStream os = mock(OutputStream.class);
 
@@ -326,7 +325,7 @@ public class DefaultCommandProcessTest {
 
 	@Test
 	public void it_should_not_write_from_closed_process() throws Exception {
-		thrown.expect(ProcessException.class);
+		thrown.expect(IllegalStateException.class);
 		thrown.expectMessage("Cannot write from closed process");
 		DefaultCommandProcess process = new DefaultCommandProcess(mock(InputStream.class), mock(OutputStream.class), mock(InputStream.class));
 		process.close();

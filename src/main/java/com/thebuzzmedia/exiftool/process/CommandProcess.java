@@ -28,8 +28,9 @@ public interface CommandProcess extends AutoCloseable {
 	 * is returned (an exit status cannot be computed).
 	 *
 	 * @return Command result.
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
-	String read();
+	String read() throws IOException;
 
 	/**
 	 * Read output until:
@@ -41,8 +42,9 @@ public interface CommandProcess extends AutoCloseable {
 	 *
 	 * @param handler Output handler.
 	 * @return Full output.
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
-	String read(OutputHandler handler);
+	String read(OutputHandler handler) throws IOException;
 
 	/**
 	 * Write input string to the current process.
@@ -51,8 +53,9 @@ public interface CommandProcess extends AutoCloseable {
 	 *
 	 * @param input Input.
 	 * @param others Other inputs.
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
-	void write(String input, String... others);
+	void write(String input, String... others) throws IOException;
 
 	/**
 	 * Write set of inputs to the current process.
@@ -60,8 +63,9 @@ public interface CommandProcess extends AutoCloseable {
 	 * of {@link com.thebuzzmedia.exiftool.exceptions.ProcessException} should be thrown.
 	 *
 	 * @param inputs Collection of inputs.
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
-	void write(Iterable<String> inputs);
+	void write(Iterable<String> inputs) throws IOException;
 
 	/**
 	 * Flush pending write operations.

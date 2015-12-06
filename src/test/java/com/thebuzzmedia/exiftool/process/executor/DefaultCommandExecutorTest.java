@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class DefaultCommandExecutorTest {
 
 	@Test
-	public void it_should_execute_command_line() {
+	public void it_should_execute_command_line() throws Exception {
 		File script = new File(getClass().getResource("/processes/success.sh").getFile());
 		Command command = createUnixCommand(script.getAbsolutePath());
 
@@ -48,7 +48,7 @@ public class DefaultCommandExecutorTest {
 	}
 
 	@Test
-	public void it_should_execute_command_line_with_handler() {
+	public void it_should_execute_command_line_with_handler() throws Exception {
 		File script = new File(getClass().getResource("/processes/success.sh").getFile());
 		Command command = createUnixCommand(script.getAbsolutePath());
 		OutputHandler handler = mock(OutputHandler.class);
@@ -64,7 +64,7 @@ public class DefaultCommandExecutorTest {
 	}
 
 	@Test
-	public void it_should_start_command_line() {
+	public void it_should_start_command_line() throws Exception {
 		File script = new File(getClass().getResource("/processes/success.sh").getFile());
 		Command command = createUnixCommand(script.getAbsolutePath());
 

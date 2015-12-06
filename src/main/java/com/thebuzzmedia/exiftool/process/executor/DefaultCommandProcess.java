@@ -17,7 +17,6 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
-import com.thebuzzmedia.exiftool.exceptions.ProcessException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.CommandProcess;
@@ -82,17 +81,17 @@ class DefaultCommandProcess implements CommandProcess {
 	}
 
 	@Override
-	public String read() {
+	public String read() throws IOException {
 		return doRead(null);
 	}
 
 	@Override
-	public String read(OutputHandler handler) {
+	public String read(OutputHandler handler) throws IOException {
 		return doRead(notNull(handler, "Handler should not be null"));
 	}
 
 	@Override
-	public void write(String input, String... others) {
+	public void write(String input, String... others) throws IOException {
 		doWrite(input);
 
 		// Write other inputs.
@@ -102,7 +101,7 @@ class DefaultCommandProcess implements CommandProcess {
 	}
 
 	@Override
-	public void write(Iterable<String> inputs) {
+	public void write(Iterable<String> inputs) throws IOException {
 		notEmpty(inputs, "Write inputs should not be empty");
 		for (String input : inputs) {
 			doWrite(input);
@@ -149,9 +148,9 @@ class DefaultCommandProcess implements CommandProcess {
 		}
 	}
 
-	private String doRead(OutputHandler h) {
+	private String doRead(OutputHandler h) throws IOException {
 		if (isClosed()) {
-			throw new ProcessException("Cannot read from closed process");
+			throw new IllegalStateException("Cannot read from closed process");
 		}
 
 		log.debug("Read command output");
@@ -168,9 +167,9 @@ class DefaultCommandProcess implements CommandProcess {
 		return out.getOutput();
 	}
 
-	private void doWrite(String input) {
+	private void doWrite(String input) throws IOException {
 		if (isClosed()) {
-			throw new ProcessException("Cannot write from closed process");
+			throw new IllegalStateException("Cannot write from closed process");
 		}
 
 		// Check valid input.
@@ -184,7 +183,7 @@ class DefaultCommandProcess implements CommandProcess {
 		}
 		catch (IOException ex) {
 			log.error(ex.getMessage(), ex);
-			throw new ProcessException(ex);
+			throw ex;
 		}
 	}
 }

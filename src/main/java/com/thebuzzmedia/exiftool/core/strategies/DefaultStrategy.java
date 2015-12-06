@@ -26,6 +26,7 @@ import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public class DefaultStrategy implements ExecutionStrategy {
 	}
 
 	@Override
-	public void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler) {
+	public void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler) throws IOException {
 		log.debug("Using ExifTool in non-daemon mode (-stay_open False)...");
 
 		Command cmd = CommandBuilder.builder(exifTool)

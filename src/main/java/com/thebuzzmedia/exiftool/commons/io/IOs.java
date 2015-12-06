@@ -45,8 +45,9 @@ public final class IOs {
 	 *
 	 * @param is Input stream.
 	 * @param visitor Result handler.
+	 * @throws IOException If an error occurred during read operation.
 	 */
-	public static void readInputStream(InputStream is, StreamVisitor visitor) {
+	public static void readInputStream(InputStream is, StreamVisitor visitor) throws IOException {
 		log.trace("Read input stream");
 
 		String line = null;
@@ -63,7 +64,7 @@ public final class IOs {
 		}
 		catch (IOException ex) {
 			log.error(ex.getMessage(), ex);
-			throw new RuntimeException(ex);
+			throw ex;
 		}
 		finally {
 			// Maybe last line is not null (suppose an handler that should stop on given output).

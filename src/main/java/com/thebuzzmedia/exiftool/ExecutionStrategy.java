@@ -20,6 +20,7 @@ package com.thebuzzmedia.exiftool;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -52,8 +53,9 @@ public interface ExecutionStrategy extends AutoCloseable {
 	 * @param exifTool ExifTool withPath.
 	 * @param arguments Command line arguments.
 	 * @param handler Handler to read command output.
+	 * @throws IOException If an error occurred during execution.
 	 */
-	void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler);
+	void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler) throws IOException;
 
 	/**
 	 * Check if exiftool process is currently running.

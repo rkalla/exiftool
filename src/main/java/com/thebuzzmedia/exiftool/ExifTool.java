@@ -101,12 +101,12 @@ import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
  * value found in the image are omitted from the result map.
  *
  * While each {@link com.thebuzzmedia.exiftool.core.StandardTag} provides a hint at which format the resulting value
- * for that tag is returned as from ExifTool (see {@link com.thebuzzmedia.exiftool.core.StandardTag#getType()}), that
+ * for that tag is returned as from ExifTool (see {@link com.thebuzzmedia.exiftool.Tag#parse(String)}), that
  * only applies to values returned with an output format of
  * {@link com.thebuzzmedia.exiftool.core.StandardFormat#NUMERIC} and it is ultimately up to the caller to decide how
  * best to parse or convert the returned values.
  *
- * The {@link com.thebuzzmedia.exiftool.core.StandardTag} Enum provides the {@link com.thebuzzmedia.exiftool.core.StandardTag#parseValue(com.thebuzzmedia.exiftool.core.StandardTag, String)}
+ * The {@link com.thebuzzmedia.exiftool.core.StandardTag} Enum provides the {@link com.thebuzzmedia.exiftool.Tag#parse(String)}}
  * convenience method for parsing given `String` values according to
  * the Tag hint automatically for you if that is what you plan on doing,
  * otherwise feel free to handle the return values anyway you want.
@@ -325,11 +325,19 @@ public class ExifTool implements AutoCloseable {
 	 */
 	private Version parseVersion() {
 		log.debug("Checking exiftool version");
-		CommandResult result = executor.execute(CommandBuilder.builder(path)
-			.addArgument("-ver")
-			.build());
+		try {
+			CommandResult result = executor.execute(CommandBuilder.builder(path)
+				.addArgument("-ver")
+				.build());
 
-		return result.isSuccess() ? new Version(result.getOutput()) : null;
+			return result.isSuccess() ? new Version(result.getOutput()) : null;
+		}
+		catch (IOException ex) {
+			// Do not fail now, but log warnings.
+			// Execution will fail for next execution.
+			log.warn(ex.getMessage(), ex);
+			return null;
+		}
 	}
 
 	/**

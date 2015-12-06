@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 public class DefaultStrategyTest {
 
 	@Test
-	public void it_should_execute_command() {
+	public void it_should_execute_command() throws Exception {
 		String exifTool = "exiftool";
 		List<String> args = asList("-S", "-n", "-XArtist", "-XComment", "-execute");
 		CommandExecutor executor = mock(CommandExecutor.class);

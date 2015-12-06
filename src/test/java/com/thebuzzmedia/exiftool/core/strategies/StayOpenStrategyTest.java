@@ -74,7 +74,7 @@ public class StayOpenStrategyTest {
 	private StayOpenStrategy strategy;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		exifTool = "exiftool";
 		strategy = new StayOpenStrategy(scheduler);
 

@@ -76,7 +76,7 @@ public class ExifTool_getImageMeta_Test {
 	private ExifTool exifTool;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		path = "exiftool";
 
 		CommandResult cmd = new CommandResultBuilder()

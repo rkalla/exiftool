@@ -17,6 +17,8 @@
 
 package com.thebuzzmedia.exiftool.process;
 
+import java.io.IOException;
+
 /**
  * Command Executor.
  */
@@ -30,7 +32,7 @@ public interface CommandExecutor {
 	 * @param command Command input.
 	 * @return Result of execution.
 	 */
-	CommandResult execute(Command command);
+	CommandResult execute(Command command) throws IOException;
 
 	/**
 	 * Execute command and build the result.
@@ -39,8 +41,9 @@ public interface CommandExecutor {
 	 * @param command Command.
 	 * @param handler Custom output handler.
 	 * @return Result of execution.
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
-	CommandResult execute(Command command, OutputHandler handler);
+	CommandResult execute(Command command, OutputHandler handler) throws IOException;
 
 	/**
 	 * Start command line and return associated process.
@@ -50,6 +53,7 @@ public interface CommandExecutor {
 	 *
 	 * @param command Command.
 	 * @return Process.
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
-	CommandProcess start(Command command);
+	CommandProcess start(Command command) throws IOException ;
 }

@@ -66,7 +66,7 @@ public class ExifToolBuilderTest {
 	private ExifToolBuilder builder;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		initMocks(this);
 		mockStatic(CommandExecutors.class);
 

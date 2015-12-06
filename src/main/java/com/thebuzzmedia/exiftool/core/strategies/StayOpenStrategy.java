@@ -21,7 +21,6 @@ import com.thebuzzmedia.exiftool.ExecutionStrategy;
 import com.thebuzzmedia.exiftool.Scheduler;
 import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.commons.iterables.Mapper;
-import com.thebuzzmedia.exiftool.exceptions.ExifToolException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -79,7 +78,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	}
 
 	@Override
-	public void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler) {
+	public void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler) throws IOException {
 		log.debug("Using ExifTool in daemon mode (-stay_open True)...");
 		List<String> newArgs = map(arguments, MAPPER);
 
@@ -111,7 +110,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 			}
 			catch (IOException ex) {
 				log.error(ex.getMessage(), ex);
-				throw new ExifToolException(ex);
+				throw ex;
 			}
 		}
 	}

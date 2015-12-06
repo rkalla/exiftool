@@ -62,7 +62,7 @@ public class ExifTool_Constructor_Test {
 	private String path;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		path = "exiftool";
 
 		v9_36 = new CommandResultBuilder()

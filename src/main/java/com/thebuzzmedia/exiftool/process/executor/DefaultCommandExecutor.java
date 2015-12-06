@@ -17,7 +17,6 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
-import com.thebuzzmedia.exiftool.exceptions.ProcessException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
@@ -49,22 +48,22 @@ class DefaultCommandExecutor implements CommandExecutor {
 	}
 
 	@Override
-	public CommandResult execute(Command command) {
+	public CommandResult execute(Command command) throws IOException {
 		return readProcessOutput(command, null);
 	}
 
 	@Override
-	public CommandResult execute(Command command, OutputHandler handler) {
+	public CommandResult execute(Command command, OutputHandler handler) throws IOException {
 		return readProcessOutput(command, notNull(handler, "Handler should not be null"));
 	}
 
 	@Override
-	public DefaultCommandProcess start(Command command) {
+	public DefaultCommandProcess start(Command command) throws IOException {
 		final Process proc = createProcess(command);
 		return new DefaultCommandProcess(proc.getInputStream(), proc.getOutputStream(), proc.getErrorStream());
 	}
 
-	private CommandResult readProcessOutput(Command cmd, OutputHandler h) {
+	private CommandResult readProcessOutput(Command cmd, OutputHandler h) throws IOException {
 		final Process proc = createProcess(cmd);
 		final ResultHandler h1 = new ResultHandler();
 		final OutputHandler handler = h == null ? h1 : new CompositeHandler(h, h1);
@@ -78,7 +77,7 @@ class DefaultCommandExecutor implements CommandExecutor {
 		}
 		catch (InterruptedException ex) {
 			log.error(ex.getMessage(), ex);
-			throw new ProcessException(ex);
+			return new DefaultCommandResult(-1, null);
 		}
 		finally {
 			// Close streams.
@@ -88,14 +87,14 @@ class DefaultCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private Process createProcess(Command command) {
+	private Process createProcess(Command command) throws IOException {
 		try {
 			List<String> args = command.getArguments();
 			return new ProcessBuilder(args).start();
 		}
 		catch (IOException ex) {
 			log.error(ex.getMessage(), ex);
-			throw new ProcessException(ex);
+			throw ex;
 		}
 	}
 }

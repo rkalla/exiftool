@@ -201,6 +201,32 @@ public class ExifTool_setImageMeta_Test {
 			);
 	}
 
+	@Test
+	public void it_should_set_image_meta_data_in_numeric_format_by_default() throws Exception {
+		final File image = new FileBuilder("foo.png").build();
+
+		doAnswer(new WriteTagsAnswer())
+			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
+
+		exifTool.setImageMeta(image, tags);
+
+		verify(strategy).execute(same(executor), same(path), argsCaptor.capture(), any(OutputHandler.class));
+
+		List<String> args = argsCaptor.getValue();
+		assertThat(args)
+			.isNotEmpty()
+			.isNotNull()
+			.hasSize(6)
+			.containsExactly(
+				"-n",
+				"-S",
+				"-ApertureValue=foo",
+				"-Artist=bar",
+				"/tmp/foo.png",
+				"-execute"
+			);
+	}
+
 	private static class WriteTagsAnswer implements Answer {
 		@Override
 		public Object answer(InvocationOnMock invocation) throws Throwable {

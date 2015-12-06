@@ -193,6 +193,30 @@ public class ExifTool_getImageMeta_Test {
 			.isEqualTo(tags);
 	}
 
+	@Test
+	public void it_should_get_image_metadata_in_numeric_format_by_default() throws Exception {
+		// Given
+		final File image = new FileBuilder("foo.png").build();
+		final Map<Tag, String> tags = new HashMap<Tag, String>();
+		tags.put(StandardTag.ARTIST, "foo");
+		tags.put(StandardTag.COMMENT, "bar");
+
+		doAnswer(new ReadTagsAnswer(tags, "{ready}"))
+			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
+
+		// When
+		Map<Tag, String> results = exifTool.getImageMeta(image, tags.keySet());
+
+		// Then
+		verify(strategy).execute(same(executor), same(path), argsCaptor.capture(), any(OutputHandler.class));
+
+		assertThat(results)
+			.isNotNull()
+			.isNotEmpty()
+			.hasSize(tags.size())
+			.isEqualTo(tags);
+	}
+
 	private static class ReadTagsAnswer implements Answer {
 		private final Map<Tag, String> tags;
 

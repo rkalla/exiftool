@@ -36,11 +36,12 @@ import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ExifTool_Constructor_Test {
+public class ExifToolTest {
 
 	@Rule
 	public ExpectedException thrown = none();
@@ -108,9 +109,40 @@ public class ExifTool_Constructor_Test {
 	}
 
 	@Test
+	public void it_should_check_if_exiftool_is_running() throws Exception {
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
+		ExifTool exifTool = new ExifTool(path, executor, strategy);
+
+		when(strategy.isRunning()).thenReturn(false);
+		assertThat(exifTool.isRunning()).isFalse();
+		verify(strategy).isRunning();
+
+		reset(strategy);
+
+		when(strategy.isRunning()).thenReturn(true);
+		assertThat(exifTool.isRunning()).isTrue();
+		verify(strategy).isRunning();
+	}
+
+	@Test
+	public void it_should_close_exiftool() throws Exception {
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
+		ExifTool exifTool = new ExifTool(path, executor, strategy);
+		exifTool.close();
+		verify(strategy).close();
+	}
+
+	@Test
+	public void it_should_get_exiftool_version() throws Exception {
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
+		ExifTool exifTool = new ExifTool(path, executor, strategy);
+		Version version = exifTool.getVersion();
+		assertThat(version).isEqualTo(new Version("9.36"));
+	}
+
+	@Test
 	public void it_should_create_exiftool_instance_and_get_version() throws Exception {
 		when(strategy.isSupported(any(Version.class))).thenReturn(true);
-
 		ExifTool exifTool = new ExifTool(path, executor, strategy);
 
 		assertThat(readPrivateField(exifTool, "path", String.class))

@@ -17,16 +17,30 @@
 package com.thebuzzmedia.exiftool.core.handlers;
 
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.core.handlers.TagHandler;
+import com.thebuzzmedia.exiftool.core.StandardTag;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TagHandlerTest {
 
+	private List<? extends Tag> inputs;
+
+	@Before
+	public void setUp() {
+		inputs = asList(
+			StandardTag.APERTURE,
+			StandardTag.ARTIST
+		);
+	}
+
 	@Test
 	public void it_should_read_null_line() {
-		TagHandler handler = new TagHandler();
+		TagHandler handler = new TagHandler(inputs);
 		boolean hasNext = handler.readLine(null);
 		assertThat(hasNext).isFalse();
 		assertThat(handler.getTags())
@@ -36,7 +50,7 @@ public class TagHandlerTest {
 
 	@Test
 	public void it_should_read_last_line() {
-		TagHandler handler = new TagHandler();
+		TagHandler handler = new TagHandler(inputs);
 		boolean hasNext = handler.readLine("{ready}");
 		assertThat(hasNext).isFalse();
 		assertThat(handler.getTags())
@@ -46,10 +60,10 @@ public class TagHandlerTest {
 
 	@Test
 	public void it_should_read_tag_line() {
-		Tag tag = Tag.ARTIST;
+		Tag tag = StandardTag.ARTIST;
 		String value = "foobar";
 
-		TagHandler handler = new TagHandler();
+		TagHandler handler = new TagHandler(inputs);
 		boolean hasNext = handler.readLine(tag.getName() + ": " + value);
 
 		assertThat(hasNext).isTrue();

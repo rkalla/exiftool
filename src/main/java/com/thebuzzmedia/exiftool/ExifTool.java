@@ -16,6 +16,7 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.StandardFormat;
 import com.thebuzzmedia.exiftool.core.handlers.TagHandler;
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.logs.Logger;
@@ -26,18 +27,19 @@ import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
-import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
+import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 
 /**
  * Class used to provide a Java-like interface to Phil Harvey's excellent,
@@ -83,9 +85,9 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  *         .build();
  * </code></pre>
  *
- * Once created, usage is as simple as making calls to {@link #getImageMeta(File, Tag...)} or
- * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag} you
- * want to pull values for from the given image.
+ * Once created, usage is as simple as making calls to {@link #getImageMeta(File, Collection)} or
+ * {@link #getImageMeta(File, Format, Collection)} with a list of {@link Tag} you want to pull
+ * values for from the given image.
  *
  * In this default mode, calls to {@link #getImageMeta} will automatically
  * start an external ExifTool process to handle the request. After ExifTool has
@@ -93,17 +95,17 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * class parses the result before returning it to the caller.
  *
  * Results from calls to {@link #getImageMeta} are returned in a {@link Map}
- * with the {@link Tag} values as the keys and {@link String} values for every
- * tag that had a value in the image file as the values. {@link Tag}s with no
+ * with the {@link com.thebuzzmedia.exiftool.core.StandardTag} values as the keys and {@link String} values for every
+ * tag that had a value in the image file as the values. {@link com.thebuzzmedia.exiftool.core.StandardTag}s with no
  * value found in the image are omitted from the result map.
  *
- * While each {@link Tag} provides a hint at which format the resulting value
- * for that tag is returned as from ExifTool (see {@link Tag#getType()}), that
+ * While each {@link com.thebuzzmedia.exiftool.core.StandardTag} provides a hint at which format the resulting value
+ * for that tag is returned as from ExifTool (see {@link com.thebuzzmedia.exiftool.core.StandardTag#getType()}), that
  * only applies to values returned with an output format of
- * {@link Format#NUMERIC} and it is ultimately up to the caller to decide how
+ * {@link com.thebuzzmedia.exiftool.core.StandardFormat#NUMERIC} and it is ultimately up to the caller to decide how
  * best to parse or convert the returned values.
  *
- * The {@link Tag} Enum provides the {@link Tag#parseValue(Tag, String)}
+ * The {@link com.thebuzzmedia.exiftool.core.StandardTag} Enum provides the {@link com.thebuzzmedia.exiftool.core.StandardTag#parseValue(com.thebuzzmedia.exiftool.core.StandardTag, String)}
  * convenience method for parsing given `String` values according to
  * the Tag hint automatically for you if that is what you plan on doing,
  * otherwise feel free to handle the return values anyway you want.
@@ -382,8 +384,8 @@ public class ExifTool implements AutoCloseable {
 	 * @throws IllegalArgumentException If list of tag is empty.
 	 * @throws com.thebuzzmedia.exiftool.exceptions.UnreadableFileException If image cannot be read.
 	 */
-	public Map<Tag, String> getImageMeta(File image, Tag... tags) throws IOException {
-		return getImageMeta(image, Format.NUMERIC, tags);
+	public Map<Tag, String> getImageMeta(File image, Collection<Tag> tags) throws IOException {
+		return getImageMeta(image, StandardFormat.NUMERIC, tags);
 	}
 
 	/**
@@ -398,17 +400,17 @@ public class ExifTool implements AutoCloseable {
 	 * @throws IllegalArgumentException If list of tag is empty.
 	 * @throws com.thebuzzmedia.exiftool.exceptions.UnreadableFileException If image cannot be read.
 	 */
-	public Map<Tag, String> getImageMeta(File image, Format format, Tag... tags) throws IOException {
+	public Map<Tag, String> getImageMeta(File image, Format format, Collection<Tag> tags) throws IOException {
 		notNull(image, "Image cannot be null and must be a valid stream of image data.");
 		notNull(format, "Format cannot be null.");
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
 		isReadable(image, "Unable to read the given image [%s], ensure that the image exists at the given withPath and that the executing Java process has permissions to read it.", image);
 
-		log.debug("Querying %s tags from image: %s", tags.length, image);
+		log.debug("Querying %s tags from image: %s", tags.size(), image);
 
 		// Create a result map big enough to hold results for each of the tags
 		// and avoid collisions while inserting.
-		TagHandler tagHandler = new TagHandler(tags.length * 3);
+		TagHandler tagHandler = new TagHandler(tags);
 
 		// Build list of exiftool arguments.
 		List<String> args = getImageMetaArguments(format, image, tags);
@@ -417,7 +419,7 @@ public class ExifTool implements AutoCloseable {
 		strategy.execute(executor, path, args, tagHandler);
 
 		// Add some debugging log
-		log.debug("Image Meta Processed [queried %s tags and found %s values]", tags.length, tagHandler.size());
+		log.debug("Image Meta Processed [queried %s, found %s values]", tagHandler.size(), tagHandler.size());
 
 		return tagHandler.getTags();
 	}
@@ -431,7 +433,7 @@ public class ExifTool implements AutoCloseable {
 	 * @throws IOException If an error occurs during write operation.
 	 */
 	public void setImageMeta(File image, Map<Tag, String> tags) throws IOException {
-		setImageMeta(image, Format.NUMERIC, tags);
+		setImageMeta(image, StandardFormat.NUMERIC, tags);
 	}
 
 	/**
@@ -470,7 +472,7 @@ public class ExifTool implements AutoCloseable {
 	 * @param tags List of tags.
 	 * @return List of associated arguments.
 	 */
-	private List<String> getImageMetaArguments(Format format, File image, Tag[] tags) {
+	private List<String> getImageMetaArguments(Format format, File image, Collection<Tag> tags) {
 		List<String> args = new LinkedList<String>();
 
 		// Format output.

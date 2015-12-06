@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,25 +34,25 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.MAKE, "Palm");
-				put(Tag.EXPOSURE_PROGRAM, "Program AE");
-				put(Tag.X_RESOLUTION, "72");
-				put(Tag.Y_RESOLUTION, "72");
-				put(Tag.EXPOSURE_TIME, "1/65536000");
-				put(Tag.EXIF_VERSION, "0220");
-				put(Tag.IMAGE_HEIGHT, "2032");
-				put(Tag.ORIENTATION, "Horizontal (normal)");
-				put(Tag.GPS_LATITUDE_REF, "North");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.IMAGE_WIDTH, "1520");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.GPS_LATITUDE, "32 deg 48' 4.00\" N");
-				put(Tag.FOCAL_LENGTH, "inf mm");
-				put(Tag.GPS_LONGITUDE, "117 deg 13' 33.00\" W");
-				put(Tag.APERTURE, "1.1");
-				put(Tag.MODEL, "Pre");
-				put(Tag.GPS_LONGITUDE_REF, "West");
-				put(Tag.FLASH, "Auto, Did not fire");
+				put(StandardTag.MAKE, "Palm");
+				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
+				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.EXPOSURE_TIME, "1/65536000");
+				put(StandardTag.EXIF_VERSION, "0220");
+				put(StandardTag.IMAGE_HEIGHT, "2032");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.GPS_LATITUDE_REF, "North");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.IMAGE_WIDTH, "1520");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.GPS_LATITUDE, "32 deg 48' 4.00\" N");
+				put(StandardTag.FOCAL_LENGTH, "inf mm");
+				put(StandardTag.GPS_LONGITUDE, "117 deg 13' 33.00\" W");
+				put(StandardTag.APERTURE, "1.1");
+				put(StandardTag.MODEL, "Pre");
+				put(StandardTag.GPS_LONGITUDE_REF, "West");
+				put(StandardTag.FLASH, "Auto, Did not fire");
 			}
 		};
 	}
@@ -59,7 +60,7 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.FLASH, "Auto, Did not fire");
+			put(StandardTag.FLASH, "Auto, Did not fire");
 		}};
 	}
 }

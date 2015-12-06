@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,41 +34,41 @@ public class ExifTool_IMG9_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.FLASH, "No flash function");
-				put(Tag.X_RESOLUTION, "72");
-				put(Tag.SHARPNESS, "Normal");
-				put(Tag.SHUTTER_SPEED, "1/1859");
-				put(Tag.DATE_TIME_ORIGINAL, "2011:08:18 13:57:00");
-				put(Tag.MODEL, "SGH-T959");
-				put(Tag.SOFTWARE, "fw 05.15 prm 07.55");
-				put(Tag.ISO, "50");
-				put(Tag.IMAGE_HEIGHT, "1536");
-				put(Tag.EXPOSURE_PROGRAM, "Program AE");
-				put(Tag.SENSING_METHOD, "One-chip color area");
-				put(Tag.MAKE, "SAMSUNG");
-				put(Tag.SATURATION, "Normal");
-				put(Tag.GPS_ALTITUDE_REF, "Above Sea Level");
-				put(Tag.Y_RESOLUTION, "72");
-				put(Tag.GPS_LATITUDE, "0 deg 0' 0.00\" N");
-				put(Tag.GPS_LONGITUDE, "0 deg 0' 0.00\" E");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.GPS_LATITUDE_REF, "North");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.FOCAL_LENGTH_35MM, "0 mm");
-				put(Tag.ORIENTATION, "Horizontal (normal)");
-				put(Tag.CONTRAST, "Normal");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.FOCAL_LENGTH, "3.8 mm");
-				put(Tag.IMAGE_WIDTH, "2048");
-				put(Tag.EXPOSURE_TIME, "1/1859");
-				put(Tag.GPS_LONGITUDE_REF, "East");
-				put(Tag.WHITE_BALANCE, "Auto");
-				put(Tag.METERING_MODE, "Center-weighted average");
-				put(Tag.EXPOSURE_COMPENSATION, "0");
-				put(Tag.GPS_ALTITUDE, "0 m Above Sea Level");
-				put(Tag.APERTURE, "2.6");
-				put(Tag.EXIF_VERSION, "0220");
-				put(Tag.DIGITAL_ZOOM_RATIO, "2.245614035");
+				put(StandardTag.FLASH, "No flash function");
+				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.SHARPNESS, "Normal");
+				put(StandardTag.SHUTTER_SPEED, "1/1859");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:18 13:57:00");
+				put(StandardTag.MODEL, "SGH-T959");
+				put(StandardTag.SOFTWARE, "fw 05.15 prm 07.55");
+				put(StandardTag.ISO, "50");
+				put(StandardTag.IMAGE_HEIGHT, "1536");
+				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
+				put(StandardTag.SENSING_METHOD, "One-chip color area");
+				put(StandardTag.MAKE, "SAMSUNG");
+				put(StandardTag.SATURATION, "Normal");
+				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");
+				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.GPS_LATITUDE, "0 deg 0' 0.00\" N");
+				put(StandardTag.GPS_LONGITUDE, "0 deg 0' 0.00\" E");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.GPS_LATITUDE_REF, "North");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FOCAL_LENGTH_35MM, "0 mm");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.CONTRAST, "Normal");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.FOCAL_LENGTH, "3.8 mm");
+				put(StandardTag.IMAGE_WIDTH, "2048");
+				put(StandardTag.EXPOSURE_TIME, "1/1859");
+				put(StandardTag.GPS_LONGITUDE_REF, "East");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.METERING_MODE, "Center-weighted average");
+				put(StandardTag.EXPOSURE_COMPENSATION, "0");
+				put(StandardTag.GPS_ALTITUDE, "0 m Above Sea Level");
+				put(StandardTag.APERTURE, "2.6");
+				put(StandardTag.EXIF_VERSION, "0220");
+				put(StandardTag.DIGITAL_ZOOM_RATIO, "2.245614035");
 			}
 		};
 	}
@@ -75,8 +76,8 @@ public class ExifTool_IMG9_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

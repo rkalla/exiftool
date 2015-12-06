@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,43 +34,43 @@ public class ExifTool_IMG1_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.METERING_MODE, "Evaluative");
-				put(Tag.SHUTTER_SPEED, "1/4096");
-				put(Tag.EXPOSURE_TIME, "1/4000");
-				put(Tag.EXIF_VERSION, "0230");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.AUTHOR, "Test Author");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.COMMENT, "Test comments");
-				put(Tag.DATE_TIME_ORIGINAL, "2011:04:30 08:35:00");
-				put(Tag.FOCAL_LENGTH, "35.0 mm");
-				put(Tag.ISO, "100");
-				put(Tag.EXPOSURE_PROGRAM, "Aperture-priority AE");
-				put(Tag.RATING, "4");
-				put(Tag.LENS_MODEL, "EF16-35mm f/2.8L II USM");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.CREATOR, "Test Author");
-				put(Tag.Y_RESOLUTION, "72");
-				put(Tag.SUB_SEC_TIME_ORIGINAL, "14");
-				put(Tag.ORIENTATION, "Horizontal (normal)");
-				put(Tag.LENS_ID, "Canon EF 16-35mm f/2.8L II");
-				put(Tag.MAKE, "Canon");
-				put(Tag.MODEL, "Canon EOS 60D");
-				put(Tag.IMAGE_WIDTH, "5184");
-				put(Tag.SUBJECT, "Test Subject");
-				put(Tag.WHITE_BALANCE, "Auto");
-				put(Tag.ARTIST, "Test Author");
-				put(Tag.TITLE, "Test Title");
-				put(Tag.KEYWORDS, "tag1 tag2 tag3");
-				put(Tag.RATING_PERCENT, "75");
-				put(Tag.EXPOSURE_COMPENSATION, "-1/3");
-				put(Tag.IMAGE_HEIGHT, "3456");
-				put(Tag.CONTRAST, "Normal");
-				put(Tag.FLASH, "Off, Did not fire");
-				put(Tag.SHARPNESS, "3");
-				put(Tag.SATURATION, "Normal");
-				put(Tag.X_RESOLUTION, "72");
-				put(Tag.APERTURE, "2.8");
+				put(StandardTag.METERING_MODE, "Evaluative");
+				put(StandardTag.SHUTTER_SPEED, "1/4096");
+				put(StandardTag.EXPOSURE_TIME, "1/4000");
+				put(StandardTag.EXIF_VERSION, "0230");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.AUTHOR, "Test Author");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.COMMENT, "Test comments");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:04:30 08:35:00");
+				put(StandardTag.FOCAL_LENGTH, "35.0 mm");
+				put(StandardTag.ISO, "100");
+				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
+				put(StandardTag.RATING, "4");
+				put(StandardTag.LENS_MODEL, "EF16-35mm f/2.8L II USM");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.CREATOR, "Test Author");
+				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.SUB_SEC_TIME_ORIGINAL, "14");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.LENS_ID, "Canon EF 16-35mm f/2.8L II");
+				put(StandardTag.MAKE, "Canon");
+				put(StandardTag.MODEL, "Canon EOS 60D");
+				put(StandardTag.IMAGE_WIDTH, "5184");
+				put(StandardTag.SUBJECT, "Test Subject");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.ARTIST, "Test Author");
+				put(StandardTag.TITLE, "Test Title");
+				put(StandardTag.KEYWORDS, "tag1 tag2 tag3");
+				put(StandardTag.RATING_PERCENT, "75");
+				put(StandardTag.EXPOSURE_COMPENSATION, "-1/3");
+				put(StandardTag.IMAGE_HEIGHT, "3456");
+				put(StandardTag.CONTRAST, "Normal");
+				put(StandardTag.FLASH, "Off, Did not fire");
+				put(StandardTag.SHARPNESS, "3");
+				put(StandardTag.SATURATION, "Normal");
+				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.APERTURE, "2.8");
 			}
 		};
 	}
@@ -77,8 +78,8 @@ public class ExifTool_IMG1_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

@@ -17,14 +17,17 @@
 package com.thebuzzmedia.exiftool.core.handlers;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.commons.Mapper;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.thebuzzmedia.exiftool.commons.Collections.indexBy;
 import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static java.util.Collections.unmodifiableMap;
 
@@ -49,26 +52,30 @@ public class TagHandler implements OutputHandler {
 	private static final Pattern TAG_VALUE_PATTERN = Pattern.compile(": ");
 
 	/**
+	 * Indexer used to map tag to its name.
+	 */
+	private static final Indexer INDEXER = new Indexer();
+
+	/**
 	 * Map of tags found.
 	 * Each tags will be added one by one during line processing.
 	 */
 	private final Map<Tag, String> tags;
 
 	/**
-	 * Create handler.
+	 * List of expected inputs.
 	 */
-	public TagHandler() {
-		tags = new HashMap<Tag, String>();
-	}
+	private final Map<String, Tag> inputs;
 
 	/**
-	 * Create handler and initialize size of tags.
-	 * If size is not enough, it will be resized automatically.
+	 * Create handler with expected list of tags to parse.
 	 *
-	 * @param size Expected size of tags to parse.
+	 * @param tags Expected list of tags.
 	 */
-	public TagHandler(int size) {
-		tags = new HashMap<Tag, String>(size);
+	@SuppressWarnings("unchecked")
+	public TagHandler(Collection<? extends Tag> tags) {
+		this.tags = new HashMap<Tag, String>();
+		this.inputs = unmodifiableMap(indexBy(tags, INDEXER));
 	}
 
 	@Override
@@ -84,7 +91,9 @@ public class TagHandler implements OutputHandler {
 		String[] pair = TAG_VALUE_PATTERN.split(line);
 		if (pair != null && pair.length == 2) {
 			// Determine the tag represented by this value.
-			Tag tag = Tag.forName(pair[0]);
+			String name = pair[0];
+			String value = pair[1];
+			Tag tag = inputs.get(name);
 
 			// Store the tag and the associated value in the result map only
 			// if we were able to map the name back to a Tag instance. If
@@ -92,9 +101,10 @@ public class TagHandler implements OutputHandler {
 			// we skip it since we cannot translate it back to one of our
 			// supported tags.
 			if (tag != null) {
-				tags.put(tag, pair[1]);
+				tags.put(tag, value);
 				log.debug("Read Tag [name=%s, value=%s]", tag, pair[1]);
-			} else {
+			}
+			else {
 				log.debug("Unable to read Tag: %s", line);
 			}
 		}
@@ -108,5 +118,12 @@ public class TagHandler implements OutputHandler {
 
 	public int size() {
 		return tags.size();
+	}
+
+	private static class Indexer<T extends Tag> implements Mapper<T, String> {
+		@Override
+		public String map(Tag input) {
+			return input.getName();
+		}
 	}
 }

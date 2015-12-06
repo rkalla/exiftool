@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,37 +34,37 @@ public class ExifTool_IMG4_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.METERING_MODE, "Multi-segment");
-				put(Tag.Y_RESOLUTION, "72");
-				put(Tag.SHARPNESS, "Hard");
-				put(Tag.SHUTTER_SPEED, "1/15");
-				put(Tag.GPS_LONGITUDE, "122 deg 21' 0.60\" W");
-				put(Tag.GPS_LATITUDE_REF, "North");
-				put(Tag.DATE_TIME_ORIGINAL, "2011:08:17 19:35:54");
-				put(Tag.X_RESOLUTION, "72");
-				put(Tag.SENSING_METHOD, "One-chip color area");
-				put(Tag.MODEL, "iPhone 4");
-				put(Tag.GPS_LATITUDE, "47 deg 38' 56.40\" N");
-				put(Tag.WHITE_BALANCE, "Auto");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.FLASH, "Off, Did not fire");
-				put(Tag.GPS_LONGITUDE_REF, "West");
-				put(Tag.GPS_ALTITUDE_REF, "Above Sea Level");
-				put(Tag.GPS_ALTITUDE, "19.9 m Above Sea Level");
-				put(Tag.EXPOSURE_PROGRAM, "Program AE");
-				put(Tag.SOFTWARE, "5.0");
-				put(Tag.APERTURE, "2.8");
-				put(Tag.MAKE, "Apple");
-				put(Tag.EXPOSURE_TIME, "1/15");
-				put(Tag.IMAGE_HEIGHT, "1936");
-				put(Tag.ORIENTATION, "Rotate 90 CW");
-				put(Tag.GPS_TIMESTAMP, "04:01:42");
-				put(Tag.ISO, "125");
-				put(Tag.FOCAL_LENGTH, "3.9 mm");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.EXIF_VERSION, "0221");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.IMAGE_WIDTH, "2592");
+				put(StandardTag.METERING_MODE, "Multi-segment");
+				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.SHARPNESS, "Hard");
+				put(StandardTag.SHUTTER_SPEED, "1/15");
+				put(StandardTag.GPS_LONGITUDE, "122 deg 21' 0.60\" W");
+				put(StandardTag.GPS_LATITUDE_REF, "North");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:17 19:35:54");
+				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.SENSING_METHOD, "One-chip color area");
+				put(StandardTag.MODEL, "iPhone 4");
+				put(StandardTag.GPS_LATITUDE, "47 deg 38' 56.40\" N");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FLASH, "Off, Did not fire");
+				put(StandardTag.GPS_LONGITUDE_REF, "West");
+				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");
+				put(StandardTag.GPS_ALTITUDE, "19.9 m Above Sea Level");
+				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
+				put(StandardTag.SOFTWARE, "5.0");
+				put(StandardTag.APERTURE, "2.8");
+				put(StandardTag.MAKE, "Apple");
+				put(StandardTag.EXPOSURE_TIME, "1/15");
+				put(StandardTag.IMAGE_HEIGHT, "1936");
+				put(StandardTag.ORIENTATION, "Rotate 90 CW");
+				put(StandardTag.GPS_TIMESTAMP, "04:01:42");
+				put(StandardTag.ISO, "125");
+				put(StandardTag.FOCAL_LENGTH, "3.9 mm");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.EXIF_VERSION, "0221");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.IMAGE_WIDTH, "2592");
 			}
 		};
 	}
@@ -71,8 +72,8 @@ public class ExifTool_IMG4_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

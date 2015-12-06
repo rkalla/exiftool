@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,29 +34,29 @@ public class ExifTool_IMG5_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.EXPOSURE_COMPENSATION, "0");
-				put(Tag.FOCAL_LENGTH, "3.4 mm");
-				put(Tag.IMAGE_HEIGHT, "1920");
-				put(Tag.X_RESOLUTION, "72");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.ISO, "50");
-				put(Tag.METERING_MODE, "Center-weighted average");
-				put(Tag.MODEL, "Nexus S");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.IMAGE_WIDTH, "2560");
-				put(Tag.EXPOSURE_TIME, "1/62");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.DATE_TIME_ORIGINAL, "2010:12:10 17:07:05");
-				put(Tag.SHUTTER_SPEED, "1/64");
-				put(Tag.EXIF_VERSION, "0220");
-				put(Tag.ORIENTATION, "Horizontal (normal)");
-				put(Tag.FLASH, "No Flash");
-				put(Tag.SOFTWARE, "GRH55");
-				put(Tag.WHITE_BALANCE, "Auto");
-				put(Tag.EXPOSURE_PROGRAM, "Aperture-priority AE");
-				put(Tag.MAKE, "google");
-				put(Tag.APERTURE, "2.8");
-				put(Tag.Y_RESOLUTION, "72");
+				put(StandardTag.EXPOSURE_COMPENSATION, "0");
+				put(StandardTag.FOCAL_LENGTH, "3.4 mm");
+				put(StandardTag.IMAGE_HEIGHT, "1920");
+				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.ISO, "50");
+				put(StandardTag.METERING_MODE, "Center-weighted average");
+				put(StandardTag.MODEL, "Nexus S");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.IMAGE_WIDTH, "2560");
+				put(StandardTag.EXPOSURE_TIME, "1/62");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2010:12:10 17:07:05");
+				put(StandardTag.SHUTTER_SPEED, "1/64");
+				put(StandardTag.EXIF_VERSION, "0220");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.FLASH, "No Flash");
+				put(StandardTag.SOFTWARE, "GRH55");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
+				put(StandardTag.MAKE, "google");
+				put(StandardTag.APERTURE, "2.8");
+				put(StandardTag.Y_RESOLUTION, "72");
 			}
 		};
 	}
@@ -63,8 +64,8 @@ public class ExifTool_IMG5_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

@@ -18,8 +18,10 @@ package com.thebuzzmedia.exiftool.commons;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Static Collection Utilities.
@@ -97,15 +99,21 @@ public final class Collections {
 	}
 
 	/**
-	 * Execute function on a collection of inputs.
+	 * Index list of inputs by result of mapper function.
 	 *
-	 * @param inputs Input list.
-	 * @param func Function to apply on each input.
+	 * @param inputs List of inputs.
+	 * @param indexer Mapper function.
 	 * @param <T> Type of input.
+	 * @param <U> Type of index keys.
+	 * @return Map of key (result of mapper function) with values (inputs).
 	 */
-	public static <T> void each(Collection<T> inputs, Function<T> func) {
+	public static <T, U> Map<U, T> indexBy(Iterable<T> inputs, Mapper<T, U> indexer) {
+		Map<U, T> index = new HashMap<U, T>();
 		for (T input : inputs) {
-			func.apply(input);
+			U output = indexer.map(input);
+			index.put(output, input);
 		}
+
+		return index;
 	}
 }

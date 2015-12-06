@@ -19,8 +19,9 @@ package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.ExifToolBuilder;
-import com.thebuzzmedia.exiftool.Format;
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardFormat;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 import com.thebuzzmedia.exiftool.tests.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +32,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractExifToolIT {
@@ -80,7 +82,7 @@ public abstract class AbstractExifToolIT {
 
 	private void verifyGetMeta(ExifTool exifTool) throws Exception {
 		File file = new File("src/test/resources/images/" + image());
-		checkMeta(exifTool, file, Tag.values(), expectations());
+		checkMeta(exifTool, file, StandardTag.values(), expectations());
 	}
 
 	private void verifySetMeta(ExifTool exifTool) throws Exception {
@@ -89,7 +91,7 @@ public abstract class AbstractExifToolIT {
 		File tmpCopy = FileUtils.copy(file, folder);
 		Map<Tag, String> meta = updateTags();
 
-		exifTool.setImageMeta(tmpCopy, Format.HUMAN_READABLE, meta);
+		exifTool.setImageMeta(tmpCopy, StandardFormat.HUMAN_READABLE, meta);
 
 		Tag[] tags = new Tag[meta.size()];
 		int i = 0;
@@ -102,7 +104,7 @@ public abstract class AbstractExifToolIT {
 	}
 
 	private void checkMeta(ExifTool exifTool, File image, Tag[] tags, Map<Tag, String> expectations) throws Exception {
-		Map<Tag, String> results = exifTool.getImageMeta(image, Format.HUMAN_READABLE, tags);
+		Map<Tag, String> results = exifTool.getImageMeta(image, StandardFormat.HUMAN_READABLE, asList(tags));
 		assertThat(results)
 			.isNotNull()
 			.isNotEmpty()

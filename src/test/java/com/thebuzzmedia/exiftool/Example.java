@@ -1,6 +1,11 @@
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.StandardFormat;
+import com.thebuzzmedia.exiftool.core.StandardTag;
+
 import java.io.File;
+
+import static java.util.Arrays.asList;
 
 public class Example {
 	public static final int ITERS = 100;
@@ -18,8 +23,8 @@ public class Example {
 
 		for (File f : IMAGES) {
 			System.out.println("\n[" + f.getName() + "]");
-			System.out.println(tool.getImageMeta(f, Format.HUMAN_READABLE,
-					Tag.values()));
+			System.out.println(tool.getImageMeta(f, StandardFormat.HUMAN_READABLE,
+					asList((Tag[]) StandardTag.values())));
 		}
 
 		tool.close();

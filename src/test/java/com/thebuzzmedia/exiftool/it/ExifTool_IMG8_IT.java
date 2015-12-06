@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,35 +34,35 @@ public class ExifTool_IMG8_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.METERING_MODE, "Multi-segment");
-				put(Tag.Y_RESOLUTION, "180");
-				put(Tag.SHARPNESS, "Normal");
-				put(Tag.DIGITAL_ZOOM_RATIO, "0");
-				put(Tag.ROTATION, "Rotate 270 CW");
-				put(Tag.DATE_TIME_ORIGINAL, "2011:07:28 02:07:11");
-				put(Tag.MAKE, "Panasonic");
-				put(Tag.X_RESOLUTION, "180");
-				put(Tag.ORIENTATION, "Rotate 270 CW");
-				put(Tag.SOFTWARE, "Ver.1.0");
-				put(Tag.MODEL, "DMC-GF3");
-				put(Tag.SATURATION, "Normal");
-				put(Tag.FLASH, "Off, Did not fire");
-				put(Tag.EXIF_VERSION, "0230");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.LENS_ID, "LUMIX G VARIO 14-140mm F4.0-5.8");
-				put(Tag.EXPOSURE_TIME, "1/320");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.CONTRAST, "Normal");
-				put(Tag.SENSING_METHOD, "One-chip color area");
-				put(Tag.FOCAL_LENGTH_35MM, "150 mm");
-				put(Tag.IMAGE_HEIGHT, "3000");
-				put(Tag.EXPOSURE_COMPENSATION, "0");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.WHITE_BALANCE, "Auto");
-				put(Tag.FOCAL_LENGTH, "75.0 mm");
-				put(Tag.EXPOSURE_PROGRAM, "Aperture-priority AE");
-				put(Tag.ISO, "160");
-				put(Tag.IMAGE_WIDTH, "4000");
+				put(StandardTag.METERING_MODE, "Multi-segment");
+				put(StandardTag.Y_RESOLUTION, "180");
+				put(StandardTag.SHARPNESS, "Normal");
+				put(StandardTag.DIGITAL_ZOOM_RATIO, "0");
+				put(StandardTag.ROTATION, "Rotate 270 CW");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:07:28 02:07:11");
+				put(StandardTag.MAKE, "Panasonic");
+				put(StandardTag.X_RESOLUTION, "180");
+				put(StandardTag.ORIENTATION, "Rotate 270 CW");
+				put(StandardTag.SOFTWARE, "Ver.1.0");
+				put(StandardTag.MODEL, "DMC-GF3");
+				put(StandardTag.SATURATION, "Normal");
+				put(StandardTag.FLASH, "Off, Did not fire");
+				put(StandardTag.EXIF_VERSION, "0230");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.LENS_ID, "LUMIX G VARIO 14-140mm F4.0-5.8");
+				put(StandardTag.EXPOSURE_TIME, "1/320");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.CONTRAST, "Normal");
+				put(StandardTag.SENSING_METHOD, "One-chip color area");
+				put(StandardTag.FOCAL_LENGTH_35MM, "150 mm");
+				put(StandardTag.IMAGE_HEIGHT, "3000");
+				put(StandardTag.EXPOSURE_COMPENSATION, "0");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.FOCAL_LENGTH, "75.0 mm");
+				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
+				put(StandardTag.ISO, "160");
+				put(StandardTag.IMAGE_WIDTH, "4000");
 			}
 		};
 	}
@@ -69,8 +70,8 @@ public class ExifTool_IMG8_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

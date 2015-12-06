@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,34 +34,34 @@ public class ExifTool_IMG6_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.METERING_MODE, "Multi-segment");
-				put(Tag.Y_RESOLUTION, "300");
-				put(Tag.SHARPNESS, "Normal");
-				put(Tag.DIGITAL_ZOOM_RATIO, "1");
-				put(Tag.EXIF_VERSION, "0221");
-				put(Tag.DATE_TIME_ORIGINAL, "2010:08:21 19:23:36");
-				put(Tag.MAKE, "NIKON CORPORATION");
-				put(Tag.X_RESOLUTION, "300");
-				put(Tag.ORIENTATION, "Horizontal (normal)");
-				put(Tag.SOFTWARE, "Adobe Photoshop CS2 Windows");
-				put(Tag.MODEL, "NIKON D90");
-				put(Tag.SATURATION, "Normal");
-				put(Tag.FLASH, "No Flash");
-				put(Tag.SUB_SEC_TIME_ORIGINAL, "00");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.EXPOSURE_TIME, "1/60");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.CONTRAST, "Normal");
-				put(Tag.SENSING_METHOD, "One-chip color area");
-				put(Tag.FOCAL_LENGTH_35MM, "75 mm");
-				put(Tag.IMAGE_HEIGHT, "2768");
-				put(Tag.EXPOSURE_COMPENSATION, "0");
-				put(Tag.WHITE_BALANCE, "Auto");
-				put(Tag.FOCAL_LENGTH, "50.0 mm");
-				put(Tag.EXPOSURE_PROGRAM, "Aperture-priority AE");
-				put(Tag.ISO, "400");
-				put(Tag.IMAGE_WIDTH, "3604");
+				put(StandardTag.METERING_MODE, "Multi-segment");
+				put(StandardTag.Y_RESOLUTION, "300");
+				put(StandardTag.SHARPNESS, "Normal");
+				put(StandardTag.DIGITAL_ZOOM_RATIO, "1");
+				put(StandardTag.EXIF_VERSION, "0221");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2010:08:21 19:23:36");
+				put(StandardTag.MAKE, "NIKON CORPORATION");
+				put(StandardTag.X_RESOLUTION, "300");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.SOFTWARE, "Adobe Photoshop CS2 Windows");
+				put(StandardTag.MODEL, "NIKON D90");
+				put(StandardTag.SATURATION, "Normal");
+				put(StandardTag.FLASH, "No Flash");
+				put(StandardTag.SUB_SEC_TIME_ORIGINAL, "00");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.EXPOSURE_TIME, "1/60");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.CONTRAST, "Normal");
+				put(StandardTag.SENSING_METHOD, "One-chip color area");
+				put(StandardTag.FOCAL_LENGTH_35MM, "75 mm");
+				put(StandardTag.IMAGE_HEIGHT, "2768");
+				put(StandardTag.EXPOSURE_COMPENSATION, "0");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.FOCAL_LENGTH, "50.0 mm");
+				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
+				put(StandardTag.ISO, "400");
+				put(StandardTag.IMAGE_WIDTH, "3604");
 			}
 		};
 	}
@@ -68,8 +69,8 @@ public class ExifTool_IMG6_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

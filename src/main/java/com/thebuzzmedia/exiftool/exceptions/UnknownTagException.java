@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.exceptions;
 
 /**
- * Function interface.
- * Implementations should provide logic for {@link #apply} method.
- * Implementations may be used to apply a function during iteration
- * on collections.
- *
- * @param <T> Type of input.
+ * Thrown name of tag is not known.
  */
-public interface Function<T> {
+public class UnknownTagException extends AbstractExifException {
 
 	/**
-	 * Execute function on given input.
+	 * Create exception.
 	 *
-	 * @param input Input.
+	 * @param name Name of unknown tag.
 	 */
-	void apply(T input);
+	public UnknownTagException(String name) {
+		super(
+			"Unable to parse tag '" + name + "'"
+		);
+	}
 }

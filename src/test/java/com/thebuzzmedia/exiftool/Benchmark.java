@@ -1,11 +1,15 @@
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.StandardTag;
+
 import java.io.File;
 import java.io.IOException;
 
+import static java.util.Arrays.asList;
+
 public class Benchmark {
 	public static final int ITERS = 25;
-	public static final Tag[] TAGS = Tag.values();
+	public static final Tag[] TAGS = StandardTag.values();
 	public static final File[] IMAGES = new File("src/test/resources/images")
 			.listFiles();
 
@@ -61,8 +65,9 @@ public class Benchmark {
 			throws IllegalArgumentException, SecurityException, IOException {
 		long startTime = System.currentTimeMillis();
 
-		for (int i = 0; i < images.length; i++)
-			tool.getImageMeta(images[i], TAGS);
+		for (int i = 0; i < images.length; i++) {
+			tool.getImageMeta(images[i], asList(TAGS));
+		}
 
 		return (System.currentTimeMillis() - startTime);
 	}

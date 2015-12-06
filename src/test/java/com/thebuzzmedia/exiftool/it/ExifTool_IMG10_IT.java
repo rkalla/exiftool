@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.it;
 
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,24 +34,24 @@ public class ExifTool_IMG10_IT extends AbstractExifToolIT {
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(Tag.MAKE, "Sony Ericsson");
-				put(Tag.COLOR_SPACE, "sRGB");
-				put(Tag.Y_RESOLUTION, "72");
-				put(Tag.FLASH, "Unknown (0x6d00)");
-				put(Tag.ISO, "40");
-				put(Tag.ORIENTATION, "Horizontal (normal)");
-				put(Tag.X_RESOLUTION, "72");
-				put(Tag.SOFTWARE, "12307");
-				put(Tag.EXIF_VERSION, "0220");
-				put(Tag.IMAGE_HEIGHT, "1944");
-				put(Tag.DATE_TIME_ORIGINAL, "2011:08:08 17:09:44");
-				put(Tag.EXPOSURE_TIME, "1/250");
-				put(Tag.FILE_TYPE, "JPEG");
-				put(Tag.IMAGE_WIDTH, "2592");
-				put(Tag.MODEL, "R800x");
-				put(Tag.MIME_TYPE, "image/jpeg");
-				put(Tag.SHUTTER_SPEED, "1");
-				put(Tag.FOCAL_LENGTH, "3.6 mm");
+				put(StandardTag.MAKE, "Sony Ericsson");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.FLASH, "Unknown (0x6d00)");
+				put(StandardTag.ISO, "40");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.SOFTWARE, "12307");
+				put(StandardTag.EXIF_VERSION, "0220");
+				put(StandardTag.IMAGE_HEIGHT, "1944");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:08 17:09:44");
+				put(StandardTag.EXPOSURE_TIME, "1/250");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.IMAGE_WIDTH, "2592");
+				put(StandardTag.MODEL, "R800x");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.SHUTTER_SPEED, "1");
+				put(StandardTag.FOCAL_LENGTH, "3.6 mm");
 			}
 		};
 	}
@@ -58,8 +59,8 @@ public class ExifTool_IMG10_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(Tag.COMMENT, "Hello =World");
-			put(Tag.AUTHOR, "mjeanroy");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

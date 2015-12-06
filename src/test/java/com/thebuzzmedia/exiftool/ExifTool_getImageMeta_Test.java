@@ -17,6 +17,8 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.StandardFormat;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -37,10 +39,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thebuzzmedia.exiftool.tests.MapUtils.newMap;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
@@ -91,30 +95,28 @@ public class ExifTool_getImageMeta_Test {
 	public void it_should_fail_if_image_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Image cannot be null and must be a valid stream of image data.");
-		exifTool.getImageMeta(null, Format.HUMAN_READABLE, Tag.values());
+		exifTool.getImageMeta(null, StandardFormat.HUMAN_READABLE, asList((Tag[]) StandardTag.values()));
 	}
 
 	@Test
 	public void it_should_fail_if_format_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Format cannot be null.");
-		exifTool.getImageMeta(mock(File.class), null, Tag.values());
+		exifTool.getImageMeta(mock(File.class), null, asList((Tag[]) StandardTag.values()));
 	}
 
-	@SuppressWarnings("NullArgumentToVariableArgMethod")
 	@Test
 	public void it_should_fail_if_tags_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		exifTool.getImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
+		exifTool.getImageMeta(mock(File.class), StandardFormat.HUMAN_READABLE, null);
 	}
 
-	@SuppressWarnings("RedundantArrayCreation")
 	@Test
 	public void it_should_fail_if_tags_is_empty() throws Exception {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		exifTool.getImageMeta(mock(File.class), Format.HUMAN_READABLE, new Tag[]{ });
+		exifTool.getImageMeta(mock(File.class), StandardFormat.HUMAN_READABLE, Collections.<Tag>emptyList());
 	}
 
 	@Test
@@ -126,7 +128,7 @@ public class ExifTool_getImageMeta_Test {
 			.exists(false)
 			.build();
 
-		exifTool.getImageMeta(image, Format.HUMAN_READABLE, Tag.values());
+		exifTool.getImageMeta(image, StandardFormat.HUMAN_READABLE, asList((Tag[]) StandardTag.values()));
 	}
 
 	@Test
@@ -138,24 +140,23 @@ public class ExifTool_getImageMeta_Test {
 			.canRead(false)
 			.build();
 
-		exifTool.getImageMeta(image, Format.HUMAN_READABLE, Tag.values());
+		exifTool.getImageMeta(image, StandardFormat.HUMAN_READABLE, asList((Tag[]) StandardTag.values()));
 	}
 
 	@Test
 	public void it_should_get_image_metadata() throws Exception {
 		// Given
-		final Format format = Format.HUMAN_READABLE;
+		final Format format = StandardFormat.HUMAN_READABLE;
 		final File image = new FileBuilder("foo.png").build();
-		final Map<Tag, String> tags = newMap(
-			Tag.ARTIST, "bar",
-			Tag.COMMENT, "foo"
-		);
+		final Map<Tag, String> tags = new HashMap<Tag, String>();
+		tags.put(StandardTag.ARTIST, "bar");
+		tags.put(StandardTag.COMMENT, "foo");
 
 		doAnswer(new ReadTagsAnswer(tags, "{ready}"))
 			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
 
 		// When
-		Map<Tag, String> results = exifTool.getImageMeta(image, format, Tag.ARTIST, Tag.COMMENT);
+		Map<Tag, String> results = exifTool.getImageMeta(image, format, tags.keySet());
 
 		// Then
 		verify(strategy).execute(same(executor), same(path), argsCaptor.capture(), any(OutputHandler.class));
@@ -170,18 +171,17 @@ public class ExifTool_getImageMeta_Test {
 	@Test
 	public void it_should_get_image_metadata_in_numeric_format() throws Exception {
 		// Given
-		final Format format = Format.NUMERIC;
+		final Format format = StandardFormat.NUMERIC;
 		final File image = new FileBuilder("foo.png").build();
-		final Map<Tag, String> tags = newMap(
-			Tag.ARTIST, "foo",
-			Tag.COMMENT, "bar"
-		);
+		final Map<Tag, String> tags = new HashMap<Tag, String>();
+		tags.put(StandardTag.ARTIST, "foo");
+		tags.put(StandardTag.COMMENT, "bar");
 
 		doAnswer(new ReadTagsAnswer(tags, "{ready}"))
 			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
 
 		// When
-		Map<Tag, String> results = exifTool.getImageMeta(image, format, Tag.ARTIST, Tag.COMMENT);
+		Map<Tag, String> results = exifTool.getImageMeta(image, format, tags.keySet());
 
 		// Then
 		verify(strategy).execute(same(executor), same(path), argsCaptor.capture(), any(OutputHandler.class));

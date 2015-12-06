@@ -17,6 +17,8 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.StandardFormat;
+import com.thebuzzmedia.exiftool.core.StandardTag;
 import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -72,9 +74,15 @@ public class ExifTool_setImageMeta_Test {
 
 	private ExifTool exifTool;
 
+	private Map<Tag, String> tags;
+
 	@Before
 	public void setUp() throws Exception {
 		path = "exiftool";
+		tags = newMap(
+			(Tag) StandardTag.APERTURE, "foo",
+			(Tag) StandardTag.ARTIST, "bar"
+		);
 
 		CommandResult result = new CommandResultBuilder()
 			.output("9.36")
@@ -92,28 +100,28 @@ public class ExifTool_setImageMeta_Test {
 	public void it_should_fail_if_image_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Image cannot be null and must be a valid stream of image data.");
-		exifTool.setImageMeta(null, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+		exifTool.setImageMeta(null, StandardFormat.HUMAN_READABLE, tags);
 	}
 
 	@Test
 	public void it_should_fail_if_format_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Format cannot be null.");
-		exifTool.setImageMeta(mock(File.class), null, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+		exifTool.setImageMeta(mock(File.class), null, tags);
 	}
 
 	@Test
 	public void it_should_fail_if_tags_is_null() throws Exception {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, null);
+		exifTool.setImageMeta(mock(File.class), StandardFormat.HUMAN_READABLE, null);
 	}
 
 	@Test
 	public void it_should_fail_if_tags_is_empty() throws Exception {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Tags cannot be null and must contain 1 or more Tag to query the image for.");
-		exifTool.setImageMeta(mock(File.class), Format.HUMAN_READABLE, Collections.<Tag, String>emptyMap());
+		exifTool.setImageMeta(mock(File.class), StandardFormat.HUMAN_READABLE, Collections.<Tag, String>emptyMap());
 	}
 
 	@Test
@@ -125,7 +133,7 @@ public class ExifTool_setImageMeta_Test {
 			.exists(false)
 			.build();
 
-		exifTool.setImageMeta(image, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+		exifTool.setImageMeta(image, StandardFormat.HUMAN_READABLE, tags);
 	}
 
 	@Test
@@ -137,14 +145,13 @@ public class ExifTool_setImageMeta_Test {
 			.canWrite(false)
 			.build();
 
-		exifTool.setImageMeta(image, Format.HUMAN_READABLE, newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar"));
+		exifTool.setImageMeta(image, StandardFormat.HUMAN_READABLE, tags);
 	}
 
 	@Test
 	public void it_should_set_image_meta_data() throws Exception {
 		final File image = new FileBuilder("foo.png").build();
-		final Format format = Format.HUMAN_READABLE;
-		final Map<Tag, String> tags = newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar");
+		final Format format = StandardFormat.HUMAN_READABLE;
 
 		doAnswer(new WriteTagsAnswer())
 			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));
@@ -170,8 +177,7 @@ public class ExifTool_setImageMeta_Test {
 	@Test
 	public void it_should_set_image_meta_data_in_numeric_format() throws Exception {
 		final File image = new FileBuilder("foo.png").build();
-		final Map<Tag, String> tags = newMap(Tag.APERTURE, "foo", Tag.ARTIST, "bar");
-		final Format format = Format.NUMERIC;
+		final Format format = StandardFormat.NUMERIC;
 
 		doAnswer(new WriteTagsAnswer())
 			.when(strategy).execute(same(executor), same(path), anyListOf(String.class), any(OutputHandler.class));

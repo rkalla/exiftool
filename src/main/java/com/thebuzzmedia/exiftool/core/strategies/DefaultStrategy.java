@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.core.strategies;
 
 import com.thebuzzmedia.exiftool.ExecutionStrategy;
+import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
@@ -61,6 +62,12 @@ public class DefaultStrategy implements ExecutionStrategy {
 			.build();
 
 		executor.execute(cmd, handler);
+	}
+
+	@Override
+	public boolean isSupported(Version version) {
+		// Always true.
+		return true;
 	}
 
 	@Override

@@ -79,6 +79,7 @@ public class ExifToolBuilderTest {
 			.build();
 
 		when(executor.execute(any(Command.class))).thenReturn(v9_36);
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
 	}
 
 	@Test

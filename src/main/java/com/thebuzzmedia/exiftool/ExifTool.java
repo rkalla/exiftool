@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
 import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
 import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
@@ -58,38 +59,40 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * (including Windows) so no portability issues are introduced into your
  * application by utilizing this class.
  *
- * ## Usage
+ * <h3>Usage</h3>
  *
  * Assuming ExifTool is installed on the host system correctly and either in the
- * system withPath, using this class to communicate with ExifTool is as simple as
- * creating an instance:
+ * system path, using this class to communicate with ExifTool is as simple as
+ * creating an instance using {@link ExifToolBuilder}:
  *
- * ```java
- * ExifTool tool = new ExifToolBuilder().build();
- * ```
+ * <pre><code>
+ *     ExifTool tool = new ExifToolBuilder().build();
+ * </code></pre>
  *
  * This mode assume that:
- * - Path is set as an environment variable (i.e. `-Dexiftool.withPath=/usr/local/exiftool/bin/exiftool`).
- * - Or globally available.
+ * <ul>
+ *   <li>Path is set as an environment variable (i.e. {@code -Dexiftool.withPath=/usr/local/exiftool/bin/exiftool}).</li>
+ *   <li>Or globally available.</li>
+ * </ul>
  *
- * If you want to set the withPath of ExifTool, you can also specify it during creation:
+ * If you want to set the path of {@code ExifTool}, you can also specify it during creation:
  *
- * ```java
- * ExifTool tool = new ExifToolBuilder()
- * .withPath("/usr/local/exiftool/bin/exiftool")
- * .build();
- * ```
+ * <pre><code>
+ *     ExifTool tool = new ExifToolBuilder()
+ *         .withPath("/usr/local/exiftool/bin/exiftool")
+ *         .build();
+ * </code></pre>
  *
  * Once created, usage is as simple as making calls to {@link #getImageMeta(File, Tag...)} or
- * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag}s you
+ * {@link #getImageMeta(File, Format, Tag...)} with a list of {@link Tag} you
  * want to pull values for from the given image.
  *
- * In this default mode, calls to `getImageMeta` will automatically
+ * In this default mode, calls to {@link #getImageMeta} will automatically
  * start an external ExifTool process to handle the request. After ExifTool has
  * parsed the tag values from the file, the external process exits and this
  * class parses the result before returning it to the caller.
  *
- * Results from calls to `getImageMeta` are returned in a {@link Map}
+ * Results from calls to {@link #getImageMeta} are returned in a {@link Map}
  * with the {@link Tag} values as the keys and {@link String} values for every
  * tag that had a value in the image file as the values. {@link Tag}s with no
  * value found in the image are omitted from the result map.
@@ -105,13 +108,13 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * the Tag hint automatically for you if that is what you plan on doing,
  * otherwise feel free to handle the return values anyway you want.
  *
- * ## ExifTool -stay_open Support
+ * <h3>ExifTool -stay_open Support</h3>
  *
  * ExifTool <a href="http://u88.n24.queensu.ca/exiftool/forum/index.php/topic,1402.msg12933.html#msg12933">8.36</a>
  * added a new persistent-process feature that allows ExifTool to stay
  * running in a daemon mode and continue accepting commands via a file or stdin.
  *
- * This new mode is controlled via the `-stay_open True/False`
+ * This new mode is controlled via the {@code -stay_open True/False}
  * command line argument and in a busy system that is making thousands of calls
  * to ExifTool, can offer speed improvements of up to <strong>60x</strong> (yes,
  * really that much).
@@ -121,11 +124,9 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * for starting up a new Perl interpreter each time ExifTool is loaded accounts for
  * roughly <a href="http://u88.n24.queensu.ca/exiftool/forum/index.php/topic,1402.msg6121.html#msg6121">98.4% of the total runtime</a>.
  *
- * Support for using ExifTool in daemon mode is enabled by passing
- * {@link Feature#STAY_OPEN} to the constructor of the class when creating an
- * instance of this class and then simply using the class as you normally would.
- * This class will manage a single ExifTool process running in daemon mode in
- * the background to service all future calls to the class.
+ * Support for using ExifTool in daemon mode is enabled by explicitly calling
+ * {@link ExifToolBuilder#enableStayOpen()} method.
+ * Calling this method will create an instance of {@link ExifTool} with {@link com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy} execution strategy.
  *
  * Because this feature requires ExifTool 8.36 or later, this class will
  * actually verify support for the feature in the version of ExifTool
@@ -137,19 +138,26 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * upgrade the native ExifTool upgrade to the version required or simply avoid
  * using that feature to work around the exception.
  *
- * ## Automatic Resource Cleanup
+ * <h3>Automatic Resource Cleanup</h3>
  *
- * When {@link Feature#STAY_OPEN} mode is used, there is the potential for
- * leaking both host OS processes (native 'exiftool' processes) as well as the
+ * When {@code stay_open} mode is used, there is the potential for
+ * leaking both host OS processes (native {@code exiftool} processes) as well as the
  * read/write streams used to communicate with it unless {@link #close()} is
- * called to clean them up when done. <strong>Fortunately</strong>, this class
- * provides an automatic cleanup mechanism that runs, by default, after 10 mins
+ * called to clean them up when done. <strong>Fortunately</strong>, this library
+ * provides an automatic cleanup mechanism that runs, by default, after 10 minutes
  * of inactivity to clean up those stray resources.
  *
  * The inactivity period can be controlled by modifying the
- * {@link #PROCESS_CLEANUP_DELAY} system variable. A value of <code>0</code> or
+ * {@code exifTool.processCleanupDelay} system variable. A value of <code>0</code> or
  * less disabled the automatic cleanup process and requires you to cleanup
  * ExifTool instances on your own by calling {@link #close()} manually.
+ *
+ * You can also set this delay manually using {@link com.thebuzzmedia.exiftool.ExifToolBuilder}:
+ * <pre><code>
+ *     ExifTool exifTool = new ExifToolBuilder()
+ *         .enableStayOpen(60000) // Try to clean resources once per minutes.
+ *         .build();
+ * </code></pre>
  *
  * Any class activity by way of calls to <code>getImageMeta</code> will always
  * reset the inactivity timer, so in a busy system the cleanup thread could
@@ -165,22 +173,22 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * lag while launching the VM interpreter again on the first call (depending on
  * host machine speed and load).
  *
- * ## Reusing a "closed" ExifTool Instance
+ * <h3>Reusing a "closed" ExifTool Instance</h3>
+ *
  * If you or the cleanup thread have called {@link #close()} on an instance of
  * this class, cleaning up the host process and read/write streams, the instance
  * of this class can still be safely used. Any followup calls to
  * <code>getImageMeta</code> will simply re-instantiate all the required
- * resources necessary to service the call (honoring any {@link Feature}s set).
+ * resources necessary to service the call.
  *
  * This can be handy behavior to be aware of when writing scheduled processing
  * jobs that may wake up every hour and process thousands of pictures then go
  * back to sleep. In order for the process to execute as fast as possible, you
- * would want to use ExifTool in daemon mode (pass {@link Feature#STAY_OPEN} to
- * the constructor of this class) and when done, instead of {@link #close()}-ing
- * the instance of this class and throwing it out, you can keep the reference
- * around and re-use it again when the job executes again an hour later.
+ * would want to use ExifTool in daemon mode (use {@link ExifToolBuilder#enableStayOpen})
+ * and when done, instead of {@link #close()}-ing the instance of this class and throwing it
+ * out, you can keep the reference around and re-use it again when the job executes again an hour later.
  *
- * ## Performance
+ * <h3>Performance</h3>
  *
  * Extra care is taken to ensure minimal object creation or unnecessary CPU
  * overhead while communicating with the external process.
@@ -201,16 +209,16 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * classes continue to provide best-of-breed performance and memory utilization
  * in long running/high performance environments (e.g. web applications).
  *
- * ## Thread Safety
+ * <h3>Thread Safety</h3>
  *
- * Instances of this class are **not** Thread-safe. Both the
+ * Instances of this class are <strong>not</strong> Thread-safe. Both the
  * instance of this class and external ExifTool process maintain state specific
  * to the current operation. Use of instances of this class need to be
  * synchronized using an external mechanism or in a highly threaded environment
  * (e.g. web application), instances of this class can be used along with
  * {@link ThreadLocal}s to ensure Thread-safe, highly parallel use.
  *
- * ## Why ExifTool?
+ * <h3>Why ExifTool?</h3>
  *
  * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool">ExifTool</a> is
  * written in Perl and requires an external process call from Java to make use
@@ -227,7 +235,7 @@ import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
  * ability to read/write image-metadata from almost
  * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/#supported">any image or video file</a> format.
  *
- * ## Alternatives
+ * <h3>Alternatives</h3>
  *
  * If integration with an external Perl process is something your app cannot do
  * and you still need image metadata-extraction capability, Drew Noakes has
@@ -264,7 +272,7 @@ public class ExifTool implements AutoCloseable {
 	 * This is the version detected on exiftool executable.
 	 * This version depends on executable given on instantiation.
 	 */
-	private final String version;
+	private final Version version;
 
 	/**
 	 * ExifTool execution strategy.
@@ -285,9 +293,14 @@ public class ExifTool implements AutoCloseable {
 	 */
 	ExifTool(String path, CommandExecutor executor, ExecutionStrategy strategy) {
 		this.executor = notNull(executor, "Executor should not be null");
-		this.path = notNull(path, "ExifTool withPath should not be null");
+		this.path = notBlank(path, "ExifTool path should not be null");
+		this.strategy = notNull(strategy, "Execution strategy should not be null");
 		this.version = parseVersion();
-		this.strategy = strategy;
+
+		// Check if this instance may be used safely.
+		if (version != null && !strategy.isSupported(version)) {
+			throw new UnsupportedFeatureException(path, version);
+		}
 	}
 
 	/**
@@ -307,13 +320,13 @@ public class ExifTool implements AutoCloseable {
 	 *
 	 * @return Exiftool version, {@code null} if command failed.
 	 */
-	private String parseVersion() {
+	private Version parseVersion() {
 		log.debug("Checking exiftool version");
 		CommandResult result = executor.execute(CommandBuilder.builder(path)
 			.addArgument("-ver")
 			.build());
 
-		return result.isSuccess() ? result.getOutput() : null;
+		return result.isSuccess() ? new Version(result.getOutput()) : null;
 	}
 
 	/**
@@ -353,7 +366,7 @@ public class ExifTool implements AutoCloseable {
 	 *
 	 * @return Version.
 	 */
-	public String getVersion() {
+	public Version getVersion() {
 		return version;
 	}
 

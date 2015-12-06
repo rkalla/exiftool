@@ -19,6 +19,7 @@ package com.thebuzzmedia.exiftool.core.strategies;
 
 import com.thebuzzmedia.exiftool.ExecutionStrategy;
 import com.thebuzzmedia.exiftool.Scheduler;
+import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.commons.Mapper;
 import com.thebuzzmedia.exiftool.exceptions.ExifToolException;
 import com.thebuzzmedia.exiftool.logs.Logger;
@@ -48,6 +49,11 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	 * arguments.
 	 */
 	private static final ArgumentMapper MAPPER = new ArgumentMapper();
+
+	/**
+	 * Minimum version of {@code exiftool} supporting {@code stay_open} feature.
+	 */
+	private static final Version V8_36 = new Version("8.36");
 
 	/**
 	 * Scheduler: will be used to perform automatic cleanup.
@@ -111,6 +117,11 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	@Override
 	public boolean isRunning() {
 		return process != null && process.isRunning();
+	}
+
+	@Override
+	public boolean isSupported(Version version) {
+		return V8_36.compareTo(version) <= 0;
 	}
 
 	@Override

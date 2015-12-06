@@ -81,6 +81,7 @@ public class ExifTool_setImageMeta_Test {
 			.build();
 
 		when(executor.execute(any(Command.class))).thenReturn(result);
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
 
 		exifTool = new ExifTool(path, executor, strategy);
 

@@ -29,8 +29,8 @@ import java.util.List;
  *
  * For instance:
  * <ul>
- *   <li>Execution using a one-shot process.</li>
- *   <li>Execution using {@code stay_open} flag: this strategy means that a process is started and re-used for next executions.</li>
+ * <li>Execution using a one-shot process.</li>
+ * <li>Execution using {@code stay_open} flag: this strategy means that a process is started and re-used for next executions.</li>
  * </ul>
  *
  * Each implementation will define the main logic for reading and
@@ -64,13 +64,25 @@ public interface ExecutionStrategy extends AutoCloseable {
 	boolean isRunning();
 
 	/**
+	 * Check if this strategy should is supported with this specific version.
+	 *
+	 * @param version ExifTool Version.
+	 * @return {@code true} if this strategy may be used safely with this specific version, {@code false} otherwise.
+	 */
+	boolean isSupported(Version version);
+
+	/**
 	 * This method should be used to:
-	 * - Close remaining process (if any).
-	 * - Clean previous executions.
+	 * <ul>
+	 *   <li>Close remaining process (if any).</li>
+	 *   <li>Clean previous executions.</li>
+	 * </ul>
 	 *
 	 * For instance, with the `stay_open` flag, this method should:
-	 * - Close opened process.
-	 * - Stop task used to automatically close process.
+	 * <ul>
+	 *   <li>Close opened process.</li>
+	 *   <li>Stop task used to automatically close process.</li>
+	 * </ul>
 	 *
 	 * Once closed, ExifTool should still be able to use this strategy
 	 * if a call to {@link #execute} is made.

@@ -80,6 +80,7 @@ public class ExifTool_getImageMeta_Test {
 			.build();
 
 		when(executor.execute(any(Command.class))).thenReturn(cmd);
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
 
 		exifTool = new ExifTool(path, executor, strategy);
 

@@ -1,4 +1,5 @@
 /**
+ * Copyright 2011 The Buzz Media, LLC
  * Copyright 2015 Mickael Jeanroy <mickael.jeanroy@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +34,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Mockito.mock;
 
 public class PreConditionsTest {
 

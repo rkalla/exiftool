@@ -1,4 +1,5 @@
 /**
+ * Copyright 2011 The Buzz Media, LLC
  * Copyright 2015 Mickael Jeanroy <mickael.jeanroy@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

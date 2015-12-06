@@ -20,7 +20,7 @@ package com.thebuzzmedia.exiftool.core.strategies;
 import com.thebuzzmedia.exiftool.ExecutionStrategy;
 import com.thebuzzmedia.exiftool.Scheduler;
 import com.thebuzzmedia.exiftool.Version;
-import com.thebuzzmedia.exiftool.commons.Mapper;
+import com.thebuzzmedia.exiftool.commons.iterables.Mapper;
 import com.thebuzzmedia.exiftool.exceptions.ExifToolException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
@@ -32,7 +32,7 @@ import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 import java.io.IOException;
 import java.util.List;
 
-import static com.thebuzzmedia.exiftool.commons.Collections.map;
+import static com.thebuzzmedia.exiftool.commons.iterables.Collections.map;
 
 /**
  * Execution strategy that use {@code exiftool} with the {@code stay_open} feature.

@@ -21,8 +21,8 @@ import com.thebuzzmedia.exiftool.process.Command;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notBlank;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notEmpty;
 
 /**
  * Command builder.

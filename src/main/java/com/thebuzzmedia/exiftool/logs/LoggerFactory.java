@@ -16,7 +16,7 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import com.thebuzzmedia.exiftool.commons.ClassUtils;
+import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
 
 /**
  * Factory to use to create {@link com.thebuzzmedia.exiftool.logs.Logger} instances.

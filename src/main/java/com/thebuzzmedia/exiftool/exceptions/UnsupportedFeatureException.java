@@ -19,8 +19,6 @@ package com.thebuzzmedia.exiftool.exceptions;
 
 import com.thebuzzmedia.exiftool.Version;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
 import static java.lang.String.format;
 
 /**
@@ -46,8 +44,8 @@ public class UnsupportedFeatureException extends AbstractExifException {
 
 	public UnsupportedFeatureException(String path, Version version) {
 		super(message(path, version));
-		this.version = notNull(version, "Version should not be null");
-		this.path = notBlank(path, "Path should not be null");
+		this.version = version;
+		this.path = path;
 	}
 
 	/**

@@ -34,11 +34,11 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.isReadable;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.isWritable;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.isReadable;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.isWritable;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notBlank;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notEmpty;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 
 /**

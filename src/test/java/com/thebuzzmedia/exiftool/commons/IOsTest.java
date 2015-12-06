@@ -16,6 +16,7 @@
 
 package com.thebuzzmedia.exiftool.commons;
 
+import com.thebuzzmedia.exiftool.commons.io.IOs;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;

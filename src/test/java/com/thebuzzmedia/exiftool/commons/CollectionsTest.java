@@ -16,6 +16,8 @@
 
 package com.thebuzzmedia.exiftool.commons;
 
+import com.thebuzzmedia.exiftool.commons.iterables.Collections;
+import com.thebuzzmedia.exiftool.commons.iterables.Mapper;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

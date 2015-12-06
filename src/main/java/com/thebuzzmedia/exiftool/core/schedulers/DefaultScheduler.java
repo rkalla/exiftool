@@ -23,8 +23,8 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.isPositive;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.isPositive;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 
 /**
  * Default implementation for {@code exiftool} {@link com.thebuzzmedia.exiftool.Scheduler}.

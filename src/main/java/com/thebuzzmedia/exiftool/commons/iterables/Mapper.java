@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.commons.iterables;
 
 /**
  * Mapper interface.

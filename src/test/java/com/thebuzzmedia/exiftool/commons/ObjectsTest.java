@@ -16,6 +16,7 @@
 
 package com.thebuzzmedia.exiftool.commons;
 
+import com.thebuzzmedia.exiftool.commons.lang.Objects;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

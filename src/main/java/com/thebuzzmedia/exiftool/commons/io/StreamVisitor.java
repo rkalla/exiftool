@@ -1,4 +1,5 @@
 /**
+ * Copyright 2011 The Buzz Media, LLC
  * Copyright 2015 Mickael Jeanroy <mickael.jeanroy@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +15,21 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.commons.io;
 
-import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
-import org.junit.Test;
+/**
+ * Visitor used to read lines of {@link java.io.InputStream} during
+ * read operation.
+ */
+public interface StreamVisitor {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class ClassUtilsTest {
-
-	@Test
-	public void it_should_check_if_class_is_available() {
-		assertThat(ClassUtils.isPresent("com.thebuzzmedia.exiftool.commons.reflection.ClassUtils")).isTrue();
-		assertThat(ClassUtils.isPresent("com.thebuzzmedia.exiftool.commons.FooBar")).isFalse();
-	}
+	/**
+	 * Read line.
+	 * Result is a boolean and should indicate if instance of {@link java.io.InputStream}
+	 * has a next line to read.
+	 *
+	 * @param line Line.
+	 * @return {@code true} if next line should be read, {@code false} otherwise.
+	 */
+	boolean readLine(String line);
 }

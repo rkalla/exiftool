@@ -16,7 +16,7 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import com.thebuzzmedia.exiftool.commons.ClassUtils;
+import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

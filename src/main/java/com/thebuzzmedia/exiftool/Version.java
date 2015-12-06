@@ -17,9 +17,9 @@
 
 package com.thebuzzmedia.exiftool;
 
-import com.thebuzzmedia.exiftool.commons.Objects;
+import com.thebuzzmedia.exiftool.commons.lang.Objects;
 
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notBlank;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notBlank;
 
 /**
  * Define a version number with:

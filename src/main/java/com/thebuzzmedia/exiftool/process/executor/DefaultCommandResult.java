@@ -16,7 +16,7 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
-import com.thebuzzmedia.exiftool.commons.Objects;
+import com.thebuzzmedia.exiftool.commons.lang.Objects;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 
 import static java.lang.String.format;

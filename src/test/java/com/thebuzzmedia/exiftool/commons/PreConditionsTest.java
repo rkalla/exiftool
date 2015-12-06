@@ -16,6 +16,7 @@
 
 package com.thebuzzmedia.exiftool.commons;
 
+import com.thebuzzmedia.exiftool.commons.lang.PreConditions;
 import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
 import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
 import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
@@ -33,7 +34,6 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PreConditionsTest {
 

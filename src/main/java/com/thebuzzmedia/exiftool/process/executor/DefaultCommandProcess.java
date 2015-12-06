@@ -27,10 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static com.thebuzzmedia.exiftool.commons.IOs.readInputStream;
-import static com.thebuzzmedia.exiftool.commons.Objects.firstNonNull;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notEmpty;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.commons.io.IOs.readInputStream;
+import static com.thebuzzmedia.exiftool.commons.lang.Objects.firstNonNull;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notEmpty;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 
 /**
  * Default implementation for {@link CommandProcess} interface.

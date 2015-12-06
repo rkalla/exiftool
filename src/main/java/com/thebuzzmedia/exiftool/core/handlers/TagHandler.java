@@ -17,7 +17,7 @@
 package com.thebuzzmedia.exiftool.core.handlers;
 
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.commons.Mapper;
+import com.thebuzzmedia.exiftool.commons.iterables.Mapper;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.thebuzzmedia.exiftool.commons.Collections.indexBy;
+import static com.thebuzzmedia.exiftool.commons.iterables.Collections.indexBy;
 import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static java.util.Collections.unmodifiableMap;
 

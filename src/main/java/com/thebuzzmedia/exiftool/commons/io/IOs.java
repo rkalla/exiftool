@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.commons;
+package com.thebuzzmedia.exiftool.commons.io;
 
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
-import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -41,12 +40,12 @@ public final class IOs {
 	}
 
 	/**
-	 * Read input and continue until {@link OutputHandler#readLine(String)} returns false.
+	 * Read input and continue until {@link StreamVisitor#readLine(String)} returns false.
 	 *
 	 * @param is Input stream.
-	 * @param handler Result handler.
+	 * @param visitor Result handler.
 	 */
-	public static void readInputStream(InputStream is, OutputHandler handler) {
+	public static void readInputStream(InputStream is, StreamVisitor visitor) {
 		log.trace("Read input stream");
 
 		String line = null;
@@ -56,7 +55,7 @@ public final class IOs {
 			boolean hasNext = true;
 			while (hasNext) {
 				line = br.readLine();
-				hasNext = handler.readLine(line);
+				hasNext = visitor.readLine(line);
 				log.trace("  - Line: %s", line);
 				log.trace("  - Continue: %s", hasNext);
 			}

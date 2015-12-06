@@ -27,9 +27,9 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
 import java.io.IOException;
 import java.util.List;
 
-import static com.thebuzzmedia.exiftool.commons.IOs.closeQuietly;
-import static com.thebuzzmedia.exiftool.commons.IOs.readInputStream;
-import static com.thebuzzmedia.exiftool.commons.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.commons.io.IOs.closeQuietly;
+import static com.thebuzzmedia.exiftool.commons.io.IOs.readInputStream;
+import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 
 /**
  * Default Executor.

@@ -16,6 +16,8 @@
 
 package com.thebuzzmedia.exiftool.process;
 
+import com.thebuzzmedia.exiftool.commons.io.StreamVisitor;
+
 /**
  * Handler that should be used to handle command line output.
  * Each line is give to the {@link #readLine(String)} method.
@@ -25,7 +27,7 @@ package com.thebuzzmedia.exiftool.process;
  *   logic.
  * - False if next line should not be read (end of output).
  */
-public interface OutputHandler {
+public interface OutputHandler extends StreamVisitor {
 
 	/**
 	 * Read a line from command output.

@@ -93,12 +93,12 @@ public class DefaultScheduler implements Scheduler {
 	}
 
 	@Override
-	public void start(Runnable runnable) {
+	public synchronized void start(Runnable runnable) {
 		executor.schedule(runnable, delay, timeUnit);
 	}
 
 	@Override
-	public void stop() {
+	public synchronized void stop() {
 		for (Runnable runnable : executor.getQueue()) {
 			((RunnableFuture) runnable).cancel(false);
 		}

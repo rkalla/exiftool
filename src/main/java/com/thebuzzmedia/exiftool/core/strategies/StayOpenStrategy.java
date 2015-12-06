@@ -83,39 +83,41 @@ public class StayOpenStrategy implements ExecutionStrategy {
 		log.debug("Using ExifTool in daemon mode (-stay_open True)...");
 		List<String> newArgs = map(arguments, MAPPER);
 
-		// Start daemon process if it is not already started.
-		// If this is our first time calling getImageMeta with a "stayOpen"
-		// connection, set up the persistent process and run it so it is
-		// ready to receive commands from us.
-		if (process == null || process.isClosed()) {
-			log.debug("Start exiftool process");
-			process = executor.start(CommandBuilder.builder(exifTool)
-				.addArgument("-stay_open", "True", "-@", "-")
-				.build());
-		}
-
-		// Always reset the cleanup task.
-		scheduler.stop();
-		scheduler.start(new Runnable() {
-			@Override
-			public void run() {
-				safeClose();
+		synchronized (this) {
+			// Start daemon process if it is not already started.
+			// If this is our first time calling getImageMeta with a "stayOpen"
+			// connection, set up the persistent process and run it so it is
+			// ready to receive commands from us.
+			if (process == null || process.isClosed()) {
+				log.debug("Start exiftool process");
+				process = executor.start(CommandBuilder.builder(exifTool)
+					.addArgument("-stay_open", "True", "-@", "-")
+					.build());
 			}
-		});
 
-		try {
-			process.write(newArgs);
-			process.flush();
-			process.read(handler);
-		}
-		catch (IOException ex) {
-			log.error(ex.getMessage(), ex);
-			throw new ExifToolException(ex);
+			// Always reset the cleanup task.
+			scheduler.stop();
+			scheduler.start(new Runnable() {
+				@Override
+				public void run() {
+					safeClose();
+				}
+			});
+
+			try {
+				process.write(newArgs);
+				process.flush();
+				process.read(handler);
+			}
+			catch (IOException ex) {
+				log.error(ex.getMessage(), ex);
+				throw new ExifToolException(ex);
+			}
 		}
 	}
 
 	@Override
-	public boolean isRunning() {
+	public synchronized boolean isRunning() {
 		return process != null && process.isRunning();
 	}
 
@@ -125,7 +127,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	}
 
 	@Override
-	public void close() throws Exception {
+	public synchronized void close() throws Exception {
 		if (process != null) {
 			closeScheduler();
 			closeProcess();
@@ -149,7 +151,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	 * Close pending cleanup task and stop scheduler.
 	 * This scheduler may be re-used if necessary.
 	 */
-	private void closeScheduler() {
+	private synchronized void closeScheduler() {
 		// Try to stop cleanup task
 		// Note: If task is not stopped, it may be executed later
 
@@ -172,7 +174,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	 *
 	 * @throws Exception If an error occurs during the close operation.
 	 */
-	private void closeProcess() throws Exception {
+	private synchronized void closeProcess() throws Exception {
 		try {
 			// If ExifTool was used in stayOpen mode but getImageMeta was never
 			// called then the streams were never initialized and there is nothing
@@ -202,7 +204,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	 * This method should be used internally to perform a close operation
 	 * without catching or propagate exceptions.
 	 */
-	private void safeClose() {
+	private synchronized void safeClose() {
 		try {
 			close();
 		}

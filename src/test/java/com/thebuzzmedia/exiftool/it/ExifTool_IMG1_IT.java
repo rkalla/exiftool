@@ -23,6 +23,7 @@ import com.thebuzzmedia.exiftool.core.StandardTag;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("serial")
 public class ExifTool_IMG1_IT extends AbstractExifToolIT {
 
 	@Override

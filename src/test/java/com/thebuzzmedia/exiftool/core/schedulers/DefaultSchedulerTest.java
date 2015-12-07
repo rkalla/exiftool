@@ -97,7 +97,7 @@ public class DefaultSchedulerTest {
 		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
 		writePrivateField(scheduler, "executor", executor);
 
-		RunnableFuture runnable = mock(RunnableFuture.class);
+		RunnableFuture<?> runnable = mock(RunnableFuture.class);
 		scheduler.start(runnable);
 
 		verify(executor).schedule((Runnable) runnable, delay, timeUnit);
@@ -110,8 +110,8 @@ public class DefaultSchedulerTest {
 		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
 		writePrivateField(scheduler, "executor", executor);
 
-		RunnableFuture r1 = mock(RunnableFuture.class);
-		RunnableFuture r2 = mock(RunnableFuture.class);
+		RunnableFuture<?> r1 = mock(RunnableFuture.class);
+		RunnableFuture<?> r2 = mock(RunnableFuture.class);
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(10);
 		queue.add(r1);
 		queue.add(r2);
@@ -132,8 +132,8 @@ public class DefaultSchedulerTest {
 		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
 		writePrivateField(scheduler, "executor", executor);
 
-		RunnableFuture r1 = mock(RunnableFuture.class);
-		RunnableFuture r2 = mock(RunnableFuture.class);
+		RunnableFuture<?> r1 = mock(RunnableFuture.class);
+		RunnableFuture<?> r2 = mock(RunnableFuture.class);
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(10);
 		queue.add(r1);
 		queue.add(r2);

@@ -217,7 +217,7 @@ public class ExifTool_getImageMeta_Test {
 			.isEqualTo(tags);
 	}
 
-	private static class ReadTagsAnswer implements Answer {
+	private static class ReadTagsAnswer implements Answer<Void> {
 		private final Map<Tag, String> tags;
 
 		private final String end;
@@ -228,7 +228,7 @@ public class ExifTool_getImageMeta_Test {
 		}
 
 		@Override
-		public Object answer(InvocationOnMock invocation) throws Throwable {
+		public Void answer(InvocationOnMock invocation) throws Throwable {
 			OutputHandler handler = (OutputHandler) invocation.getArguments()[3];
 
 			// Read tags

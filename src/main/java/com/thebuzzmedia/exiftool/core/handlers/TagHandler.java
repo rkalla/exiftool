@@ -73,8 +73,7 @@ public class TagHandler implements OutputHandler {
 	 *
 	 * @param tags Expected list of tags.
 	 */
-	@SuppressWarnings("unchecked")
-	public TagHandler(Collection<? extends Tag> tags) {
+	public TagHandler(Collection<Tag> tags) {
 		this.tags = new HashMap<Tag, String>();
 		this.inputs = unmodifiableMap(indexBy(tags, INDEXER));
 	}
@@ -121,7 +120,7 @@ public class TagHandler implements OutputHandler {
 		return tags.size();
 	}
 
-	private static class Indexer<T extends Tag> implements Mapper<T, String> {
+	private static class Indexer implements Mapper<Tag, String> {
 		@Override
 		public String map(Tag input) {
 			return input.getName();

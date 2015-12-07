@@ -227,9 +227,9 @@ public class ExifTool_setImageMeta_Test {
 			);
 	}
 
-	private static class WriteTagsAnswer implements Answer {
+	private static class WriteTagsAnswer implements Answer<String> {
 		@Override
-		public Object answer(InvocationOnMock invocation) throws Throwable {
+		public String answer(InvocationOnMock invocation) throws Throwable {
 			return "{ready}";
 		}
 	}

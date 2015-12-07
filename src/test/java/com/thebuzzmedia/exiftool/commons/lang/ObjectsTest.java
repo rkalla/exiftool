@@ -65,7 +65,7 @@ public class ObjectsTest {
 
 	@Test
 	public void it_should_compute_hash_code() {
-		assertThat(Objects.hashCode(null)).isZero();
+		assertThat(Objects.hashCode((Object[]) null)).isZero();
 		assertThat(Objects.hashCode("foobar")).isNotNull();
 
 		int h1 = Objects.hashCode("foo");

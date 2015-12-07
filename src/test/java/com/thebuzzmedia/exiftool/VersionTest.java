@@ -96,5 +96,6 @@ public class VersionTest {
 		assertThat(v2.compareTo(v1)).isGreaterThan(0);
 		assertThat(v1.compareTo(v4)).isLessThan(0);
 		assertThat(v4.compareTo(v1)).isGreaterThan(0);
+		assertThat(v1.compareTo(v3)).isZero();
 	}
 }

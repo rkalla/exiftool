@@ -32,6 +32,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@SuppressWarnings("resource")
 public class DefaultStrategyTest {
 
 	@Test

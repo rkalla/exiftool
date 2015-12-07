@@ -39,7 +39,7 @@ public final class LoggerFactory {
 	 * @param klass the returned logger will be named after clazz.
 	 * @return Logger implementation.
 	 */
-	public static Logger getLogger(Class klass) {
+	public static Logger getLogger(Class<?> klass) {
 		// First try slf4j
 		if (ClassUtils.isPresent("org.slf4j.Logger")) {
 			org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(klass);

@@ -29,13 +29,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TagHandlerTest {
 
-	private List<? extends Tag> inputs;
+	private List<Tag> inputs;
 
 	@Before
 	public void setUp() {
 		inputs = asList(
-			StandardTag.APERTURE,
-			StandardTag.ARTIST
+			(Tag) StandardTag.APERTURE,
+			(Tag) StandardTag.ARTIST
 		);
 	}
 

@@ -1,6 +1,9 @@
 # IDE
 .idea/
 *.iml
+.classpath
+.project
+.settings/
 
 # Maven
 target/

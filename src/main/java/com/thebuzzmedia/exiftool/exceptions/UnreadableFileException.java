@@ -25,6 +25,7 @@ import java.io.File;
  * - It does not exist.
  * - It is corrupted and cannot be read.
  */
+@SuppressWarnings("serial")
 public class UnreadableFileException extends AbstractExifException {
 
 	/**

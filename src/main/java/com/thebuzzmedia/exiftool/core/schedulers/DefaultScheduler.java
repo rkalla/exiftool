@@ -100,7 +100,7 @@ public class DefaultScheduler implements Scheduler {
 	@Override
 	public synchronized void stop() {
 		for (Runnable runnable : executor.getQueue()) {
-			((RunnableFuture) runnable).cancel(false);
+			((RunnableFuture<?>) runnable).cancel(false);
 		}
 
 		executor.purge();

@@ -24,6 +24,7 @@ import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
+import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
 import com.thebuzzmedia.exiftool.tests.junit.SystemPropertyRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,6 +35,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
@@ -90,6 +92,19 @@ public class ExifToolBuilderTest {
 		assertThat(readPrivateField(builder, "path", String.class))
 			.isNotNull()
 			.isEqualTo(path);
+	}
+
+	@Test
+	public void it_should_update_path_with_file() throws Exception {
+		File file = new FileBuilder("/usr/local/exiftool")
+			.build();
+
+		ExifToolBuilder res = builder.withPath(file);
+
+		assertThat(res).isSameAs(builder);
+		assertThat(readPrivateField(builder, "path", String.class))
+			.isNotNull()
+			.isEqualTo(file.getAbsolutePath());
 	}
 
 	@Test

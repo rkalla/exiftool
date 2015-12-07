@@ -23,4 +23,11 @@ public final class TestConstants {
 	}
 
 	public static final String BR = System.getProperty("line.separator");
+
+	public static final boolean IS_WINDOWS;
+
+	static {
+		String osName = System.getProperty("os.name").toLowerCase();
+		IS_WINDOWS = osName.contains("windows");
+	}
 }

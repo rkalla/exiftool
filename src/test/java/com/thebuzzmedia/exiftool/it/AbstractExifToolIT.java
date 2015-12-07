@@ -22,6 +22,7 @@ import com.thebuzzmedia.exiftool.ExifToolBuilder;
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.core.StandardFormat;
 import com.thebuzzmedia.exiftool.core.StandardTag;
+import com.thebuzzmedia.exiftool.exceptions.AbstractExifException;
 import com.thebuzzmedia.exiftool.tests.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +32,9 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.Map;
+import java.util.TreeMap;
 
+import static com.thebuzzmedia.exiftool.tests.TestConstants.IS_WINDOWS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,10 +49,14 @@ public abstract class AbstractExifToolIT {
 
 	@Before
 	public void setUp() {
+		File path = path();
+
 		exifTool = new ExifToolBuilder()
+			.withPath(path)
 			.build();
 
 		exifToolStayOpen = new ExifToolBuilder()
+			.withPath(path)
 			.enableStayOpen()
 			.build();
 	}
@@ -105,10 +112,10 @@ public abstract class AbstractExifToolIT {
 
 	private void checkMeta(ExifTool exifTool, File image, Tag[] tags, Map<Tag, String> expectations) throws Exception {
 		Map<Tag, String> results = exifTool.getImageMeta(image, StandardFormat.HUMAN_READABLE, asList(tags));
-		assertThat(results)
+		assertThat(new TreeMap<Tag, String>(results))
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(expectations);
+			.isEqualTo(new TreeMap<Tag, String>(expectations));
 	}
 
 	protected abstract String image();
@@ -116,4 +123,18 @@ public abstract class AbstractExifToolIT {
 	protected abstract Map<Tag, String> expectations();
 
 	protected abstract Map<Tag, String> updateTags();
+
+	private static File path() {
+		String relativePath = "/exiftool-10_07/";
+		if (IS_WINDOWS) {
+			relativePath += "windows/exiftool.exe";
+		} else {
+			relativePath += "unix/exiftool";
+		}
+
+		File file = new File(AbstractExifException.class.getResource(relativePath).getFile());
+		file.setExecutable(true);
+		file.setReadable(true);
+		return file;
+	}
 }

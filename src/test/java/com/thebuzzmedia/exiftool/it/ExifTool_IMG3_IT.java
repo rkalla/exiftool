@@ -33,6 +33,7 @@ public class ExifTool_IMG3_IT extends AbstractExifToolIT {
 
 	@Override
 	protected Map<Tag, String> expectations() {
+		// Results extracted with exiftool 10.07
 		return new HashMap<Tag, String>() {
 			{
 				put(StandardTag.EXPOSURE_TIME, "1/1117");
@@ -45,7 +46,7 @@ public class ExifTool_IMG3_IT extends AbstractExifToolIT {
 				put(StandardTag.ISO, "80");
 				put(StandardTag.FLASH, "Off, Did not fire");
 				put(StandardTag.MAKE, "Apple");
-				put(StandardTag.GPS_LATITUDE, "47 deg 38' 60.00\" N");
+				put(StandardTag.GPS_LATITUDE, "47 deg 39' 0.00\" N");
 				put(StandardTag.GPS_LONGITUDE, "122 deg 21' 4.80\" W");
 				put(StandardTag.SHUTTER_SPEED, "1/1117");
 				put(StandardTag.FOCAL_LENGTH, "3.9 mm");

@@ -26,6 +26,8 @@ import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 
+import java.io.File;
+
 import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExecutor;
 
 /**
@@ -181,8 +183,33 @@ public class ExifToolBuilder {
 	 * @return Current builder.
 	 */
 	public ExifToolBuilder withPath(String path) {
-		log.debug("Set withPath: %s", path);
+		log.debug("Set path: %s", path);
 		this.path = path;
+		return this;
+	}
+
+	/**
+	 * Override default path.
+	 * Default path is defined by the environment property {@code exiftool.path} or is
+	 * set with {@code exiftool} otherwise. Setting the path explicitly will disable automatic
+	 * lookup.
+	 *
+	 * <p />
+	 *
+	 * <strong>Note:</strong> If path is not an executable file, a warning
+	 * will be logged but it will not fail.
+	 *
+	 * @param path New path.
+	 * @return Current builder.
+	 */
+	public ExifToolBuilder withPath(File path) {
+		log.debug("Set path: %s", path);
+
+		if (!path.canExecute()) {
+			log.warn("Executable %s is not executable, exiftool may fail later", path);
+		}
+
+		this.path = path.getAbsolutePath();
 		return this;
 	}
 

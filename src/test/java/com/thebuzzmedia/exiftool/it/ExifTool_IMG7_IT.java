@@ -23,6 +23,8 @@ import com.thebuzzmedia.exiftool.core.StandardTag;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thebuzzmedia.exiftool.tests.TestConstants.IS_WINDOWS;
+
 @SuppressWarnings("serial")
 public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 
@@ -33,6 +35,7 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 
 	@Override
 	protected Map<Tag, String> expectations() {
+		// Results extracted with exiftool 10.07.
 		return new HashMap<Tag, String>() {
 			{
 				put(StandardTag.MAKE, "Palm");
@@ -48,7 +51,10 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 				put(StandardTag.IMAGE_WIDTH, "1520");
 				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.GPS_LATITUDE, "32 deg 48' 4.00\" N");
-				put(StandardTag.FOCAL_LENGTH, "inf mm");
+
+				// Weird, but there is specific results for windows / unix
+				put(StandardTag.FOCAL_LENGTH, IS_WINDOWS ? "0.0 mm" : "inf mm");
+
 				put(StandardTag.GPS_LONGITUDE, "117 deg 13' 33.00\" W");
 				put(StandardTag.APERTURE, "1.1");
 				put(StandardTag.MODEL, "Pre");

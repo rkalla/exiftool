@@ -214,12 +214,16 @@ import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
  *
  * <h3>Thread Safety</h3>
  *
- * Instances of this class are <strong>not</strong> Thread-safe. Both the
- * instance of this class and external ExifTool process maintain state specific
- * to the current operation. Use of instances of this class need to be
- * synchronized using an external mechanism or in a highly threaded environment
- * (e.g. web application), instances of this class can be used along with
- * {@link ThreadLocal}s to ensure Thread-safe, highly parallel use.
+ * Instances of this class <strong>are Thread-safe</strong> (note that version 1.1 of exiftool
+ * was not Thread-safe):
+ *
+ * <ul>
+ *   <li>If {@code stay_open} is disabled, then a one-shot process is used for each command.</li>
+ *   <li>
+ *     Otherwise a single process is open and read/write operations are streamed to this process.
+ *     In this case, each operation will be synchronized to ensure thread-safety.
+ *   </li>
+ * </ul>
  *
  * <h3>Why ExifTool?</h3>
  *

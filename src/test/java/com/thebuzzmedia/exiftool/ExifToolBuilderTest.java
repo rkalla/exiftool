@@ -63,6 +63,9 @@ public class ExifToolBuilderTest {
 	@Mock
 	private ExecutionStrategy strategy;
 
+	@Mock
+	private Scheduler scheduler;
+
 	private String path;
 
 	private ExifToolBuilder builder;
@@ -138,6 +141,18 @@ public class ExifToolBuilderTest {
 		assertThat(r1).isSameAs(builder);
 		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
 		assertThat(readPrivateField(builder, "cleanupDelay", Long.class)).isEqualTo(delay);
+	}
+
+	@Test
+	public void it_should_enable_stay_open_feature_with_scheduler() throws Exception {
+		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isNull();
+		assertThat(readPrivateField(builder, "scheduler", Scheduler.class)).isNull();
+
+		ExifToolBuilder r1 = builder.enableStayOpen(scheduler);
+
+		assertThat(r1).isSameAs(builder);
+		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
+		assertThat(readPrivateField(builder, "scheduler", Scheduler.class)).isSameAs(scheduler);
 	}
 
 	@Test
@@ -231,6 +246,23 @@ public class ExifToolBuilderTest {
 		Scheduler scheduler = readPrivateField(strategy, "scheduler", Scheduler.class);
 		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(600000);
 		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(TimeUnit.MILLISECONDS);
+	}
+
+	@Test
+	public void it_should_create_exiftool_and_use_scheduler() throws Exception {
+		ExifTool exifTool = builder
+			.withExecutor(executor)
+			.enableStayOpen(scheduler)
+			.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+			.isNotNull()
+			.isExactlyInstanceOf(StayOpenStrategy.class);
+
+		assertThat(readPrivateField(strategy, "scheduler", Scheduler.class))
+			.isNotNull()
+			.isSameAs(scheduler);
 	}
 
 	@Test

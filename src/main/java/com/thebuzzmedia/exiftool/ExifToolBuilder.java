@@ -170,6 +170,11 @@ public class ExifToolBuilder {
 	 */
 	private ExecutionStrategy strategy;
 
+	/**
+	 * Custom Scheduler.
+	 */
+	private Scheduler scheduler;
+
 	public ExifToolBuilder() {
 	}
 
@@ -245,6 +250,19 @@ public class ExifToolBuilder {
 	/**
 	 * Enable `stay_open` feature.
 	 *
+	 * <strong>Note:</strong>
+	 *
+	 * <ul>
+	 *   <li>
+	 *     If {link #withStrategy} is called, then calling this method
+	 *     is useless.
+	 *   </li>
+	 *   <li>
+	 *     If {link #enableStayOpen(scheduler} is called, then calling this method is
+	 *     useless.
+	 *   </li>
+	 * </ul>
+	 *
 	 * @param cleanupDelay Interval (in milliseconds) between automatic clean operation.
 	 * @return Current builder.
 	 */
@@ -255,11 +273,55 @@ public class ExifToolBuilder {
 			log.warn("A custom strategy is defined, enabling 'stay_open' feature will be ignored");
 		}
 
+		if (scheduler != null) {
+			log.warn("A custom scheduler is already defined, it will be ignored");
+		}
+
 		this.stayOpen = true;
 		this.cleanupDelay = cleanupDelay;
 		return this;
 	}
 
+	/**
+	 * Enable `stay_open` feature and perform cleanup task using given {@code scheduler}.
+	 *
+	 * <strong>Note:</strong>
+	 *
+	 * <ul>
+	 *   <li>If {link #withStrategy} has already been called, then calling is useless.</li>
+	 *   <li>
+	 *     If {link #enableStayOpen(long} has already been called, then given {@code delay} will be
+	 *     ignored and the specified scheduler will be used.
+	 *   </li>
+	 * </ul>
+	 *
+	 * @param scheduler Scheduler used to process automatic cleanup task..
+	 * @return Current builder.
+	 */
+	public ExifToolBuilder enableStayOpen(Scheduler scheduler) {
+		log.debug("Enable 'stay_open' feature");
+
+		if (strategy != null) {
+			log.warn("A custom strategy is defined, enabling 'stay_open' feature will be ignored");
+		}
+		if (cleanupDelay != null) {
+			log.warn("Custom scheduler is defined, previous delay will be ignored");
+		}
+
+		this.stayOpen = true;
+		this.scheduler = scheduler;
+		return this;
+	}
+
+	/**
+	 * Override default execution strategy.
+	 *
+	 * <strong>If {@link #enableStayOpen} has been called, then strategy associated with {@code stay_open} flag
+	 * will be ignored.</strong>
+	 *
+	 * @param strategy Strategy.
+	 * @return Current builder.
+	 */
 	public ExifToolBuilder withStrategy(ExecutionStrategy strategy) {
 		log.debug("Overriding default strategy");
 
@@ -280,7 +342,7 @@ public class ExifToolBuilder {
 	public ExifTool build() {
 		String path = firstNonNull(this.path, PATH);
 		CommandExecutor executor = firstNonNull(this.executor, EXECUTOR);
-		ExecutionStrategy strategy = firstNonNull(this.strategy, new StrategyFunction(stayOpen, cleanupDelay));
+		ExecutionStrategy strategy = firstNonNull(this.strategy, new StrategyFunction(stayOpen, cleanupDelay, scheduler));
 
 		// Add some debugging information
 		if (log.isDebugEnabled()) {
@@ -385,6 +447,31 @@ public class ExifToolBuilder {
 	}
 
 	/**
+	 * Create scheduler used to perform automatic cleanup task.
+	 * Default scheduler will depend on the given {@code delay}:
+	 * <ul>
+	 * <li>If {@code delay} is less than or equal to zero, then an instance of {@link NoOpScheduler} will be returned.</li>
+	 * <li>If {@code delay} is greater than zero, then an instance of {@link DefaultScheduler} will be returned.</li>
+	 * </ul>
+	 */
+	private static class SchedulerFunction implements FactoryFunction<Scheduler> {
+		private final Long delay;
+
+		public SchedulerFunction(Long delay) {
+			this.delay = delay;
+		}
+
+		@Override
+		public Scheduler apply() {
+			// Otherwise, this is the StayOpen strategy.
+			// We have to look up the delay between automatic clean and create
+			// the scheduler.
+			final long delay = firstNonNull(this.delay, DELAY);
+			return delay > 0 ? new DefaultScheduler(delay) : new NoOpScheduler();
+		}
+	}
+
+	/**
 	 * Returns the {@link ExecutionStrategy} to use with {@link ExifTool} instances.
 	 *
 	 * <h3>Default</h3>
@@ -401,25 +488,22 @@ public class ExifToolBuilder {
 
 		private final Long delay;
 
-		public StrategyFunction(Boolean stayOpen, Long delay) {
+		private final Scheduler scheduler;
+
+		public StrategyFunction(Boolean stayOpen, Long delay, Scheduler scheduler) {
 			this.stayOpen = stayOpen;
 			this.delay = delay;
+			this.scheduler = scheduler;
 		}
 
 		@Override
 		public ExecutionStrategy apply() {
-			if (stayOpen == null || !stayOpen) {
-				// This is the simpler use case: nothing has been parametrized, so
-				// just return the default strategy.
-				return new DefaultStrategy();
-			}
-
-			// Otherwise, this is the StayOpen strategy.
-			// We have to look up the delay between automatic clean and create
-			// the scheduler.
-			final long delay = firstNonNull(this.delay, DELAY);
-			final Scheduler scheduler = delay > 0 ? new DefaultScheduler(delay) : new NoOpScheduler();
-			return new StayOpenStrategy(scheduler);
+			// Simple use case: nothing has been parametrized, so
+			// just return the default strategy.
+			// Otherwise, build strategy with scheduler.
+			return stayOpen == null || !stayOpen ?
+				new DefaultStrategy() :
+				new StayOpenStrategy(firstNonNull(scheduler, new SchedulerFunction(delay)));
 		}
 	}
 }

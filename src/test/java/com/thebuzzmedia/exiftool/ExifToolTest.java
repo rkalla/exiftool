@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readStaticPrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
@@ -72,6 +73,12 @@ public class ExifToolTest {
 			.build();
 
 		when(executor.execute(any(Command.class))).thenReturn(v9_36);
+
+		// Clear cache before each test
+		VersionCache cache = readStaticPrivateField(ExifTool.class, "cache", VersionCache.class);
+		cache.clear();
+		assertThat(cache).isNotNull();
+		assertThat(cache.size()).isZero();
 	}
 
 	@Test
@@ -107,6 +114,24 @@ public class ExifToolTest {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Execution strategy should not be null");
 		new ExifTool(path, executor, null);
+	}
+
+	@Test
+	public void it_should_get_version_from_cache() throws Exception {
+		VersionCache cache = readStaticPrivateField(ExifTool.class, "cache", VersionCache.class);
+
+		cache.clear();
+		assertThat(cache).isNotNull();
+		assertThat(cache.size()).isZero();
+
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
+
+		ExifTool exifTool = new ExifTool(path, executor, strategy);
+		assertThat(exifTool.getVersion()).isNotNull();
+
+		cache = readStaticPrivateField(ExifTool.class, "cache", VersionCache.class);
+		assertThat(cache).isNotNull();
+		assertThat(cache.size()).isEqualTo(1);
 	}
 
 	@Test

@@ -20,6 +20,7 @@ package com.thebuzzmedia.exiftool.it;
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.ExifToolBuilder;
 import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.core.StandardFormat;
 import com.thebuzzmedia.exiftool.core.StandardTag;
 import com.thebuzzmedia.exiftool.exceptions.AbstractExifException;
@@ -65,6 +66,12 @@ public abstract class AbstractExifToolIT {
 	public void tearDown() throws Exception {
 		exifTool.close();
 		exifToolStayOpen.close();
+	}
+
+	@Test
+	public void testGetVersion() {
+		assertThat(exifTool.getVersion()).isEqualTo(new Version("10.07.0"));
+		assertThat(exifToolStayOpen.getVersion()).isEqualTo(new Version("10.07.0"));
 	}
 
 	@Test

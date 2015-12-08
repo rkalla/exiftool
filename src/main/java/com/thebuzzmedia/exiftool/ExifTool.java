@@ -18,13 +18,12 @@
 package com.thebuzzmedia.exiftool;
 
 import com.thebuzzmedia.exiftool.core.StandardFormat;
+import com.thebuzzmedia.exiftool.core.cache.VersionCacheFactory;
 import com.thebuzzmedia.exiftool.core.handlers.TagHandler;
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
-import com.thebuzzmedia.exiftool.process.CommandResult;
-import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -263,6 +262,16 @@ public class ExifTool implements AutoCloseable {
 	private static final Logger log = LoggerFactory.getLogger(ExifTool.class);
 
 	/**
+	 * Cache used to store {@code exiftool} version:
+	 *
+	 * <ul>
+	 *   <li>Key is the path to the {@code exiftool} executable</li>
+	 *   <li>Value is the associated version.</li>
+	 * </ul>
+	 */
+	private static final VersionCache cache = VersionCacheFactory.newCache();
+
+	/**
 	 * Command Executor.
 	 * This withExecutor will be used to execute exiftool process and commands.
 	 */
@@ -302,45 +311,11 @@ public class ExifTool implements AutoCloseable {
 		this.executor = notNull(executor, "Executor should not be null");
 		this.path = notBlank(path, "ExifTool path should not be null");
 		this.strategy = notNull(strategy, "Execution strategy should not be null");
-		this.version = parseVersion();
+		this.version = cache.load(path, executor);
 
 		// Check if this instance may be used safely.
 		if (version != null && !strategy.isSupported(version)) {
 			throw new UnsupportedFeatureException(path, version);
-		}
-	}
-
-	/**
-	 * Parse Version from this exiftool instance.
-	 *
-	 * <p />
-	 *
-	 * This function need to execute exiftool external process.
-	 * Executed command is: {@code [exiftool] -ver}, where:
-	 * <ul>
-	 *   <li>{@code [exiftool]} is the withPath to exiftool executable.</li>
-	 *   <li>{@code -ver} is the only one arguments.</li>
-	 * </ul>
-	 *
-	 * This function should remain private since it is used directly in the constructor (and we
-	 * don't want to escape {@code this} object).
-	 *
-	 * @return Exiftool version, {@code null} if command failed.
-	 */
-	private Version parseVersion() {
-		log.debug("Checking exiftool version");
-		try {
-			CommandResult result = executor.execute(CommandBuilder.builder(path)
-				.addArgument("-ver")
-				.build());
-
-			return result.isSuccess() ? new Version(result.getOutput()) : null;
-		}
-		catch (IOException ex) {
-			// Do not fail now, but log warnings.
-			// Execution will fail for next execution.
-			log.warn(ex.getMessage(), ex);
-			return null;
 		}
 	}
 

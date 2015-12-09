@@ -21,6 +21,7 @@ import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.CommandProcess;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
@@ -34,7 +35,7 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 /**
  * Default Executor.
  */
-class DefaultCommandExecutor implements CommandExecutor {
+public class DefaultCommandExecutor implements CommandExecutor {
 
 	/**
 	 * Class logger.
@@ -42,9 +43,9 @@ class DefaultCommandExecutor implements CommandExecutor {
 	private static final Logger log = LoggerFactory.getLogger(DefaultCommandExecutor.class);
 
 	/**
-	 * Create default withExecutor.
+	 * Create default executor.
 	 */
-	DefaultCommandExecutor() {
+	public DefaultCommandExecutor() {
 	}
 
 	@Override
@@ -58,7 +59,7 @@ class DefaultCommandExecutor implements CommandExecutor {
 	}
 
 	@Override
-	public DefaultCommandProcess start(Command command) throws IOException {
+	public CommandProcess start(Command command) throws IOException {
 		final Process proc = createProcess(command);
 		return new DefaultCommandProcess(proc.getInputStream(), proc.getOutputStream(), proc.getErrorStream());
 	}

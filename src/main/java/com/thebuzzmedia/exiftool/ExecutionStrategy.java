@@ -30,8 +30,11 @@ import java.util.List;
  *
  * For instance:
  * <ul>
- * <li>Execution using a one-shot process.</li>
- * <li>Execution using {@code stay_open} flag: this strategy means that a process is started and re-used for next executions.</li>
+ *   <li>Execution using a one-shot process.</li>
+ *   <li>
+ *     Execution using {@code stay_open} flag: this strategy means that a
+ *     process is started and re-used for next executions.
+ *   </li>
  * </ul>
  *
  * Each implementation will define the main logic for reading and
@@ -59,9 +62,9 @@ public interface ExecutionStrategy extends AutoCloseable {
 
 	/**
 	 * Check if exiftool process is currently running.
-	 * This method is important especially if `stay_open` flag has been enabled.
+	 * This method is important especially if {@code stay_open} flag has been enabled.
 	 *
-	 * @return True if exiftool process is currently open, false otherwise.
+	 * @return {@code true} if {@code exiftool} process is currently open, {@code false} otherwise.
 	 */
 	boolean isRunning();
 
@@ -80,7 +83,7 @@ public interface ExecutionStrategy extends AutoCloseable {
 	 *   <li>Clean previous executions.</li>
 	 * </ul>
 	 *
-	 * For instance, with the `stay_open` flag, this method should:
+	 * For instance, with the {@code stay_open} flag, this method should:
 	 * <ul>
 	 *   <li>Close opened process.</li>
 	 *   <li>Stop task used to automatically close process.</li>

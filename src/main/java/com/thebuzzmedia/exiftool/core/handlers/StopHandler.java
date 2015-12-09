@@ -23,8 +23,10 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
  * Check if line means it is the end of the stream.
  *
  * End is detected if:
- * - Line is null.
- * - Output is strictly equals to "{ready}".
+ * <ul>
+ *   <li>Line is {@code null}.</li>
+ *   <li>Output is strictly equals to {@code {ready}}.</li>
+ * </ul>
  *
  * This handler is thread safe, stateless and is implemented as
  * a singleton.

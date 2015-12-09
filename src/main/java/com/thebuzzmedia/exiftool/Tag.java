@@ -30,7 +30,7 @@ package com.thebuzzmedia.exiftool;
  *
  * <p/>
  *
- * This class does not make an attempt at converting the value automatically
+ * Implementations should not make an attempt at converting the value automatically
  * in case the caller decides they would prefer tag values returned in
  * {@link com.thebuzzmedia.exiftool.core.StandardFormat#HUMAN_READABLE} format and
  * to avoid any compatibility issues with future versions of ExifTool if a

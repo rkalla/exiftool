@@ -22,8 +22,8 @@ package com.thebuzzmedia.exiftool;
  *
  * Each implementation should provide implementation for:
  * <ul>
- *   <li>{@code start} method: should schedule task in a specified amount of time.</li>
- *   <li>{@code stop} method: should cancel future task.</li>
+ *   <li>{@link #start(Runnable)} method: should schedule task in a specified amount of time.</li>
+ *   <li>{@link #stop()} method: should cancel future task.</li>
  * </ul>
  *
  * Note that this interface does not guarantee that scheduled task will

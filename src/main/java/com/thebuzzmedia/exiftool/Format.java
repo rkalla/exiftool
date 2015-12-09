@@ -26,7 +26,7 @@ import java.util.List;
  *
  * <p/>
  *
- * ExifTool, via the <code>-n</code> command line arg, is capable of
+ * ExifTool, via the {@code -n} command line arg, is capable of
  * returning most values in their raw numeric form (e.g.
  * Aperture="2.8010323841") as well as a more human-readable/friendly format
  * (e.g. Aperture="2.8").
@@ -42,7 +42,7 @@ public interface Format {
 	/**
 	 * List of arguments to pass to {@code exiftool} command to return
 	 * associated format.
-	 * This method should not return null, but an empty list if no arguments
+	 * This method should not return {@code null}, but an empty list if no arguments
 	 * should be returned.
 	 *
 	 * @return List of arguments.

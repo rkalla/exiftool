@@ -27,14 +27,18 @@ import static java.lang.String.format;
  * This implementation should be used if and only if no
  * external logging tool is available.
  *
+ * <p />
+ *
  * This logger will only log to the standard output.
  *
  * Log level will be detected using `exiftool.debug` system property.
  * This system property can be set on startup with:
- * - -Dexiftool.debug=true
- * - or by calling {@link System#setProperty(String, String)} before this class is loaded.
+ * <ul>
+ *   <li>{@code -Dexiftool.debug=true}</li>
+ *   <li>or by calling {@link System#setProperty(String, String)} before this class is loaded.</li>
+ * </ul>
  *
- * Default value is `false`.
+ * Default value is {@code false}.
  */
 public class DefaultLogger implements Logger {
 

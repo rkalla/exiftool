@@ -24,9 +24,9 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notBlank;
 /**
  * Define a version number with:
  * <ul>
- * <li>A major identifier.</li>
- * <li>A minor identifier.</li>
- * <li>A patch identifier.</li>
+ *   <li>A major identifier.</li>
+ *   <li>A minor identifier.</li>
+ *   <li>A patch identifier.</li>
  * </ul>
  */
 public class Version implements Comparable<Version> {
@@ -48,7 +48,7 @@ public class Version implements Comparable<Version> {
 
 	/**
 	 * Create new version number from a given string formatted
-	 * such as: [major].[minor].[patch].
+	 * such as: {@code [major].[minor].[patch]}.
 	 *
 	 * Major identifier is mandatory, other elements are optional and will be initialized
 	 * to zero by default.

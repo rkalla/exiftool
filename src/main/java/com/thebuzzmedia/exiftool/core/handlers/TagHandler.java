@@ -35,6 +35,8 @@ import static java.util.Collections.unmodifiableMap;
 /**
  * Read tags line by line.
  *
+ * <p />
+ *
  * This class is not thread-safe and should be used to
  * read exiftool output from one thread (should not be shared across
  * several threads).
@@ -47,7 +49,7 @@ public class TagHandler implements OutputHandler {
 	private static final Logger log = LoggerFactory.getLogger(TagHandler.class);
 
 	/**
-	 * Compiled {@link Pattern} of ": " used to split compact output from
+	 * Compiled {@link Pattern} of {@code ": "} used to split compact output from
 	 * ExifTool evenly into name/value pairs.
 	 */
 	private static final Pattern TAG_VALUE_PATTERN = Pattern.compile(": ");

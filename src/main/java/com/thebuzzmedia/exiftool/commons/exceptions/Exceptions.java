@@ -1,9 +1,12 @@
 package com.thebuzzmedia.exiftool.commons.exceptions;
 
 /**
- * Created by mickael on 12/8/15.
+ * Static Exceptions Utilities.
  */
-public class Exceptions {
+public final class Exceptions {
+
+	private Exceptions() {
+	}
 
 	/**
 	 * Coerce an unchecked Throwable to a RuntimeException:

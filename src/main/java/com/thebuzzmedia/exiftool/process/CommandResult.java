@@ -19,10 +19,15 @@ package com.thebuzzmedia.exiftool.process;
 
 /**
  * Result of command execution.
+ *
+ * <p />
+ *
  * Result is defined by:
- * - An exit status.
- * - Output.
- * - Status: success or failure.
+ * <ul>
+ *   <li>An exit status.</li>
+ *   <li>Output.</li>
+ *   <li>Status: success or failure.</li>
+ * </ul>
  *
  * Most of the time, success & failure may be guess using exit status, but
  * this may more complex.
@@ -40,7 +45,7 @@ public interface CommandResult {
 	 * Check if command result is a success.
 	 * When command is a success, then it must not be a failure.
 	 *
-	 * @return True if command is a success, false otherwise.
+	 * @return {@code true} if command is a success, {@code false} otherwise.
 	 */
 	boolean isSuccess();
 
@@ -48,7 +53,7 @@ public interface CommandResult {
 	 * Check if command result is a failure.
 	 * When command is a failure, then it must not be a success.
 	 *
-	 * @return True if command is a failure, false otherwise.
+	 * @return {@code true} if command is a failure, {@code false} otherwise.
 	 */
 	boolean isFailure();
 

@@ -35,11 +35,17 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 /**
  * Default implementation for {@link CommandProcess} interface.
  *
+ * <p />
+ *
  * This implementation used instance of {@link InputStream} to handle
  * read operation and instance of {@link OutputStream} to handle write
  * operation. These streams may come from instance of {@link Process} for instance.
+ *
+ * <p />
+ *
+ * <strong>Note:</strong> This implementation is not thread safe.
  */
-class DefaultCommandProcess implements CommandProcess {
+public class DefaultCommandProcess implements CommandProcess {
 
 	/**
 	 * Class Logger.
@@ -71,9 +77,9 @@ class DefaultCommandProcess implements CommandProcess {
 	/**
 	 * Create process.
 	 * @param is Input stream.
-	 * @param os Output streap.
+	 * @param os Output stream.
 	 */
-	DefaultCommandProcess(InputStream is, OutputStream os, InputStream err) {
+	public DefaultCommandProcess(InputStream is, OutputStream os, InputStream err) {
 		this.is = notNull(is, "Input stream should not be null");
 		this.os = notNull(os, "Output stream should not be null");
 		this.err = notNull(err, "Error stream should not be null");

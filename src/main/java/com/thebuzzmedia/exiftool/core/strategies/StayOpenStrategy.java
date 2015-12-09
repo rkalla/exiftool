@@ -57,7 +57,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	/**
 	 * Scheduler: will be used to perform automatic cleanup.
 	 * If automatic cleanup is disabled (if delay is equal or less than zero),
-	 * then it will be set to `null`.
+	 * then it will be set to {@code null}.
 	 */
 	private final Scheduler scheduler;
 

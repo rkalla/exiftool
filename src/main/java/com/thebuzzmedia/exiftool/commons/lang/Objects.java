@@ -27,13 +27,13 @@ public final class Objects {
 	}
 
 	/**
-	 * Returns the first of two given parameters that is not null.
+	 * Returns the first of two given parameters that is not {@code null}.
 	 *
 	 * @param val1 First value.
 	 * @param val2 Second value.
 	 * @param others Other value.
 	 * @param <T> Type of parameters.
-	 * @return First parameter if it is not null, second parameter otherwise.
+	 * @return First parameter if it is not {@code null}, second parameter otherwise.
 	 */
 	public static <T> T firstNonNull(T val1, T val2, T... others) {
 		if (val1 != null) {
@@ -74,10 +74,11 @@ public final class Objects {
 
 	/**
 	 * Check that two values are equals:
-	 * - If both are the same instances, return true.
-	 * - If both are null, return false.
-	 * - If one is null (and not the other one), return false.
-	 * - Finally, if both are non null, return the result of {code o1.equals(o2)}.
+	 * <ul>
+	 *   <li>If both are the same instances (or {@code null}, return {@code true}.</li>
+	 *   <li>If one is {@code null}, return {@code false}.</li>
+	 *   <li>Finally, if both are non {@code null}, return the result of {code o1.equals(o2)}.</li>
+	 * </ul>
 	 *
 	 * @param o1 First parameter to check.
 	 * @param o2 Second parameter to check.

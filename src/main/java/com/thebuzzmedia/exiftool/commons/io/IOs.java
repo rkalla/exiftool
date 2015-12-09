@@ -41,7 +41,7 @@ public final class IOs {
 	}
 
 	/**
-	 * Read input and continue until {@link StreamVisitor#readLine(String)} returns false.
+	 * Read input and continue until {@link StreamVisitor#readLine(String)} returns {@code false}.
 	 *
 	 * @param is Input stream.
 	 * @param visitor Result handler.

@@ -34,8 +34,8 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
  * This scheduler will execute a task in a specified amount of time:
  *
  * <ul>
- * <li>Time must be specified during construction.</li>
- * <li>Time unit (milliseconds, seconds, hours, etc.) may be defined during construction.</li>
+ *   <li>Time must be specified during construction.</li>
+ *   <li>Time unit (milliseconds, seconds, hours, etc.) may be defined during construction.</li>
  * </ul>
  *
  * <strong>Note:</strong> This scheduler will stop pending task when instance is

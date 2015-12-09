@@ -32,12 +32,14 @@ import static java.util.Collections.unmodifiableList;
  * Default implementation for {@link Command} interface.
  * This implementation should only be used with {@link com.thebuzzmedia.exiftool.process.command.CommandBuilder} builder.
  */
-class DefaultCommand implements Command {
+public class DefaultCommand implements Command {
 
 	/**
 	 * List of arguments:
-	 * - First element is the executable.
-	 * - Next elements are the executable arguments (optional).
+	 * <ul>
+	 *   <li>First element is the executable.</li>
+	 *   <li>Next elements are the executable arguments (optional).</li>
+	 * </ul>
 	 *
 	 * Once created, this list will be unmodifiable.
 	 */
@@ -49,7 +51,7 @@ class DefaultCommand implements Command {
 	 * @param executable Executable value.
 	 * @param arguments List of optional arguments.
 	 */
-	DefaultCommand(String executable, List<String> arguments) {
+	public DefaultCommand(String executable, List<String> arguments) {
 		List<String> args = new ArrayList<String>(size(arguments) + 1);
 
 		// Add first argument (should always be executable argument).

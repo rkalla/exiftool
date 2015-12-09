@@ -24,7 +24,9 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
  * and append each one in a {@link StringBuilder} instance.
  * When current line is null, handler will return false.
  *
- * Note that this handler is not thread safe and should be
+ * <p />
+ *
+ * <strong>Note:</strong> that this handler is not thread safe and should be
  * synchronized if needed.
  */
 class ResultHandler implements OutputHandler {

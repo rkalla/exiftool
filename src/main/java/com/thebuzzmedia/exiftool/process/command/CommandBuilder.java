@@ -33,6 +33,7 @@ public class CommandBuilder {
 
 	/**
 	 * Get new builder.
+	 *
 	 * @param executable Executable value.
 	 * @return The new builder.
 	 * @throws NullPointerException If executable is null.
@@ -56,7 +57,7 @@ public class CommandBuilder {
 	 * Create builder.
 	 *
 	 * @param executable Executable value.
-	 * @throws NullPointerException If executable is null.
+	 * @throws NullPointerException If executable is {@code null}.
 	 * @throws IllegalArgumentException If executable is empty or blank.
 	 */
 	private CommandBuilder(String executable) {
@@ -70,7 +71,7 @@ public class CommandBuilder {
 	 * @param arg First argument.
 	 * @param args Next optional arguments.
 	 * @return The builder.
-	 * @throws NullPointerException If one of the arguments is null.
+	 * @throws NullPointerException If one of the arguments is {@code null}.
 	 * @throws IllegalArgumentException If one of the arguments is empty or blank.
 	 */
 	public CommandBuilder addArgument(String arg, String... args) {
@@ -90,7 +91,7 @@ public class CommandBuilder {
 	 *
 	 * @param arguments All arguments.
 	 * @return The builder.
-	 * @throws NullPointerException If arguments is null.
+	 * @throws NullPointerException If arguments is {@code null}.
 	 * @throws IllegalArgumentException If arguments is empty.
 	 */
 	public CommandBuilder addAll(Iterable<String> arguments) {

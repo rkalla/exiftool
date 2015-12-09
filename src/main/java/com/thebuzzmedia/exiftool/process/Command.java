@@ -21,20 +21,29 @@ import java.util.List;
 
 /**
  * Command Line interface.
+ *
+ * <p />
+ *
  * A command line is defined by:
- * - Executable withPath (or executable name if it is globally available).
- * - List of arguments: may be empty.
+ * <ul>
+ *   <li>Executable path (or executable name if it is globally available).</li>
+ *   <li>List of arguments: may be empty.</li>
+ * </ul>
  *
  * Each of these should be returned in the {@link #getArguments()} method:
- * - First element is the executable value.
- * - Next elements are the executable arguments.
+ * <ul>
+ *   <li>First element is the executable value.</li>
+ *   <li>Next elements are the executable arguments.</li>
+ * </ul>
  */
 public interface Command {
 
 	/**
-	 * Command arguments.
-	 * First item should be the command line executable value.
-	 * Next items should be the command line arguments.
+	 * Command arguments:
+	 * <ul>
+	 *   <li>First item should be the command line executable value.</li>
+	 *   <li>Next items should be the command line arguments.</li>
+	 * </ul>
 	 *
 	 * @return Command arguments.
 	 */

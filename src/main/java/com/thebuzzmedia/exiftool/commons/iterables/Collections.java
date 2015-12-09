@@ -34,7 +34,7 @@ public final class Collections {
 	}
 
 	/**
-	 * Check if collection is empty (null or empty).
+	 * Check if collection is empty ({@code null} or empty).
 	 *
 	 * @param values Collection of values.
 	 * @param <T> Type of element in collection.

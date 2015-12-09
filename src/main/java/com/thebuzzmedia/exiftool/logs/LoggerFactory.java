@@ -21,11 +21,16 @@ import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
 
 /**
  * Factory to use to create {@link com.thebuzzmedia.exiftool.logs.Logger} instances.
+ *
+ * <p />
+ *
  * Appropriate implementation will be used depending on classpath.
  * Verification is done in the following order:
- * - If slf4j is defined, then it will be used.
- * - If log4j is defined, it will be used.
- * - Finally, instance of {@link com.thebuzzmedia.exiftool.logs.DefaultLogger} is used.
+ * <ul>
+ *   <li>If slf4j is defined, then it will be used.</li>
+ *   <li>If log4j is defined, it will be used.</li>
+ *   <li>Finally, instance of {@link com.thebuzzmedia.exiftool.logs.DefaultLogger} is used.</li>
+ * </ul>
  */
 public final class LoggerFactory {
 

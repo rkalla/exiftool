@@ -43,17 +43,16 @@ import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExe
  *
  * If set, value will be used, otherwise, withPath will be read:
  * <ul>
- * <li>
- * From system property. This system property can be set on startup
- * with {@code -Dexiftool.withPath=/withPath/to/exiftool} or by
- * calling {@link System#setProperty(String, String)} before
- * this class is loaded.
- * </li>
- *
- * <li>
- * Default value is {@code exiftool}. In this case, {@code exiftool}
- * command must be globally available.
- * </li>
+ *   <li>
+ *     From system property. This system property can be set on startup
+ *     with {@code -Dexiftool.withPath=/withPath/to/exiftool} or by
+ *     calling {@link System#setProperty(String, String)} before
+ *     this class is loaded.
+ *   </li>
+ *   <li>
+ *     Default value is {@code exiftool}. In this case, {@code exiftool}
+ *     command must be globally available.
+ *   </li>
  * </ul>
  *
  * If ExifTool is on your system withPath and running the command {@code exiftool}
@@ -79,7 +78,7 @@ import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExe
  * the used withExecutor, then this property is for you.
  * Custom withExecutor must implement {@link com.thebuzzmedia.exiftool.process.CommandExecutor} interface.
  *
- * #### Stay Open Strategy
+ * <h4>Stay Open Strategy</h4>
  *
  * ExifTool <a href="http://u88.n24.queensu.ca/exiftool/forum/index.php/topic,1402.msg12933.html#msg12933">8.36</a>
  * added a new persistent-process feature that allows ExifTool to stay
@@ -92,11 +91,11 @@ import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExe
  *
  * If this exception occurs, then you should probably:
  * <ul>
- * <li>Update your ExifTool version.</li>
- * <li>Create new ExifTool without this feature.</li>
+ *   <li>Update your ExifTool version.</li>
+ *   <li>Create new ExifTool without this feature.</li>
  * </ul>.
  *
- * Usage:
+ * <strong>Usage:</strong>
  *
  * <pre><code>
  *     final ExifTool exifTool;
@@ -115,7 +114,7 @@ import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExe
  * If default strategies are not enough, you can easily provide your own using
  * the {@link #withStrategy} method.
  *
- * Usage:
+ * <strong>Usage:</strong>
  *
  * <pre><code>
  *   ExifTool exifTool = new ExifToolBuilder()
@@ -131,7 +130,7 @@ public class ExifToolBuilder {
 	private static final Logger log = LoggerFactory.getLogger(ExifToolBuilder.class);
 
 	/**
-	 * Function to get default withPath value.
+	 * Function to get default path value.
 	 */
 	private static final PathFunction PATH = new PathFunction();
 
@@ -141,22 +140,22 @@ public class ExifToolBuilder {
 	private static final DelayFunction DELAY = new DelayFunction();
 
 	/**
-	 * Function to get default withExecutor environment.
+	 * Function to get default executor environment.
 	 */
 	private static final ExecutorFunction EXECUTOR = new ExecutorFunction();
 
 	/**
-	 * ExifTool withPath.
+	 * ExifTool path.
 	 */
 	private String path;
 
 	/**
-	 * ExifTool withExecutor.
+	 * ExifTool executor.
 	 */
 	private CommandExecutor executor;
 
 	/**
-	 * Check if `stay_open` flag should be enabled.
+	 * Check if {@code stay_open} flag should be enabled.
 	 */
 	private Boolean stayOpen;
 
@@ -248,7 +247,7 @@ public class ExifToolBuilder {
 	}
 
 	/**
-	 * Enable `stay_open` feature.
+	 * Enable {@code stay_open} feature.
 	 *
 	 * <strong>Note:</strong>
 	 *
@@ -283,14 +282,14 @@ public class ExifToolBuilder {
 	}
 
 	/**
-	 * Enable `stay_open` feature and perform cleanup task using given {@code scheduler}.
+	 * Enable {@code stay_open} feature and perform cleanup task using given {@code scheduler}.
 	 *
 	 * <strong>Note:</strong>
 	 *
 	 * <ul>
-	 *   <li>If {link #withStrategy} has already been called, then calling is useless.</li>
+	 *   <li>If {@link #withStrategy} has already been called, then calling is useless.</li>
 	 *   <li>
-	 *     If {link #enableStayOpen(long} has already been called, then given {@code delay} will be
+	 *     If {@link #enableStayOpen(long)} has already been called, then given {@code delay} will be
 	 *     ignored and the specified scheduler will be used.
 	 *   </li>
 	 * </ul>

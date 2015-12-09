@@ -84,7 +84,7 @@ public interface Logger {
 	/**
 	 * Check if debug level is enabled for this logger.
 	 *
-	 * @return True if debug level is enabled, false otherwise.
+	 * @return {@code true} if debug level is enabled, {@code false} otherwise.
 	 */
 	boolean isDebugEnabled();
 }

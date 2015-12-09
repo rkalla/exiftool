@@ -35,13 +35,13 @@ public final class PreConditions {
 	}
 
 	/**
-	 * Ensures that an object reference passed as a parameter to the calling method is not null.
+	 * Ensures that an object reference passed as a parameter to the calling method is not {@code null}.
 	 *
 	 * @param val     Value to check.
-	 * @param message Message passed to NullPointerException.
+	 * @param message Message passed to {@link NullPointerException}.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @param <T>     Type of parameter.
-	 * @return Original value if it is not null.
+	 * @return Original value if it is not {@code null}.
 	 * @throws java.lang.NullPointerException If {@code val} is null.
 	 */
 	public static <T> T notNull(T val, String message, Object... params) {
@@ -54,15 +54,17 @@ public final class PreConditions {
 
 	/**
 	 * Ensures that a string is:
-	 * - Not null.
-	 * - Not empty.
-	 * - Not blank (i.e contains at least one character other than space).
+	 * <ul>
+	 *   <li>Not {@code null}.</li>
+	 *   <li>Not empty.</li>
+	 *   <li>Not blank (i.e contains at least one character other than space).</li>
+	 * </ul>
 	 *
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
-	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException     If {@code val} is null.
+	 * @return Original value if it is not {@code null}.
+	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty or blank.
 	 */
 	public static String notBlank(String val, String message, Object... params) {
@@ -76,14 +78,16 @@ public final class PreConditions {
 
 	/**
 	 * Ensures that array is:
-	 * - Not null.
-	 * - Not empty.
+	 * <ul>
+	 *   <li>Not {@code null}.</li>
+	 *   <li>Not empty.</li>
+	 * </ul>
 	 *
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
-	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException     If {@code val} is null.
+	 * @return Original value if it is not empty.
+	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
 	 */
 	public static <T> T[] notEmpty(T[] val, String message, Object... params) {
@@ -97,14 +101,16 @@ public final class PreConditions {
 
 	/**
 	 * Ensures that map is:
-	 * - Not null.
-	 * - Not empty.
+	 * <ul>
+	 *   <li>Not {@code null}.</li>
+	 *   <li>Not empty.</li>
+	 * </ul>
 	 *
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
-	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException     If {@code val} is null.
+	 * @return Original value if it is not empty.
+	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
 	 */
 	public static <T, U> Map<T, U> notEmpty(Map<T, U> val, String message, Object... params) {
@@ -118,14 +124,16 @@ public final class PreConditions {
 
 	/**
 	 * Ensures that iterable element is:
-	 * - Not null.
-	 * - Not empty.
+	 * <ul>
+	 *   <li>Not {@code null}.</li>
+	 *   <li>Not empty.</li>
+	 * </ul>
 	 *
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
-	 * @return Original value if it is not null.
-	 * @throws java.lang.NullPointerException     If {@code val} is null.
+	 * @return Original value if it is not empty.
+	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
 	 */
 	public static <T> Iterable<T> notEmpty(Iterable<T> val, String message, Object... params) {
@@ -146,7 +154,7 @@ public final class PreConditions {
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @param <T>     Type of number.
 	 * @return Original number.
-	 * @throws NullPointerException     If {@code nb} is null.
+	 * @throws NullPointerException     If {@code nb} is {@code null}.
 	 * @throws IllegalArgumentException If {@code nb} is less than or equal to zero.
 	 */
 	public static <T extends Number> T isPositive(T nb, String message, Object... params) {
@@ -165,7 +173,7 @@ public final class PreConditions {
 	 * @param message Error message.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original file.
-	 * @throws NullPointerException    If {@code file} is null.
+	 * @throws NullPointerException    If {@code file} is {@code null}.
 	 * @throws UnreadableFileException If {@code file} does not exist.
 	 * @throws UnreadableFileException If {@code file} cannot be read.
 	 */
@@ -185,7 +193,7 @@ public final class PreConditions {
 	 * @param message Error message.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
 	 * @return Original file.
-	 * @throws NullPointerException    If {@code file} is null.
+	 * @throws NullPointerException    If {@code file} is {@code null}.
 	 * @throws UnreadableFileException If {@code file} does not exist.
 	 * @throws UnreadableFileException If {@code file} cannot be updated.
 	 */

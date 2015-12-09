@@ -21,12 +21,19 @@ import com.thebuzzmedia.exiftool.commons.io.StreamVisitor;
 
 /**
  * Handler that should be used to handle command line output.
+ *
+ * <p />
+ *
  * Each line is give to the {@link #readLine(String)} method.
  * This method should return:
- * - True if next line should be read. For instance, if current line is null, it probably
- *   means that no more output is available. This may let handlers to implement a custom
- *   logic.
- * - False if next line should not be read (end of output).
+ * <ul>
+ *   <li>
+ *     {@code true} if next line should be read. For instance, if current line is {@code null}, it probably
+ *     means that no more output is available. This may let handlers to implement a custom
+ *     logic.
+ *   </li>
+ *   <li>{@code false} if next line should not be read (end of output).</li>
+ * </ul>
  */
 public interface OutputHandler extends StreamVisitor {
 

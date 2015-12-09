@@ -19,10 +19,24 @@ package com.thebuzzmedia.exiftool.process;
 
 import java.io.IOException;
 
+/**
+ * Process interface.
+ *
+ * <p />
+ *
+ * A process will define some methods to:
+ * <ul>
+ *   <li>Read output until a condition returns {@code false}.</li>
+ *   <li>Send input stream to the opened process.</li>
+ *   <li>Check if process is closed or still opened.</li>
+ * </ul>
+ */
 public interface CommandProcess extends AutoCloseable {
 
 	/**
 	 * Read output until a null line is read.
+	 *
+	 * <p />
 	 *
 	 * Since command process will not be closed, a simple string
 	 * is returned (an exit status cannot be computed).
@@ -34,8 +48,10 @@ public interface CommandProcess extends AutoCloseable {
 
 	/**
 	 * Read output until:
-	 * - A null line is read.
-	 * - Handler returns false when line is read.
+	 * <ul>
+	 *   <li>A null line is read.</li>
+	 *   <li>Handler returns false when line is read.</li>
+	 * </ul>
 	 *
 	 * Since command process will not be closed, a simple string
 	 * is returned (an exit status cannot be computed).
@@ -48,8 +64,6 @@ public interface CommandProcess extends AutoCloseable {
 
 	/**
 	 * Write input string to the current process.
-	 * If write operation failed (or is not possible), an instance
-	 * of {@link com.thebuzzmedia.exiftool.exceptions.ProcessException} should be thrown.
 	 *
 	 * @param input Input.
 	 * @param others Other inputs.
@@ -59,8 +73,6 @@ public interface CommandProcess extends AutoCloseable {
 
 	/**
 	 * Write set of inputs to the current process.
-	 * If write operation failed (or is not possible), an instance
-	 * of {@link com.thebuzzmedia.exiftool.exceptions.ProcessException} should be thrown.
 	 *
 	 * @param inputs Collection of inputs.
 	 * @throws java.io.IOException If an error occurred during operation.
@@ -76,7 +88,7 @@ public interface CommandProcess extends AutoCloseable {
 	 * Check if current process is still opened.
 	 * If this method returns {@code true}, then {@link #isClosed()} should return {@code false}.
 	 *
-	 * @return True if process is open, false otherwise.
+	 * @return {@code true} if process is open, {@code false} otherwise.
 	 */
 	boolean isRunning();
 
@@ -84,7 +96,7 @@ public interface CommandProcess extends AutoCloseable {
 	 * Check if current process has been closed.
 	 * If this method returns {@code true}, then {@link #isRunning()} should return {@code false}.
 	 *
-	 * @return True if process is closed, false otherwise.
+	 * @return {@code true} if process is closed, {@code false} otherwise.
 	 */
 	boolean isClosed();
 }

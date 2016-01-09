@@ -180,6 +180,8 @@ public class StayOpenStrategy implements ExecutionStrategy {
 			// to shut down or destroy, otherwise we need to close down all the
 			// resources in use.
 			log.debug("Attempting to close ExifTool daemon process, issuing '-stay_open\\nFalse\\n' command...");
+			process.write("-stay_open\nFalse\n");
+			process.flush();
 			process.close();
 			log.debug("ExifTool daemon process successfully closed");
 		}

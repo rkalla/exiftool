@@ -41,10 +41,7 @@ import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StayOpenStrategyTest {
@@ -167,8 +164,14 @@ public class StayOpenStrategyTest {
 		writePrivateField(strategy, "process", process);
 		strategy.close();
 
-		verify(process).close();
-		verify(scheduler).stop();
+		InOrder inOrder = inOrder(scheduler, process);
+		inOrder.verify(scheduler).stop();
+		inOrder.verify(process).write("-stay_open\nFalse\n");
+		inOrder.verify(process).flush();
+		inOrder.verify(process).close();
+
+		verifyNoMoreInteractions(process);
+		verifyNoMoreInteractions(scheduler);
 	}
 
 	@Test

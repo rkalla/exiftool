@@ -25,6 +25,7 @@ import com.thebuzzmedia.exiftool.core.StandardFormat;
 import com.thebuzzmedia.exiftool.core.StandardTag;
 import com.thebuzzmedia.exiftool.exceptions.AbstractExifException;
 import com.thebuzzmedia.exiftool.tests.FileUtils;
+import com.thebuzzmedia.exiftool.tests.junit.OpenedProcessRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,6 +48,9 @@ public abstract class AbstractExifToolIT {
 
 	@Rule
 	public TemporaryFolder tmp = new TemporaryFolder();
+
+	@Rule
+	public OpenedProcessRule processes = new OpenedProcessRule("exiftool");
 
 	@Before
 	public void setUp() {

@@ -59,7 +59,7 @@ More informations below.
 
 ### Support
 
-This library is tested against Java >= 6, Linux and Windows.
+This library is tested against Java >= 7, Linux and Windows.
 
 ### Breaking Changes
 

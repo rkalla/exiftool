@@ -89,6 +89,8 @@ import com.thebuzzmedia.exiftool.core.StandardTag;
 import java.io.File;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+
 public class ExifParser {
 
     private static final Logger log = LoggerFactory.getLogger(ExifParser.class);
@@ -96,11 +98,8 @@ public class ExifParser {
     public static Map<String, Tag> parse(File image) throws Exception {
         // ExifTool path must be defined as a system property (`exiftool.path`),
         // but path can be set using `withPath` method.
-        ExifTool exifTool = new ExifToolBuilder().build();
-
         try (ExifTool exifTool = new ExifToolBuilder().build()) {
-            File image = new File("/tmp/image.jpg");
-            return exifTool.getImageMeta(file, asList(
+            return exifTool.getImageMeta(image, asList(
                 StandardTag.ISO,
                 StandardTag.X_RESOLUTION,
                 StandardTag.Y_RESOLUTION
@@ -113,7 +112,9 @@ public class ExifParser {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Tags: ", ExifParser.parse(new File(args[0])));
+        for (String image : args) {
+            System.out.println("Tags: ", ExifParser.parse(new File(image)));
+        }
     }
 }
 ```
@@ -136,6 +137,8 @@ import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import java.io.File;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+
 public class ExifParser {
 
     private static final Logger log = LoggerFactory.getLogger(ExifParser.class);
@@ -152,22 +155,21 @@ public class ExifParser {
     }
 
     public static Map<String, Tag> parse(File image) {
-        try (ExifTool exifTool = new ExifToolBuilder().build()) {
-            File image = new File("/tmp/image.jpg");
-            return exifTool.getImageMeta(file, asList(
-                StandardTag.ISO,
-                StandardTag.X_RESOLUTION,
-                StandardTag.Y_RESOLUTION
-            ));
-
-        } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
-            return null;
-        }
+        return exifTool.getImageMeta(image, asList(
+            StandardTag.ISO,
+            StandardTag.X_RESOLUTION,
+            StandardTag.Y_RESOLUTION
+        ));
     }
 
     public static void main(String[] args) {
-        System.out.println("Tags: ", ExifParser.parse(new File(args[0])));
+        try {
+            for (String image : args) {
+                System.out.println("Tags: ", ExifParser.parse(new File(image)));
+            }
+        } finally {
+            exifTool.close();
+        }
     }
 }
 ```

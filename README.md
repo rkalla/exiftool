@@ -162,7 +162,7 @@ public class ExifParser {
         ));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try {
             for (String image : args) {
                 System.out.println("Tags: ", ExifParser.parse(new File(image)));

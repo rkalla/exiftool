@@ -61,6 +61,19 @@ More informations below.
 
 This library is tested against Java >= 7, Linux and Windows.
 
+
+### Installation
+
+This library is available on maven repository:
+
+```xml
+<dependency>
+  <groupId>com.github.mjeanroy</groupId>
+  <artifactId>exiftool</artifactId>
+  <version>2.0.1</version>
+</dependency>
+```
+
 ### Breaking Changes
 
 - Tag class is now `com.thebuzzmedia.exiftool.Tag`, commons tags available in `com.thebuzzmedia.exiftool.core.StandardTag` enum class.

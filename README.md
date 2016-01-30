@@ -69,7 +69,7 @@ This library is available on maven repository:
 ```xml
 <dependency>
   <groupId>com.github.mjeanroy</groupId>
-  <artifactId>exiftool</artifactId>
+  <artifactId>exiftool-lib</artifactId>
   <version>2.0.1</version>
 </dependency>
 ```

@@ -90,7 +90,7 @@ public class TagHandler implements OutputHandler {
 		}
 
 		// Now, we are sure we can process line.
-		String[] pair = TAG_VALUE_PATTERN.split(line, 1);
+		String[] pair = TAG_VALUE_PATTERN.split(line, 2);
 		if (pair != null && pair.length == 2) {
 			// Determine the tag represented by this value.
 			String name = pair[0];

@@ -20,11 +20,8 @@ package com.thebuzzmedia.exiftool.commons.io;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Static Input/Output Utilities.
@@ -51,7 +48,7 @@ public final class IOs {
 		log.trace("Read input stream");
 
 		String line = null;
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
 		try {
 			boolean hasNext = true;

@@ -47,7 +47,7 @@ class DefaultVersionCache implements VersionCache {
 	/**
 	 * Create default cache.
 	 */
-	public DefaultVersionCache() {
+	DefaultVersionCache() {
 		super();
 		this.cache = new ConcurrentHashMap<String, Future<Version>>();
 	}

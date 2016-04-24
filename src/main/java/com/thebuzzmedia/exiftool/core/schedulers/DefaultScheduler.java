@@ -29,7 +29,7 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 /**
  * Default implementation for {@code exiftool} {@link com.thebuzzmedia.exiftool.Scheduler}.
  *
- * <p/>
+ * <br>
  *
  * This scheduler will execute a task in a specified amount of time:
  *

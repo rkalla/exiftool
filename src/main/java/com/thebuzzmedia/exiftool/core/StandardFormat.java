@@ -19,6 +19,8 @@ package com.thebuzzmedia.exiftool.core;
 
 import com.thebuzzmedia.exiftool.Format;
 
+import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -28,34 +30,28 @@ import static java.util.Collections.emptyList;
  * Enum used to define the 2 different output formats that {@link StandardTag}
  * values can be returned in: numeric or human-readable text.
  *
- * <p/>
+ * <br>
  *
  * ExifTool, via the <code>-n</code> command line arg, is capable of
  * returning most values in their raw numeric form (e.g.
  * Aperture="2.8010323841") as well as a more human-readable/friendly format
  * (e.g. Aperture="2.8").
  *
- * <p/>
- *
- * While the {@link StandardTag}s defined on this class do provide a hint at the
- * type of the result (see {@link StandardTag#getType()}), that hint only applies
- * when the {@link StandardFormat#NUMERIC} form of the value is returned.
- *
- * <p/>
+ * <br>
  *
  * If the caller finds the human-readable format easier to process,
  * {@link StandardFormat#HUMAN_READABLE} can be specified when calling
- * {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(java.io.File, StandardFormat, StandardTag...)} and the returned
+ * {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(File, Format, Collection)} and the returned
  * {@link String} values processed manually by the caller.
  *
- * <p/>
+ * <br>
  *
  * In order to see the types of values that are returned when
  * {@link StandardFormat#HUMAN_READABLE} is used, you can check the comprehensive <a
  * href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">
  * ExifTool Tag Guide</a>.
  *
- * <p/>
+ * <br>
  *
  * This makes sense with some values like Aperture that in
  * {@link StandardFormat#NUMERIC} format end up returning as 14-decimal-place, high

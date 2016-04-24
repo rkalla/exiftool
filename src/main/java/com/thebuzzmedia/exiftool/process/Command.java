@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Command Line interface.
  *
- * <p />
+ * <br>
  *
  * A command line is defined by:
  * <ul>

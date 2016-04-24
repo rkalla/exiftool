@@ -28,7 +28,7 @@ import com.thebuzzmedia.exiftool.Tag;
  * associated with it when the default {@link com.thebuzzmedia.exiftool.core.StandardFormat#NUMERIC}
  * value format is used.
  *
- * <p />
+ * <br>
  *
  * The types provided by each tag are merely a hint based on the
  * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">ExifTool Tag Guide</a>
@@ -41,7 +41,7 @@ import com.thebuzzmedia.exiftool.Tag;
  * supports was also reviewed to ensure the most common/useful tags were
  * being covered here.
  *
- * <p/>
+ * <br>
  *
  * Please email me or file an issue if you think this list is missing a commonly
  * used tag that should be added to it.

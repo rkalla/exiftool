@@ -86,6 +86,7 @@ public final class PreConditions {
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param <T>     Type of elements in array.
 	 * @return Original value if it is not empty.
 	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
@@ -109,6 +110,8 @@ public final class PreConditions {
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param <T>     Type of keys in map.
+	 * @param <U>     Type of values in map.
 	 * @return Original value if it is not empty.
 	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.
@@ -132,6 +135,7 @@ public final class PreConditions {
 	 * @param val     Value to check.
 	 * @param message Message passed to thrown exception.
 	 * @param params  Message parameters (formatted with {@link String#format(String, Object...)}).
+	 * @param <T>     Type of elements in iterable structure.
 	 * @return Original value if it is not empty.
 	 * @throws java.lang.NullPointerException     If {@code val} is {@code null}.
 	 * @throws java.lang.IllegalArgumentException If {@code val} is empty.

@@ -28,7 +28,7 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.isPositive;
 /**
  * Scheduler using {@link java.util.Timer} as internal task scheduler.
  *
- * <p />
+ * <br>
  *
  * This scheduler should be used only for compatibility reason (this was the very first kind of scheduler
  * available), instead instance of {@link com.thebuzzmedia.exiftool.core.schedulers.DefaultScheduler} should

@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * ExifTool execution strategy.
  *
- * <p />
+ * <br>
  *
  * For instance:
  * <ul>
@@ -40,7 +40,7 @@ import java.util.List;
  * Each implementation will define the main logic for reading and
  * writing metadata (this is the main purpose for the {@link #execute} method.
  *
- * <p />
+ * <br>
  *
  * Implementation should also define a close method: this method
  * will be used to stop remaining process and clean previous execution.

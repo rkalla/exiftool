@@ -24,14 +24,14 @@ import java.util.List;
  * For instance, default implementations defined by {@link com.thebuzzmedia.exiftool.core.StandardFormat}
  * values can be returned in: numeric or human-readable text.
  *
- * <p/>
+ * <br>
  *
  * ExifTool, via the {@code -n} command line arg, is capable of
  * returning most values in their raw numeric form (e.g.
  * Aperture="2.8010323841") as well as a more human-readable/friendly format
  * (e.g. Aperture="2.8").
  *
- * <p/>
+ * <br>
  *
  * @author Riyad Kalla (software@thebuzzmedia.com)
  * @author Mickael Jeanroy (mickael.jeanroy@gmail.com)

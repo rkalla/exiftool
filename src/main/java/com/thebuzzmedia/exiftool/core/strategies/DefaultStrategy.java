@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * This is the default strategy.
  *
- * <p />
+ * <br>
  *
  * For each execution, a one-shot process is:
  * <ul>

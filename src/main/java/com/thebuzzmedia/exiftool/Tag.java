@@ -21,14 +21,14 @@ package com.thebuzzmedia.exiftool;
  * A {@link Tag} is a value that can be easily extracted from images with
  * an external install of ExifTool.
  *
- * <p />
+ * <br>
  *
  * A tag that can be easily parsed to a valid value
  * using the {@link #parse(String)} hint from each {@link Tag}.
  * Using this method allow anyone to convert a string value to the correct
  * data format.
  *
- * <p/>
+ * <br>
  *
  * Implementations should not make an attempt at converting the value automatically
  * in case the caller decides they would prefer tag values returned in
@@ -39,7 +39,7 @@ package com.thebuzzmedia.exiftool;
  * the caller decides they want to parse them is a safer and more robust
  * approach.
  *
- * <p/>
+ * <br>
  *
  * The types provided by each tag are merely a hint based on the
  * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">ExifTool Tag Guide</a>
@@ -63,6 +63,7 @@ public interface Tag {
 	 * Parse given tag to the correct data format.
 	 *
 	 * @param value Tag Value.
+	 * @param <T> Type of returned value.
 	 * @return Data associated with the tag.
 	 */
 	<T> T parse(String value);

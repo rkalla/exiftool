@@ -35,7 +35,7 @@ import static java.util.Collections.unmodifiableMap;
 /**
  * Read tags line by line.
  *
- * <p />
+ * <br>
  *
  * This class is not thread-safe and should be used to
  * read exiftool output from one thread (should not be shared across

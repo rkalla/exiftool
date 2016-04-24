@@ -34,7 +34,7 @@ public interface Scheduler {
 	/**
 	 * Schedule task.
 	 *
-	 * <p />
+	 * <br>
 	 *
 	 * Task should not run immediately, instead it should run
 	 * in a specified amount of time (implementation dependent).

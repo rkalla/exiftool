@@ -27,7 +27,7 @@ import static java.lang.String.format;
  * This implementation should be used if and only if no
  * external logging tool is available.
  *
- * <p />
+ * <br>
  *
  * This logger will only log to the standard output.
  *

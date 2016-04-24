@@ -20,7 +20,7 @@ package com.thebuzzmedia.exiftool.process;
 /**
  * Result of command execution.
  *
- * <p />
+ * <br>
  *
  * Result is defined by:
  * <ul>
@@ -29,7 +29,7 @@ package com.thebuzzmedia.exiftool.process;
  *   <li>Status: success or failure.</li>
  * </ul>
  *
- * Most of the time, success & failure may be guess using exit status, but
+ * Most of the time, success and failure may be guess using exit status, but
  * this may more complex.
  */
 public interface CommandResult {

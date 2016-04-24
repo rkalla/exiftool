@@ -198,7 +198,7 @@ public class ExifToolBuilder {
 	 * set with {@code exiftool} otherwise. Setting the path explicitly will disable automatic
 	 * lookup.
 	 *
-	 * <p />
+	 * <br>
 	 *
 	 * <strong>Note:</strong> If path is not an executable file, a warning
 	 * will be logged but it will not fail.

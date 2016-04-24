@@ -31,6 +31,7 @@ public interface CommandExecutor {
 	 *
 	 * @param command Command input.
 	 * @return Result of execution.
+	 * @throws IOException If an error occurred during execution.
 	 */
 	CommandResult execute(Command command) throws IOException;
 

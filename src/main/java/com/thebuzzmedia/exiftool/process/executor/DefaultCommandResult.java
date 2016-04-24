@@ -25,7 +25,7 @@ import static java.lang.String.format;
 /**
  * Default result object.
  *
- * <p />
+ * <br>
  *
  * Result is defined by:
  *

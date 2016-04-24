@@ -322,7 +322,7 @@ public class ExifTool implements AutoCloseable {
 	/**
 	 * This method should be used to clean previous execution.
 	 *
-	 * <p />
+	 * <br>
 	 *
 	 * <strong>NOTE</strong>: Calling this method does not preclude this
 	 * instance of {@link ExifTool} from being re-used, it merely disposes of
@@ -338,7 +338,7 @@ public class ExifTool implements AutoCloseable {
 	 * This method is used to determine if there is currently a running
 	 * ExifTool process associated with this class.
 	 *
-	 * <p />
+	 * <br>
 	 *
 	 * Any dependent processes and streams can be shutdown using
 	 * {@link #close()} and this class will automatically re-create them on the

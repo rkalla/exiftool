@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * Process interface.
  *
- * <p />
+ * <br>
  *
  * A process will define some methods to:
  * <ul>
@@ -36,7 +36,7 @@ public interface CommandProcess extends AutoCloseable {
 	/**
 	 * Read output until a null line is read.
 	 *
-	 * <p />
+	 * <br>
 	 *
 	 * Since command process will not be closed, a simple string
 	 * is returned (an exit status cannot be computed).
@@ -81,6 +81,8 @@ public interface CommandProcess extends AutoCloseable {
 
 	/**
 	 * Flush pending write operations.
+	 *
+	 * @throws java.io.IOException If an error occurred during operation.
 	 */
 	void flush() throws IOException;
 

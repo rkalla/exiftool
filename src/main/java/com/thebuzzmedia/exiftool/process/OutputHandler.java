@@ -22,7 +22,7 @@ import com.thebuzzmedia.exiftool.commons.io.StreamVisitor;
 /**
  * Handler that should be used to handle command line output.
  *
- * <p />
+ * <br>
  *
  * Each line is give to the {@link #readLine(String)} method.
  * This method should return:

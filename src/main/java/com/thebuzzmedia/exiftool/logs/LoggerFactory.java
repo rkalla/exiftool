@@ -22,7 +22,7 @@ import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
 /**
  * Factory to use to create {@link com.thebuzzmedia.exiftool.logs.Logger} instances.
  *
- * <p />
+ * <br>
  *
  * Appropriate implementation will be used depending on classpath.
  * Verification is done in the following order:

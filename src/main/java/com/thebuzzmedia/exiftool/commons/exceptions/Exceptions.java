@@ -16,6 +16,9 @@ public final class Exceptions {
 	 *   <li>If it is a {@link RuntimeException} return it.</li>
 	 *   <li>Otherwise, throw {@link IllegalStateException}.</li>
 	 * </ul>
+	 *
+	 * @param t Original throwable.
+	 * @return Wrapped exception.
 	 */
 	public static RuntimeException launderThrowable(Throwable t) {
 		if (t instanceof RuntimeException) {

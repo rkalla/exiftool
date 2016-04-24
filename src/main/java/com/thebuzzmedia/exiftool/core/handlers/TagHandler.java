@@ -110,8 +110,8 @@ public class TagHandler implements OutputHandler {
 				log.debug("Unable to read Tag: %s", line);
 			}
 		} else {
-            log.warn("Skipped line: %s", line);
-        }
+			log.warn("Skipped line: %s", line);
+		}
 
 		return true;
 	}

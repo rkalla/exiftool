@@ -74,4 +74,19 @@ public class TagHandlerTest {
 			.hasSize(1)
 			.containsEntry(tag, value);
 	}
+
+	@Test
+	public void it_should_read_tag_line_with_additional_pattern() {
+		Tag tag = StandardTag.ARTIST;
+		String value = "foobar: foo";
+
+		TagHandler handler = new TagHandler(inputs);
+		handler.readLine(tag.getName() + ": " + value);
+
+		assertThat(handler.getTags())
+			.isNotNull()
+			.isNotEmpty()
+			.hasSize(1)
+			.containsEntry(tag, value);
+	}
 }

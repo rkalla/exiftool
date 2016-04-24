@@ -22,23 +22,14 @@ package com.thebuzzmedia.exiftool.exceptions;
  * Should be extended.
  */
 @SuppressWarnings("serial")
-public class AbstractExifException extends RuntimeException {
-
-	/**
-	 * Wrap original exception.
-	 *
-	 * @param ex Original Exception.
-	 */
-	protected AbstractExifException(Exception ex) {
-		super(ex);
-	}
+class AbstractExifException extends RuntimeException {
 
 	/**
 	 * Create exception with custom message.
 	 *
 	 * @param message Error message.
 	 */
-	protected AbstractExifException(String message) {
+	AbstractExifException(String message) {
 		super(message);
 	}
 }

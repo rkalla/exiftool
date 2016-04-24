@@ -105,7 +105,7 @@ public class DefaultLogger implements Logger {
 				str = format(str, params);
 			}
 
-			System.out.println(format("[" + level + "] [exiftool] " + str));
+			System.out.println("[" + level + "] [exiftool] " + str);
 		}
 	}
 }

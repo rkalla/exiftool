@@ -23,7 +23,6 @@ import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.core.StandardFormat;
 import com.thebuzzmedia.exiftool.core.StandardTag;
-import com.thebuzzmedia.exiftool.exceptions.AbstractExifException;
 import com.thebuzzmedia.exiftool.tests.FileUtils;
 import com.thebuzzmedia.exiftool.tests.junit.OpenedProcessRule;
 import org.junit.After;
@@ -143,7 +142,7 @@ public abstract class AbstractExifToolIT {
 			relativePath += "unix/exiftool";
 		}
 
-		File file = new File(AbstractExifException.class.getResource(relativePath).getFile());
+		File file = new File(AbstractExifToolIT.class.getResource(relativePath).getFile());
 		file.setExecutable(true);
 		file.setReadable(true);
 		return file;

@@ -23,8 +23,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * Enum used to define the 2 different output formats that {@link StandardTag}
@@ -69,7 +69,7 @@ public enum StandardFormat implements Format {
 	NUMERIC {
 		@Override
 		public List<String> getArgs() {
-			return asList("-n");
+			return singletonList("-n");
 		}
 	},
 

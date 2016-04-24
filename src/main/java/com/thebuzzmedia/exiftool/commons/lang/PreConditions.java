@@ -211,6 +211,6 @@ public final class PreConditions {
 	}
 
 	private static String errorMessage(String message, Object[] params) {
-		return params.length > 0 ? format(format(message, params)) : message;
+		return params.length > 0 ? format(message, params) : message;
 	}
 }

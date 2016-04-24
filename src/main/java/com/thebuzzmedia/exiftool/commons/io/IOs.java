@@ -21,6 +21,7 @@ import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -32,6 +33,11 @@ public final class IOs {
 	 * Class logger.
 	 */
 	private static final Logger log = LoggerFactory.getLogger(IOs.class);
+
+	/**
+	 * Encoding.
+	 */
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 
 	// Ensure non instantiation.
 	private IOs() {
@@ -48,7 +54,7 @@ public final class IOs {
 		log.trace("Read input stream");
 
 		String line = null;
-		BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+		BufferedReader br = new BufferedReader(new InputStreamReader(is, UTF_8));
 
 		try {
 			boolean hasNext = true;

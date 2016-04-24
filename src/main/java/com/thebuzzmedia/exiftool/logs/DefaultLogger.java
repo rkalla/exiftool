@@ -40,7 +40,7 @@ import static java.lang.String.format;
  *
  * Default value is {@code false}.
  */
-public class DefaultLogger implements Logger {
+class DefaultLogger implements Logger {
 
 	private static enum Level {
 		TRACE, DEBUG, INFO, WARN, ERROR

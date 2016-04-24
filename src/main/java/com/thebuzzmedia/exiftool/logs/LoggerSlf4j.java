@@ -21,7 +21,7 @@ package com.thebuzzmedia.exiftool.logs;
  * Implementation of logger using slf4j as
  * internal implementation.
  */
-public class LoggerSlf4j implements Logger {
+class LoggerSlf4j implements Logger {
 
 	/**
 	 * Internal Logger.

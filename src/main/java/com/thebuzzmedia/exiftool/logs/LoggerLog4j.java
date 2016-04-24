@@ -25,7 +25,7 @@ import static java.lang.String.format;
  * Implementation of logger using log4j as
  * internal implementation.
  */
-public class LoggerLog4j implements Logger {
+class LoggerLog4j implements Logger {
 
 	/**
 	 * Internal Logger.

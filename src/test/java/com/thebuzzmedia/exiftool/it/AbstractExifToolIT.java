@@ -41,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractExifToolIT {
 
+	private static final String PATH = path().getAbsolutePath();
+
 	private ExifTool exifTool;
 
 	private ExifTool exifToolStayOpen;
@@ -49,14 +51,14 @@ public abstract class AbstractExifToolIT {
 	public TemporaryFolder tmp = new TemporaryFolder();
 
 	@Rule
-	public OpenedProcessRule processes = new OpenedProcessRule("exiftool");
+	public OpenedProcessRule processes = new OpenedProcessRule(PATH);
 
 	@Before
 	public void setUp() {
 		File path = path();
 
 		exifTool = new ExifToolBuilder()
-			.withPath(path)
+			.withPath(path.getAbsolutePath())
 			.build();
 
 		exifToolStayOpen = new ExifToolBuilder()

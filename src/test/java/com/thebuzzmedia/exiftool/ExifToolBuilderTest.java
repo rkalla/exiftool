@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool;
 
 import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
+import com.thebuzzmedia.exiftool.core.strategies.PoolStrategy;
 import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -36,6 +37,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
@@ -299,5 +301,22 @@ public class ExifToolBuilderTest {
 		assertThat(readPrivateField(exifTool, "strategy", ExecutionStrategy.class))
 			.isNotNull()
 			.isEqualTo(strategy);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void it_should_create_with_pool_strategy() throws Exception {
+		ExifTool exifTool = builder
+			.withExecutor(executor)
+			.withPoolSize(10, 500)
+			.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+			.isNotNull()
+			.isExactlyInstanceOf(PoolStrategy.class);
+
+		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool", BlockingQueue.class);
+		assertThat(pool.size()).isEqualTo(10);
 	}
 }

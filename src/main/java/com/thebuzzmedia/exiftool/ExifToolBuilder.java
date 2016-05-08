@@ -20,6 +20,7 @@ package com.thebuzzmedia.exiftool;
 import com.thebuzzmedia.exiftool.core.schedulers.DefaultScheduler;
 import com.thebuzzmedia.exiftool.core.schedulers.NoOpScheduler;
 import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
+import com.thebuzzmedia.exiftool.core.strategies.PoolStrategy;
 import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
@@ -27,6 +28,8 @@ import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExecutor;
 
@@ -173,6 +176,11 @@ public class ExifToolBuilder {
 	 * Custom Scheduler.
 	 */
 	private Scheduler scheduler;
+
+	/**
+	 * Pool size.
+	 */
+	private int poolSize;
 
 	public ExifToolBuilder() {
 	}
@@ -334,6 +342,27 @@ public class ExifToolBuilder {
 	}
 
 	/**
+	 * Override default execution strategy.
+	 *
+	 * @param poolSize Pool size.
+	 * @param cleanupDelay Cleanup delay for each scheduler of pool elements.
+	 * @return Current builder.
+	 */
+	public ExifToolBuilder withPoolSize(int poolSize, long cleanupDelay) {
+		log.debug("Overriding default strategy");
+		log.warn("Enabling 'stay_open' feature will be ignored");
+
+		this.poolSize = poolSize;
+		this.cleanupDelay = cleanupDelay;
+
+		if (poolSize <= 0) {
+			log.warn("Pool size has been enabled with a value less or equal than zero, ignore it.");
+		}
+
+		return this;
+	}
+
+	/**
 	 * Create exiftool instance with previous settings.
 	 *
 	 * @return Exiftool instance.
@@ -341,7 +370,7 @@ public class ExifToolBuilder {
 	public ExifTool build() {
 		String path = firstNonNull(this.path, PATH);
 		CommandExecutor executor = firstNonNull(this.executor, EXECUTOR);
-		ExecutionStrategy strategy = firstNonNull(this.strategy, new StrategyFunction(stayOpen, cleanupDelay, scheduler));
+		ExecutionStrategy strategy = firstNonNull(this.strategy, new StrategyFunction(stayOpen, cleanupDelay, scheduler, poolSize));
 
 		// Add some debugging information
 		if (log.isDebugEnabled()) {
@@ -489,20 +518,37 @@ public class ExifToolBuilder {
 
 		private final Scheduler scheduler;
 
-		public StrategyFunction(Boolean stayOpen, Long delay, Scheduler scheduler) {
+		private int poolSize;
+
+		public StrategyFunction(Boolean stayOpen, Long delay, Scheduler scheduler, int poolSize) {
 			this.stayOpen = stayOpen;
 			this.delay = delay;
 			this.scheduler = scheduler;
+			this.poolSize = poolSize;
 		}
 
 		@Override
 		public ExecutionStrategy apply() {
+			// First, try the pool strategy.
+			if (poolSize > 0) {
+				List<ExecutionStrategy> strategies = new ArrayList<ExecutionStrategy>(poolSize);
+				for (int i = 0; i < poolSize; i++) {
+					Scheduler scheduler = delay == null ? new NoOpScheduler() : new DefaultScheduler(delay);
+					StayOpenStrategy strategy = new StayOpenStrategy(scheduler);
+					strategies.add(strategy);
+				}
+
+				return new PoolStrategy(strategies);
+			}
+
+			// Try the stayOpen strategy.
+			if (stayOpen != null && stayOpen) {
+				return new StayOpenStrategy(firstNonNull(scheduler, new SchedulerFunction(delay)));
+			}
+
 			// Simple use case: nothing has been parametrized, so
 			// just return the default strategy.
-			// Otherwise, build strategy with scheduler.
-			return stayOpen == null || !stayOpen ?
-				new DefaultStrategy() :
-				new StayOpenStrategy(firstNonNull(scheduler, new SchedulerFunction(delay)));
+			return new DefaultStrategy();
 		}
 	}
 }

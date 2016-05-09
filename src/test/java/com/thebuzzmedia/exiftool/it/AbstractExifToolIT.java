@@ -75,8 +75,8 @@ public abstract class AbstractExifToolIT {
 
 	@Test
 	public void testGetVersion() {
-		assertThat(exifTool.getVersion()).isEqualTo(new Version("10.07.0"));
-		assertThat(exifToolStayOpen.getVersion()).isEqualTo(new Version("10.07.0"));
+		assertThat(exifTool.getVersion()).isEqualTo(new Version("10.16.0"));
+		assertThat(exifToolStayOpen.getVersion()).isEqualTo(new Version("10.16.0"));
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public abstract class AbstractExifToolIT {
 	protected abstract Map<Tag, String> updateTags();
 
 	private static File path() {
-		String relativePath = "/exiftool-10_07/";
+		String relativePath = "/exiftool-10_16/";
 		if (IS_WINDOWS) {
 			relativePath += "windows/exiftool.exe";
 		} else {

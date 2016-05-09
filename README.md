@@ -70,7 +70,7 @@ This library is available on maven repository:
 <dependency>
   <groupId>com.github.mjeanroy</groupId>
   <artifactId>exiftool-lib</artifactId>
-  <version>2.0.1</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 

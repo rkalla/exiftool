@@ -53,7 +53,7 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 				put(StandardTag.GPS_LATITUDE, "32 deg 48' 4.00\" N");
 
 				// Weird, but there is specific results for windows / unix
-				put(StandardTag.FOCAL_LENGTH, IS_WINDOWS ? "0.0 mm" : "Inf mm");
+				put(StandardTag.FOCAL_LENGTH, IS_WINDOWS ? "0.0 mm" : "inf mm");
 
 				put(StandardTag.GPS_LONGITUDE, "117 deg 13' 33.00\" W");
 				put(StandardTag.APERTURE, "1.1");

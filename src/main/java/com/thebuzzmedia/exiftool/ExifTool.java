@@ -224,6 +224,19 @@ import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
  *   </li>
  * </ul>
  *
+ * If you want to use ExifTool in a multi-threaded environment, I strongly suggest you to
+ * use a pool size: this is available out of the box. With this configuration, you will get at most
+ * a number of open process equal to the size of the pool. If a thread is trying to parse an image and no process
+ * is available, then ExifTool will wait for a process to be available.
+ *
+ * Here is the configuration to get a pool:
+ *
+ * <pre><code>
+ *     ExifTool exifTool = new ExifToolBuilder()
+ *         .withPoolSize(10) // Allow 10 exiftool process in parallel
+ *         .build();
+ * </code></pre>
+ *
  * <h3>Why ExifTool?</h3>
  *
  * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool">ExifTool</a> is

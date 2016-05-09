@@ -33,7 +33,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.Map;
-import java.util.TreeMap;
 
 import static com.thebuzzmedia.exiftool.tests.TestConstants.IS_WINDOWS;
 import static java.util.Arrays.asList;
@@ -142,10 +141,23 @@ public abstract class AbstractExifToolIT {
 
 	private void checkMeta(ExifTool exifTool, File image, Tag[] tags, Map<Tag, String> expectations) throws Exception {
 		Map<Tag, String> results = exifTool.getImageMeta(image, StandardFormat.HUMAN_READABLE, asList(tags));
-		assertThat(new TreeMap<Tag, String>(results))
+		assertThat(results)
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(new TreeMap<Tag, String>(expectations));
+			.hasSize(expectations.size());
+
+		for (Map.Entry<Tag, String> entry : results.entrySet()) {
+			Tag tag = entry.getKey();
+			assertThat(expectations)
+				.overridingErrorMessage(String.format("Result should contain tag %s", tag))
+				.containsKey(tag);
+
+			String result = entry.getValue();
+			String expectation = expectations.get(tag);
+			assertThat(result)
+				.overridingErrorMessage(String.format("Result should contain tag %s with value %s", tag, expectation))
+				.isEqualToIgnoringCase(expectation);
+		}
 	}
 
 	protected abstract String image();

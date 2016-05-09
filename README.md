@@ -187,6 +187,43 @@ public class ExifParser {
 }
 ```
 
+#### Multithreading
+
+ExifTool is completely thread-safe. It means that if you use a "stay open" process, each access (get / set meta-data)
+will be synchronized. This can be a big problem if you need to manipulate images in parallel. In this case, a pool
+can be configured to allow a maximum number of `exiftool` to be open.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.thebuzzmedia.exiftool.ExifTool;
+import com.thebuzzmedia.exiftool.ExifToolBuilder;
+import com.thebuzzmedia.exiftool.Tag;
+import com.thebuzzmedia.exiftool.core.StandardTag;
+import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
+
+import java.io.File;
+import java.util.Map;
+
+import static java.util.Arrays.asList;
+
+public class ExifParser {
+
+    private static final Logger log = LoggerFactory.getLogger(ExifParser.class);
+
+    public static void main(String[] args) throws Exception {
+        ExifTool exifTool = new ExifToolBuilder()
+            .withPoolSize(10)  // Allow 10 process
+            .enableStayOpen()
+            .build();
+
+        // Start 10 threads and use exifTool in parallel.
+        // ...
+    }
+}
+```
+
 ### Performance
 
 You can benchmark the performance of this ExifTool library on your machine by

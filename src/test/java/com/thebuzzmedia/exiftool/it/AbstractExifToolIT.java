@@ -47,6 +47,8 @@ public abstract class AbstractExifToolIT {
 
 	private ExifTool exifToolStayOpen;
 
+	private ExifTool exifToolPool;
+
 	@Rule
 	public TemporaryFolder tmp = new TemporaryFolder();
 
@@ -65,12 +67,18 @@ public abstract class AbstractExifToolIT {
 			.withPath(path)
 			.enableStayOpen()
 			.build();
+
+		exifToolPool = new ExifToolBuilder()
+				.withPath(path)
+				.withPoolSize(2)
+				.build();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		exifTool.close();
 		exifToolStayOpen.close();
+		exifToolPool.close();
 	}
 
 	@Test
@@ -85,8 +93,13 @@ public abstract class AbstractExifToolIT {
 	}
 
 	@Test
-	public void testGetImageMeta_StayOpen() throws Exception {
+	public void testGetImageMeta_stay_open() throws Exception {
 		verifyGetMeta(exifToolStayOpen);
+	}
+
+	@Test
+	public void testGetImageMeta_Pool() throws Exception {
+		verifyGetMeta(exifToolPool);
 	}
 
 	@Test
@@ -97,6 +110,11 @@ public abstract class AbstractExifToolIT {
 	@Test
 	public void testSetImageMeta_stay_open() throws Exception {
 		verifySetMeta(exifToolStayOpen);
+	}
+
+	@Test
+	public void testSetImageMeta_pool() throws Exception {
+		verifySetMeta(exifToolPool);
 	}
 
 	private void verifyGetMeta(ExifTool exifTool) throws Exception {

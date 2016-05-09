@@ -17,6 +17,8 @@
 
 package com.thebuzzmedia.exiftool;
 
+import com.thebuzzmedia.exiftool.core.schedulers.DefaultScheduler;
+import com.thebuzzmedia.exiftool.core.schedulers.NoOpScheduler;
 import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
 import com.thebuzzmedia.exiftool.core.strategies.PoolStrategy;
 import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
@@ -27,6 +29,7 @@ import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
 import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
 import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
 import com.thebuzzmedia.exiftool.tests.junit.SystemPropertyRule;
+import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -318,5 +321,90 @@ public class ExifToolBuilderTest {
 
 		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool", BlockingQueue.class);
 		assertThat(pool.size()).isEqualTo(10);
+		assertThat(pool)
+				.isNotEmpty()
+				.are(new Condition<ExecutionStrategy>() {
+					@Override
+					public boolean matches(ExecutionStrategy value) {
+						return value instanceof StayOpenStrategy;
+					}
+				})
+				.are(new Condition<ExecutionStrategy>() {
+					@Override
+					public boolean matches(ExecutionStrategy value) {
+						StayOpenStrategy stayOpenStrategy = (StayOpenStrategy) value;
+						try {
+							Scheduler scheduler = readPrivateField(stayOpenStrategy, "scheduler", Scheduler.class);
+							return scheduler instanceof DefaultScheduler;
+						}
+						catch (Exception ex) {
+							throw new AssertionError(ex);
+						}
+					}
+				});
+	}
+
+	@Test
+	public void it_should_not_create_pool_strategy_with_negative_pool() throws Exception {
+		ExifTool exifTool = builder
+				.withExecutor(executor)
+				.withPoolSize(0, 0)
+				.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+				.isNotNull()
+				.isExactlyInstanceOf(DefaultStrategy.class);
+	}
+
+	@Test
+	public void it_should_not_create_pool_strategy_with_negative_pool_without_delay() throws Exception {
+		ExifTool exifTool = builder
+				.withExecutor(executor)
+				.withPoolSize(0)
+				.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+				.isNotNull()
+				.isExactlyInstanceOf(DefaultStrategy.class);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void it_should_create_with_pool_strategy_and_no_op_scheduler() throws Exception {
+		ExifTool exifTool = builder
+				.withExecutor(executor)
+				.withPoolSize(10)
+				.build();
+
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		assertThat(strategy)
+				.isNotNull()
+				.isExactlyInstanceOf(PoolStrategy.class);
+
+		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool", BlockingQueue.class);
+		assertThat(pool.size()).isEqualTo(10);
+		assertThat(pool)
+				.isNotEmpty()
+				.are(new Condition<ExecutionStrategy>("Pool should only contains instance of StayOpenStrategy") {
+					@Override
+					public boolean matches(ExecutionStrategy value) {
+						return value instanceof StayOpenStrategy;
+					}
+				})
+				.are(new Condition<ExecutionStrategy>("Pool should only contains instance of NoOpScheduler.") {
+					@Override
+					public boolean matches(ExecutionStrategy value) {
+						StayOpenStrategy stayOpenStrategy = (StayOpenStrategy) value;
+						try {
+							Scheduler scheduler = readPrivateField(stayOpenStrategy, "scheduler", Scheduler.class);
+							return scheduler instanceof NoOpScheduler;
+						}
+						catch (Exception ex) {
+							throw new AssertionError(ex);
+						}
+					}
+				});
 	}
 }

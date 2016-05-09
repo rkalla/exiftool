@@ -342,7 +342,12 @@ public class ExifToolBuilder {
 	}
 
 	/**
-	 * Override default execution strategy.
+	 * Override default execution strategy:
+	 *
+	 * <ul>
+	 *   <li>a pool of {@link StayOpenStrategy} with a size of {@code poolSize} will be used.</li>
+	 *   <li>Default scheduler instances will be used with a delay of {@code cleanupDelay}.</li>
+	 * </ul>
 	 *
 	 * @param poolSize Pool size.
 	 * @param cleanupDelay Cleanup delay for each scheduler of pool elements.
@@ -350,12 +355,35 @@ public class ExifToolBuilder {
 	 */
 	public ExifToolBuilder withPoolSize(int poolSize, long cleanupDelay) {
 		log.debug("Overriding default strategy");
-		log.warn("Enabling 'stay_open' feature will be ignored");
 
-		this.poolSize = poolSize;
-		this.cleanupDelay = cleanupDelay;
+		if (poolSize > 0) {
+			this.poolSize = poolSize;
+			this.cleanupDelay = cleanupDelay;
+		} else {
+			log.warn("Pool size has been enabled with a value less or equal than zero, ignore it.");
+		}
 
-		if (poolSize <= 0) {
+		return this;
+	}
+
+	/**
+	 * Override default execution strategy:
+	 *
+	 * <ul>
+	 *   <li>a pool of {@link StayOpenStrategy} with a size of {@code poolSize} will be used.</li>
+	 *   <li>No cleanup scheduler will be used (use {@link #withPoolSize(int, long)} instead.</li>
+	 * </ul>
+	 *
+	 * @param poolSize Pool size.
+	 * @return Current builder.
+	 */
+	public ExifToolBuilder withPoolSize(int poolSize) {
+		log.debug("Overriding default strategy");
+
+		if (poolSize > 0) {
+			this.poolSize = poolSize;
+			this.cleanupDelay = 0L;
+		} else {
 			log.warn("Pool size has been enabled with a value less or equal than zero, ignore it.");
 		}
 
@@ -533,7 +561,7 @@ public class ExifToolBuilder {
 			if (poolSize > 0) {
 				List<ExecutionStrategy> strategies = new ArrayList<ExecutionStrategy>(poolSize);
 				for (int i = 0; i < poolSize; i++) {
-					Scheduler scheduler = delay == null ? new NoOpScheduler() : new DefaultScheduler(delay);
+					Scheduler scheduler = new SchedulerFunction(delay).apply();
 					StayOpenStrategy strategy = new StayOpenStrategy(scheduler);
 					strategies.add(strategy);
 				}

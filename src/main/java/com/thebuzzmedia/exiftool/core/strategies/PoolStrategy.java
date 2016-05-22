@@ -28,7 +28,6 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -133,7 +132,7 @@ public class PoolStrategy implements ExecutionStrategy {
 			}
 		}
 
-		List<Exception> thrownEx = new LinkedList<Exception>();
+		List<Exception> thrownEx = new ArrayList<Exception>(strategies.size());
 		int i = 0;
 		for (ExecutionStrategy strategy : strategies) {
 			try {

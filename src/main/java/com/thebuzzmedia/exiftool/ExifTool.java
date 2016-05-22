@@ -27,11 +27,7 @@ import com.thebuzzmedia.exiftool.process.CommandExecutor;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.isReadable;
@@ -474,10 +470,13 @@ public class ExifTool implements AutoCloseable {
 	 * @return List of associated arguments.
 	 */
 	private List<String> getImageMetaArguments(Format format, File image, Collection<Tag> tags) {
-		List<String> args = new LinkedList<String>();
+		// Create list of arguments: deduce expected number of arguments.
+		List<String> formatArgs = format.getArgs();
+		int nbArgs = tags.size() + formatArgs.size() + 3;
+		List<String> args = new ArrayList<String>(nbArgs);
 
 		// Format output.
-		args.addAll(format.getArgs());
+		args.addAll(formatArgs);
 
 		// Compact output.
 		args.add("-S");
@@ -507,10 +506,12 @@ public class ExifTool implements AutoCloseable {
 	 * @return List of associated arguments.
 	 */
 	private List<String> setImageMetaArguments(Format format, File image, Map<Tag, String> tags) {
-		List<String> args = new LinkedList<String>();
+		List<String> formatArgs = format.getArgs();
+		int nbArgs = tags.size() + formatArgs.size() + 3;
+		List<String> args = new ArrayList<String>(nbArgs);
 
 		// Format output.
-		args.addAll(format.getArgs());
+		args.addAll(formatArgs);
 
 		// Compact output.
 		args.add("-S");

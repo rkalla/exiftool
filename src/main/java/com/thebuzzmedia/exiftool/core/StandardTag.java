@@ -164,7 +164,7 @@ public enum StandardTag implements Tag {
 		},
         ARRAY {
             @Override
-            public <T> T parse(String value) { return (T) value.split("|>☃"); }
+            public <T> T parse(String value) { return (T) value.split("\\|>☃"); }
         };
 
 		public abstract <T> T parse(String value);

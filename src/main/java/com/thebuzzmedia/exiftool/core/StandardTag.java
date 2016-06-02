@@ -110,7 +110,7 @@ public enum StandardTag implements Tag {
 	OBJECT_NAME("ObjectName", Type.STRING),
 	CAPTION_ABSTRACT("Caption-Abstract", Type.STRING),
 	CREATOR("Creator", Type.STRING),
-	IPTC_KEYWORDS("Keywords", Type.STRING),
+	IPTC_KEYWORDS("Keywords", Type.ARRAY),
 	COPYRIGHT_NOTICE("CopyrightNotice", Type.STRING),
 	FILE_TYPE("FileType", Type.STRING),
 	AVG_BITRATE("AvgBitrate", Type.STRING),
@@ -161,7 +161,11 @@ public enum StandardTag implements Tag {
 			public <T> T parse(String value) {
 				return (T) value;
 			}
-		};
+		},
+        ARRAY {
+            @Override
+            public <T> T parse(String value) { return (T) value.split("|>☃"); }
+        };
 
 		public abstract <T> T parse(String value);
 	}

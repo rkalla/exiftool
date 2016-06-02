@@ -193,9 +193,9 @@ public class StayOpenStrategyTest {
 		assertThat(startCmd.getArguments())
 			.isNotNull()
 			.isNotEmpty()
-			.hasSize(5)
+			.hasSize(7)
 			.containsExactly(
-				exifTool, "-stay_open", "True", "-@", "-"
+				exifTool, "-stay_open", "True", "-sep", "|>☃", "-@", "-"
 			);
 	}
 

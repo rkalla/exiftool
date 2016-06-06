@@ -90,7 +90,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 			if (process == null || process.isClosed()) {
 				log.debug("Start exiftool process");
 				process = executor.start(CommandBuilder.builder(exifTool)
-					.addArgument("-stay_open", "True", "-@", "-")
+					.addArgument("-stay_open", "True", "-sep", "|>☃", "-@", "-")
 					.build());
 			}
 

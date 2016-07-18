@@ -55,6 +55,7 @@ public enum StandardTag implements Tag {
 	ISO("ISO", Type.INTEGER),
 	APERTURE("ApertureValue", Type.DOUBLE),
 	WHITE_BALANCE("WhiteBalance", Type.INTEGER),
+	BRIGHTNESS("BrightnessValue", Type.DOUBLE),
 	CONTRAST("Contrast", Type.INTEGER),
 	SATURATION("Saturation", Type.INTEGER),
 	SHARPNESS("Sharpness", Type.INTEGER),
@@ -113,6 +114,7 @@ public enum StandardTag implements Tag {
 	IPTC_KEYWORDS("Keywords", Type.ARRAY),
 	COPYRIGHT_NOTICE("CopyrightNotice", Type.STRING),
 	FILE_TYPE("FileType", Type.STRING),
+	FILE_SIZE("FileSize", Type.LONG),
 	AVG_BITRATE("AvgBitrate", Type.STRING),
 	MIME_TYPE("MIMEType", Type.STRING);
 
@@ -148,6 +150,12 @@ public enum StandardTag implements Tag {
 			@Override
 			public <T> T parse(String value) {
 				return (T) Integer.valueOf(Integer.parseInt(value));
+			}
+		},
+		LONG {
+			@Override
+			public <T> T parse(String value) {
+				return (T) Long.valueOf(Long.parseLong(value));
 			}
 		},
 		DOUBLE {

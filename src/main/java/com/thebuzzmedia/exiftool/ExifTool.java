@@ -397,7 +397,7 @@ public class ExifTool implements AutoCloseable {
 	 * @throws IllegalArgumentException If list of tag is empty.
 	 * @throws com.thebuzzmedia.exiftool.exceptions.UnreadableFileException If image cannot be read.
 	 */
-	public Map<Tag, String> getImageMeta(File image, Format format, Collection<Tag> tags) throws IOException {
+	public Map<Tag, String> getImageMeta(File image, Format format, Collection<? extends Tag> tags) throws IOException {
 		notNull(image, "Image cannot be null and must be a valid stream of image data.");
 		notNull(format, "Format cannot be null.");
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
@@ -429,7 +429,7 @@ public class ExifTool implements AutoCloseable {
 	 * @param tags Tags to write.
 	 * @throws IOException If an error occurs during write operation.
 	 */
-	public void setImageMeta(File image, Map<Tag, String> tags) throws IOException {
+	public void setImageMeta(File image, Map<? extends Tag, String> tags) throws IOException {
 		setImageMeta(image, StandardFormat.NUMERIC, tags);
 	}
 
@@ -441,7 +441,7 @@ public class ExifTool implements AutoCloseable {
 	 * @param tags Tags to write.
 	 * @throws IOException If an error occurs during write operation.
 	 */
-	public void setImageMeta(File image, Format format, Map<Tag, String> tags) throws IOException {
+	public void setImageMeta(File image, Format format, Map<? extends Tag, String> tags) throws IOException {
 		notNull(image, "Image cannot be null and must be a valid stream of image data.");
 		notNull(format, "Format cannot be null.");
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
@@ -469,7 +469,7 @@ public class ExifTool implements AutoCloseable {
 	 * @param tags List of tags.
 	 * @return List of associated arguments.
 	 */
-	private List<String> getImageMetaArguments(Format format, File image, Collection<Tag> tags) {
+	private List<String> getImageMetaArguments(Format format, File image, Collection<? extends Tag> tags) {
 		// Create list of arguments: deduce expected number of arguments.
 		List<String> formatArgs = format.getArgs();
 		int nbArgs = tags.size() + formatArgs.size() + 3;
@@ -505,7 +505,7 @@ public class ExifTool implements AutoCloseable {
 	 * @param tags List of tags.
 	 * @return List of associated arguments.
 	 */
-	private List<String> setImageMetaArguments(Format format, File image, Map<Tag, String> tags) {
+	private List<String> setImageMetaArguments(Format format, File image, Map<? extends Tag, String> tags) {
 		List<String> formatArgs = format.getArgs();
 		int nbArgs = tags.size() + formatArgs.size() + 3;
 		List<String> args = new ArrayList<>(nbArgs);
@@ -517,7 +517,7 @@ public class ExifTool implements AutoCloseable {
 		args.add("-S");
 
 		// Add tags arguments.
-		for (Map.Entry<Tag, String> entry : tags.entrySet()) {
+		for (Map.Entry<? extends Tag, String> entry : tags.entrySet()) {
 			args.add("-" + entry.getKey().getName() + "=" + entry.getValue());
 		}
 

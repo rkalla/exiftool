@@ -68,14 +68,14 @@ public class TagHandler implements OutputHandler {
 	/**
 	 * List of expected inputs.
 	 */
-	private final Map<String, Tag> inputs;
+	private final Map<String, ? extends Tag> inputs;
 
 	/**
 	 * Create handler with expected list of tags to parse.
 	 *
 	 * @param tags Expected list of tags.
 	 */
-	public TagHandler(Collection<Tag> tags) {
+	public TagHandler(Collection<? extends Tag> tags) {
 		this.tags = new HashMap<>();
 		this.inputs = unmodifiableMap(indexBy(tags, INDEXER));
 	}
@@ -124,9 +124,9 @@ public class TagHandler implements OutputHandler {
 		return tags.size();
 	}
 
-	private static class Indexer implements Mapper<Tag, String> {
+	private static class Indexer<T extends Tag> implements Mapper<T, String> {
 		@Override
-		public String map(Tag input) {
+		public String map(T input) {
 			return input.getName();
 		}
 	}

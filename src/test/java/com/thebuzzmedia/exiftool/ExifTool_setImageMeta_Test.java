@@ -74,14 +74,14 @@ public class ExifTool_setImageMeta_Test {
 
 	private ExifTool exifTool;
 
-	private Map<Tag, String> tags;
+	private Map<StandardTag, String> tags;
 
 	@Before
 	public void setUp() throws Exception {
 		path = "exiftool";
 		tags = newMap(
-			(Tag) StandardTag.APERTURE, "foo",
-			(Tag) StandardTag.ARTIST, "bar"
+			StandardTag.APERTURE, "foo",
+			StandardTag.ARTIST, "bar"
 		);
 
 		CommandResult result = new CommandResultBuilder()

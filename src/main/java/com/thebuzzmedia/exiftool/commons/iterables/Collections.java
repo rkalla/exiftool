@@ -90,7 +90,7 @@ public final class Collections {
 	 * @return New list of outputs.
 	 */
 	public static <T, U> List<U> map(List<T> inputs, Mapper<T, U> mapper) {
-		List<U> outputs = new ArrayList<U>(inputs.size());
+		List<U> outputs = new ArrayList<>(inputs.size());
 		for (T input : inputs) {
 			U output = mapper.map(input);
 			outputs.add(output);
@@ -109,7 +109,7 @@ public final class Collections {
 	 * @return Map of key (result of mapper function) with values (inputs).
 	 */
 	public static <T, U> Map<U, T> indexBy(Iterable<T> inputs, Mapper<T, U> indexer) {
-		Map<U, T> index = new HashMap<U, T>();
+		Map<U, T> index = new HashMap<>();
 		for (T input : inputs) {
 			U output = indexer.map(input);
 			index.put(output, input);

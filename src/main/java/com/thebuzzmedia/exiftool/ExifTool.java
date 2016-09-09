@@ -473,7 +473,7 @@ public class ExifTool implements AutoCloseable {
 		// Create list of arguments: deduce expected number of arguments.
 		List<String> formatArgs = format.getArgs();
 		int nbArgs = tags.size() + formatArgs.size() + 3;
-		List<String> args = new ArrayList<String>(nbArgs);
+		List<String> args = new ArrayList<>(nbArgs);
 
 		// Format output.
 		args.addAll(formatArgs);
@@ -508,7 +508,7 @@ public class ExifTool implements AutoCloseable {
 	private List<String> setImageMetaArguments(Format format, File image, Map<Tag, String> tags) {
 		List<String> formatArgs = format.getArgs();
 		int nbArgs = tags.size() + formatArgs.size() + 3;
-		List<String> args = new ArrayList<String>(nbArgs);
+		List<String> args = new ArrayList<>(nbArgs);
 
 		// Format output.
 		args.addAll(formatArgs);

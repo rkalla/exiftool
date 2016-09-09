@@ -48,7 +48,7 @@ public class DefaultStrategyTest {
 		ArgumentCaptor<Command> cmdCaptor = ArgumentCaptor.forClass(Command.class);
 		verify(executor).execute(cmdCaptor.capture(), same(handler));
 
-		List<String> expectedArguments = new ArrayList<String>();
+		List<String> expectedArguments = new ArrayList<>();
 		expectedArguments.add(exifTool);
 		expectedArguments.addAll(args);
 

@@ -42,7 +42,7 @@ public final class MapUtils {
 	 * @return New created map.
 	 */
 	public static <T, U> Map<T, U> newMap(T k1, U v1, T k2, U v2) {
-		Map<T, U> map = new LinkedHashMap<T, U>();
+		Map<T, U> map = new LinkedHashMap<>();
 		map.put(k1, v1);
 		map.put(k2, v2);
 		return unmodifiableMap(map);

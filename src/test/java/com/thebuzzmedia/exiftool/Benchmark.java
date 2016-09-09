@@ -82,8 +82,8 @@ public class Benchmark {
 			throws IllegalArgumentException, SecurityException, IOException {
 		long startTime = System.currentTimeMillis();
 
-		for (int i = 0; i < images.length; i++) {
-			tool.getImageMeta(images[i], asList(TAGS));
+		for (File image : images) {
+			tool.getImageMeta(image, asList(TAGS));
 		}
 
 		return (System.currentTimeMillis() - startTime);

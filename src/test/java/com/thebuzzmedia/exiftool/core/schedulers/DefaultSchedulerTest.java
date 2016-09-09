@@ -112,7 +112,7 @@ public class DefaultSchedulerTest {
 
 		RunnableFuture<?> r1 = mock(RunnableFuture.class);
 		RunnableFuture<?> r2 = mock(RunnableFuture.class);
-		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(10);
+		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(10);
 		queue.add(r1);
 		queue.add(r2);
 
@@ -134,7 +134,7 @@ public class DefaultSchedulerTest {
 
 		RunnableFuture<?> r1 = mock(RunnableFuture.class);
 		RunnableFuture<?> r2 = mock(RunnableFuture.class);
-		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(10);
+		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(10);
 		queue.add(r1);
 		queue.add(r2);
 

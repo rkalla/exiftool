@@ -35,6 +35,7 @@ public final class Objects {
 	 * @param <T> Type of parameters.
 	 * @return First parameter if it is not {@code null}, second parameter otherwise.
 	 */
+	@SafeVarargs
 	public static <T> T firstNonNull(T val1, T val2, T... others) {
 		if (val1 != null) {
 			return val1;

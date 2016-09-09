@@ -56,7 +56,7 @@ class CompositeHandler implements OutputHandler {
 	 * @param handlers List of handlers.
 	 */
 	CompositeHandler(OutputHandler... handlers) {
-		List<OutputHandler> list = new ArrayList<OutputHandler>(handlers.length);
+		List<OutputHandler> list = new ArrayList<>(handlers.length);
 		if (handlers.length > 0) {
 			addAll(list, handlers);
 		}

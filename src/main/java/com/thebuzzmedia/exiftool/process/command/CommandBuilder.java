@@ -62,7 +62,7 @@ public class CommandBuilder {
 	 */
 	private CommandBuilder(String executable) {
 		this.executable = notBlank(executable, "Command line executable should be defined");
-		this.arguments = new LinkedList<String>();
+		this.arguments = new LinkedList<>();
 	}
 
 	/**

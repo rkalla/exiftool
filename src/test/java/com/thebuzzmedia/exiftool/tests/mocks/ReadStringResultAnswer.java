@@ -32,7 +32,7 @@ public class ReadStringResultAnswer implements Answer<String> {
 	private final List<String> lines;
 
 	public ReadStringResultAnswer(String... lines) {
-		this.lines = new ArrayList<String>(lines.length);
+		this.lines = new ArrayList<>(lines.length);
 		addAll(this.lines, lines);
 	}
 

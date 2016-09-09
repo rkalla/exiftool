@@ -214,7 +214,7 @@ public class StayOpenStrategyTest {
 	}
 
 	private List<String> appendBr(List<String> list) {
-		List<String> results = new ArrayList<String>(list.size());
+		List<String> results = new ArrayList<>(list.size());
 		for (String input : list) {
 			results.add(input + BR);
 		}

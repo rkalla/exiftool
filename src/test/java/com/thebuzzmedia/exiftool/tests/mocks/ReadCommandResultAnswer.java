@@ -35,7 +35,7 @@ public class ReadCommandResultAnswer implements Answer<CommandResult> {
 	private final List<String> lines;
 
 	public ReadCommandResultAnswer(String... lines) {
-		this.lines = new ArrayList<String>(lines.length);
+		this.lines = new ArrayList<>(lines.length);
 		addAll(this.lines, lines);
 	}
 

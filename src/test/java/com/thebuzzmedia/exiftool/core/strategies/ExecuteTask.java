@@ -63,7 +63,7 @@ class ExecuteTask implements Runnable {
 		this.pool = pool;
 		this.executor = executor;
 		this.exifTool = exifTool;
-		this.arguments = new ArrayList<String>(arguments);
+		this.arguments = new ArrayList<>(arguments);
 		this.handler = handler;
 	}
 

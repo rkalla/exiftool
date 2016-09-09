@@ -73,7 +73,7 @@ public class PoolStrategy implements ExecutionStrategy {
 		notEmpty(strategies, "Pool must not be empty");
 
 		this.poolSize = strategies.size();
-		this.pool = new LinkedBlockingDeque<ExecutionStrategy>(strategies);
+		this.pool = new LinkedBlockingDeque<>(strategies);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class PoolStrategy implements ExecutionStrategy {
 
 	@Override
 	public void close() throws Exception {
-		List<ExecutionStrategy> strategies = new ArrayList<ExecutionStrategy>(poolSize);
+		List<ExecutionStrategy> strategies = new ArrayList<>(poolSize);
 
 		// Get all strategies from the pool.
 		// We need to be sure that all strategies are available.
@@ -132,7 +132,7 @@ public class PoolStrategy implements ExecutionStrategy {
 			}
 		}
 
-		List<Exception> thrownEx = new ArrayList<Exception>(strategies.size());
+		List<Exception> thrownEx = new ArrayList<>(strategies.size());
 		int i = 0;
 		for (ExecutionStrategy strategy : strategies) {
 			try {

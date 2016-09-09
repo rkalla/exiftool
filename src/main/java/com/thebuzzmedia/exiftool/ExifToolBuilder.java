@@ -559,7 +559,7 @@ public class ExifToolBuilder {
 		public ExecutionStrategy apply() {
 			// First, try the pool strategy.
 			if (poolSize > 0) {
-				List<ExecutionStrategy> strategies = new ArrayList<ExecutionStrategy>(poolSize);
+				List<ExecutionStrategy> strategies = new ArrayList<>(poolSize);
 				for (int i = 0; i < poolSize; i++) {
 					Scheduler scheduler = new SchedulerFunction(delay).apply();
 					StayOpenStrategy strategy = new StayOpenStrategy(scheduler);

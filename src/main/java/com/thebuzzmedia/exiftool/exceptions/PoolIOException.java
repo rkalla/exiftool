@@ -29,7 +29,7 @@ public class PoolIOException extends IOException {
 
 	public PoolIOException(String message, Collection<Exception> thrownExceptions) {
 		super(message);
-		this.thrownExceptions = new ArrayList<Exception>(thrownExceptions);
+		this.thrownExceptions = new ArrayList<>(thrownExceptions);
 	}
 
 	public Collection<Exception> getThrownExceptions() {

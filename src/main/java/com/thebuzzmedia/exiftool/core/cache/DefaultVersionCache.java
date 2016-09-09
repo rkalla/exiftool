@@ -49,7 +49,7 @@ class DefaultVersionCache implements VersionCache {
 	 */
 	DefaultVersionCache() {
 		super();
-		this.cache = new ConcurrentHashMap<String, Future<Version>>();
+		this.cache = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ class DefaultVersionCache implements VersionCache {
 			Future<Version> task = cache.get(exifTool);
 			if (task == null) {
 				Callable<Version> callable = new VersionCallable(exifTool, executor);
-				FutureTask<Version> newTask = new FutureTask<Version>(callable);
+				FutureTask<Version> newTask = new FutureTask<>(callable);
 				task = cache.putIfAbsent(exifTool, newTask);
 				if (task == null) {
 					task = newTask;

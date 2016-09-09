@@ -50,14 +50,14 @@ public class SystemPropertyRule extends ExternalResource {
 	 * @param prop Property name.
 	 */
 	public SystemPropertyRule(String prop, String... other) {
-		props = new HashSet<String>();
+		props = new HashSet<>();
 		props.add(prop);
 		addAll(props, other);
 	}
 
 	@Override
 	protected void before() throws Throwable {
-		values = new HashMap<String, String>();
+		values = new HashMap<>();
 		for (String prop : props) {
 			values.put(prop, System.getProperty(prop));
 			System.clearProperty(prop);

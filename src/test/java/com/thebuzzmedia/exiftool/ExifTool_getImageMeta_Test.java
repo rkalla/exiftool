@@ -148,7 +148,7 @@ public class ExifTool_getImageMeta_Test {
 		// Given
 		final Format format = StandardFormat.HUMAN_READABLE;
 		final File image = new FileBuilder("foo.png").build();
-		final Map<Tag, String> tags = new HashMap<Tag, String>();
+		final Map<Tag, String> tags = new HashMap<>();
 		tags.put(StandardTag.ARTIST, "bar");
 		tags.put(StandardTag.COMMENT, "foo");
 
@@ -173,7 +173,7 @@ public class ExifTool_getImageMeta_Test {
 		// Given
 		final Format format = StandardFormat.NUMERIC;
 		final File image = new FileBuilder("foo.png").build();
-		final Map<Tag, String> tags = new HashMap<Tag, String>();
+		final Map<Tag, String> tags = new HashMap<>();
 		tags.put(StandardTag.ARTIST, "foo");
 		tags.put(StandardTag.COMMENT, "bar");
 
@@ -197,7 +197,7 @@ public class ExifTool_getImageMeta_Test {
 	public void it_should_get_image_metadata_in_numeric_format_by_default() throws Exception {
 		// Given
 		final File image = new FileBuilder("foo.png").build();
-		final Map<Tag, String> tags = new HashMap<Tag, String>();
+		final Map<Tag, String> tags = new HashMap<>();
 		tags.put(StandardTag.ARTIST, "foo");
 		tags.put(StandardTag.COMMENT, "bar");
 

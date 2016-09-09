@@ -52,7 +52,7 @@ public class DefaultCommand implements Command {
 	 * @param arguments List of optional arguments.
 	 */
 	public DefaultCommand(String executable, List<String> arguments) {
-		List<String> args = new ArrayList<String>(size(arguments) + 1);
+		List<String> args = new ArrayList<>(size(arguments) + 1);
 
 		// Add first argument (should always be executable argument).
 		args.add(executable);

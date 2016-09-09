@@ -87,7 +87,7 @@ public class OpenedProcessRule extends ExternalResource {
 		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String line;
 
-		Set<String> openedProcesses = new HashSet<String>();
+		Set<String> openedProcesses = new HashSet<>();
 		while ((line = input.readLine()) != null) {
 			if (line.contains(processName)) {
 				openedProcesses.add(line);

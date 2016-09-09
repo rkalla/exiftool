@@ -58,7 +58,7 @@ class VersionCallable implements Callable<Version> {
 	 */
 	VersionCallable(String exifTool, CommandExecutor executor) {
 		this.exifTool = exifTool;
-		this.executor = new WeakReference<CommandExecutor>(executor);
+		this.executor = new WeakReference<>(executor);
 	}
 
 	@Override

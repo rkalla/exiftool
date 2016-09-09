@@ -17,7 +17,6 @@
 
 package com.thebuzzmedia.exiftool.commons.lang;
 
-import com.thebuzzmedia.exiftool.commons.lang.PreConditions;
 import com.thebuzzmedia.exiftool.exceptions.UnreadableFileException;
 import com.thebuzzmedia.exiftool.exceptions.UnwritableFileException;
 import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
@@ -150,7 +149,7 @@ public class PreConditionsTest {
 	@Test
 	public void it_should_not_fail_with_valid_map() {
 		String message = "should not be empty";
-		Map<String, String> val = new HashMap<String, String>();
+		Map<String, String> val = new HashMap<>();
 		val.put("foo", "bar");
 
 		Map<String, String> results = PreConditions.notEmpty(val, message);

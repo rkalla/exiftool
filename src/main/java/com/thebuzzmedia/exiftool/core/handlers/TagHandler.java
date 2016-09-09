@@ -76,7 +76,7 @@ public class TagHandler implements OutputHandler {
 	 * @param tags Expected list of tags.
 	 */
 	public TagHandler(Collection<Tag> tags) {
-		this.tags = new HashMap<Tag, String>();
+		this.tags = new HashMap<>();
 		this.inputs = unmodifiableMap(indexBy(tags, INDEXER));
 	}
 

@@ -58,6 +58,8 @@ public class ExifTool_IMG5_IT extends AbstractExifToolIT {
 				put(StandardTag.MAKE, "google");
 				put(StandardTag.APERTURE, "2.8");
 				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.FILE_SIZE, "1475 kB");
+				put(StandardTag.BRIGHTNESS, "5");
 			}
 		};
 	}

@@ -48,6 +48,7 @@ public class ExifTool_IMG10_IT extends AbstractExifToolIT {
 				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:08 17:09:44");
 				put(StandardTag.EXPOSURE_TIME, "1/250");
 				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "912 kB");
 				put(StandardTag.IMAGE_WIDTH, "2592");
 				put(StandardTag.MODEL, "R800x");
 				put(StandardTag.MIME_TYPE, "image/jpeg");

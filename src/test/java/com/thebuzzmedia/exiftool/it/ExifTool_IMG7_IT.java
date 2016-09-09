@@ -60,6 +60,7 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 				put(StandardTag.MODEL, "Pre");
 				put(StandardTag.GPS_LONGITUDE_REF, "West");
 				put(StandardTag.FLASH, "Auto, Did not fire");
+				put(StandardTag.FILE_SIZE, "1017 kB");
 			}
 		};
 	}

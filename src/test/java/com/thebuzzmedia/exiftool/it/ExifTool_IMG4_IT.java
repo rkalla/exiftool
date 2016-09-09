@@ -48,6 +48,8 @@ public class ExifTool_IMG4_IT extends AbstractExifToolIT {
 				put(StandardTag.GPS_LATITUDE, "47 deg 38' 56.40\" N");
 				put(StandardTag.WHITE_BALANCE, "Auto");
 				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "1674 kB");
+				put(StandardTag.BRIGHTNESS, "2.087337662");
 				put(StandardTag.FLASH, "Off, Did not fire");
 				put(StandardTag.GPS_LONGITUDE_REF, "West");
 				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");

@@ -70,6 +70,8 @@ public class ExifTool_IMG9_IT extends AbstractExifToolIT {
 				put(StandardTag.APERTURE, "2.6");
 				put(StandardTag.EXIF_VERSION, "0220");
 				put(StandardTag.DIGITAL_ZOOM_RATIO, "2.245614035");
+				put(StandardTag.FILE_SIZE, "901 kB");
+				put(StandardTag.BRIGHTNESS, "9.77");
 			}
 		};
 	}

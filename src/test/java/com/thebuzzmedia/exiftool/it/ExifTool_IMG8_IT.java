@@ -64,6 +64,7 @@ public class ExifTool_IMG8_IT extends AbstractExifToolIT {
 				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
 				put(StandardTag.ISO, "160");
 				put(StandardTag.IMAGE_WIDTH, "4000");
+				put(StandardTag.FILE_SIZE, "5.5 MB");
 			}
 		};
 	}

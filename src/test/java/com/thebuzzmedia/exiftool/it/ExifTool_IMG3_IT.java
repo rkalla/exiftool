@@ -61,6 +61,8 @@ public class ExifTool_IMG3_IT extends AbstractExifToolIT {
 				put(StandardTag.Y_RESOLUTION, "72");
 				put(StandardTag.SENSING_METHOD, "One-chip color area");
 				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "1679 kB");
+				put(StandardTag.BRIGHTNESS, "9.193455245");
 				put(StandardTag.WHITE_BALANCE, "Auto");
 				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
 				put(StandardTag.SOFTWARE, "5.0");

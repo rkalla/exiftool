@@ -50,6 +50,7 @@ public class ExifTool_IMG1_IT extends AbstractExifToolIT {
 				put(StandardTag.RATING, "4");
 				put(StandardTag.LENS_MODEL, "EF16-35mm f/2.8L II USM");
 				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "4.7 MB");
 				put(StandardTag.CREATOR, "Test Author");
 				put(StandardTag.Y_RESOLUTION, "72");
 				put(StandardTag.SUB_SEC_TIME_ORIGINAL, "14");

@@ -46,6 +46,7 @@ public class ExifTool_IMG2_IT extends AbstractExifToolIT {
 				put(StandardTag.GPS_LATITUDE_REF, "North");
 				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");
 				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "841 kB");
 				put(StandardTag.X_RESOLUTION, "72");
 				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.GPS_ALTITUDE, "613 m Above Sea Level");

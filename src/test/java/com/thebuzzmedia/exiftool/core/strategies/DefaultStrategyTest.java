@@ -50,6 +50,8 @@ public class DefaultStrategyTest {
 
 		List<String> expectedArguments = new ArrayList<>();
 		expectedArguments.add(exifTool);
+		expectedArguments.add("-sep");
+		expectedArguments.add("|>☃");
 		expectedArguments.addAll(args);
 
 		Command cmd = cmdCaptor.getValue();

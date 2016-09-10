@@ -17,6 +17,7 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
+import com.thebuzzmedia.exiftool.Constants;
 import com.thebuzzmedia.exiftool.ExecutionStrategy;
 import com.thebuzzmedia.exiftool.Scheduler;
 import com.thebuzzmedia.exiftool.Version;
@@ -90,8 +91,11 @@ public class StayOpenStrategy implements ExecutionStrategy {
 			if (process == null || process.isClosed()) {
 				log.debug("Start exiftool process");
 				process = executor.start(CommandBuilder.builder(exifTool)
-					.addArgument("-stay_open", "True", "-sep", "|>☃", "-@", "-")
-					.build());
+						.addArgument("-stay_open", "True")
+						.addArgument("-sep", Constants.SEPARATOR)
+						.addArgument("-@")
+						.addArgument("-")
+						.build());
 			}
 
 			// Always reset the cleanup task.

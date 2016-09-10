@@ -17,7 +17,10 @@
 
 package com.thebuzzmedia.exiftool.core;
 
+import com.thebuzzmedia.exiftool.Constants;
 import com.thebuzzmedia.exiftool.Tag;
+
+import java.util.regex.Pattern;
 
 /**
  * Enum used to pre-define a convenient list of tags that can be easily
@@ -177,7 +180,7 @@ public enum StandardTag implements Tag {
 		ARRAY {
 			@Override
 			public <T> T parse(String value) {
-				return (T) value.split("\\|>☃"); }
+				return (T) value.split(Pattern.quote(Constants.SEPARATOR)); }
 		};
 
 		public abstract <T> T parse(String value);

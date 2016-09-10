@@ -56,8 +56,8 @@
 		<versions-maven-plugin.version>2.3</versions-maven-plugin.version>
 
 		<!-- Project dependencies -->
-		<slf4j.version>1.6.1</slf4j.version>
-		<logback.version>1.1.2</logback.version>
+		<slf4j.version>1.7.21</slf4j.version>
+		<logback.version>1.1.7</logback.version>
 		<log4j.version>1.2.16</log4j.version>
 		<guava.version>18.0</guava.version>
 

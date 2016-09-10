@@ -17,6 +17,7 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
+import com.thebuzzmedia.exiftool.Constants;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 
 /**
@@ -30,13 +31,6 @@ import com.thebuzzmedia.exiftool.process.OutputHandler;
  * synchronized if needed.
  */
 class ResultHandler implements OutputHandler {
-
-	/**
-	 * Line separator.
-	 * This constant is system dependent and should be read from
-	 * system environment.
-	 */
-	private static final String BR = System.getProperty("line.separator");
 
 	/**
 	 * Current output.
@@ -54,7 +48,7 @@ class ResultHandler implements OutputHandler {
 	public boolean readLine(String line) {
 		if (line != null) {
 			if (output.length() > 0) {
-				output.append(BR);
+				output.append(Constants.BR);
 			}
 
 			output.append(line);

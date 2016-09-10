@@ -17,13 +17,12 @@
 
 package com.thebuzzmedia.exiftool.process.executor;
 
+import com.thebuzzmedia.exiftool.tests.TestConstants;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResultHandlerTest {
-
-	private static final String BR = System.getProperty("line.separator");
 
 	@Test
 	public void it_should_handle_result() {
@@ -39,7 +38,7 @@ public class ResultHandlerTest {
 		assertThat(handler.getOutput())
 			.isNotEmpty()
 			.isEqualTo(
-				"foo" + BR + "bar"
+				"foo" + TestConstants.BR + "bar"
 			);
 	}
 }

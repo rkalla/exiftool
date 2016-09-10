@@ -225,15 +225,9 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	 */
 	private static class ArgumentMapper implements Mapper<String, String> {
 
-		/**
-		 * Line Break.
-		 * Used a static variable to not read from system property each time.
-		 */
-		private static final String BR = System.getProperty("line.separator");
-
 		@Override
 		public String map(String input) {
-			return input + BR;
+			return input + Constants.BR;
 		}
 	}
 }

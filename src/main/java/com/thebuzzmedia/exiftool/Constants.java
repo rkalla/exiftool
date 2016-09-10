@@ -32,4 +32,9 @@ public final class Constants {
 	 * reused anywhere.
 	 */
 	public static final String SEPARATOR = "|>☃";
+
+	/**
+	 * OS independent line break.
+	 */
+	public static final String BR = System.getProperty("line.separator");
 }

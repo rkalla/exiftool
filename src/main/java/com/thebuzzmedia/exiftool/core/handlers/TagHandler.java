@@ -18,7 +18,6 @@
 package com.thebuzzmedia.exiftool.core.handlers;
 
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.commons.iterables.Mapper;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
@@ -28,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.thebuzzmedia.exiftool.commons.iterables.Collections.indexBy;
 import static com.thebuzzmedia.exiftool.core.handlers.StopHandler.stopHandler;
 import static java.util.Collections.unmodifiableMap;
 
@@ -55,11 +53,6 @@ public class TagHandler implements OutputHandler {
 	private static final Pattern TAG_VALUE_PATTERN = Pattern.compile(": ");
 
 	/**
-	 * Indexer used to map tag to its name.
-	 */
-	private static final Indexer INDEXER = new Indexer();
-
-	/**
 	 * Map of tags found.
 	 * Each tags will be added one by one during line processing.
 	 */
@@ -68,7 +61,7 @@ public class TagHandler implements OutputHandler {
 	/**
 	 * List of expected inputs.
 	 */
-	private final Map<String, ? extends Tag> inputs;
+	private final Map<String, Tag> inputs;
 
 	/**
 	 * Create handler with expected list of tags to parse.
@@ -77,7 +70,13 @@ public class TagHandler implements OutputHandler {
 	 */
 	public TagHandler(Collection<? extends Tag> tags) {
 		this.tags = new HashMap<>();
-		this.inputs = unmodifiableMap(indexBy(tags, INDEXER));
+
+		Map<String, Tag> inputs = new HashMap<>();
+		for (Tag tag : tags) {
+			inputs.put(tag.getName(), tag);
+		}
+
+		this.inputs = unmodifiableMap(inputs);
 	}
 
 	@Override
@@ -122,12 +121,5 @@ public class TagHandler implements OutputHandler {
 
 	public int size() {
 		return tags.size();
-	}
-
-	private static class Indexer<T extends Tag> implements Mapper<T, String> {
-		@Override
-		public String map(T input) {
-			return input.getName();
-		}
 	}
 }

@@ -19,10 +19,8 @@ package com.thebuzzmedia.exiftool.commons.iterables;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Static Collection Utilities.
@@ -97,24 +95,5 @@ public final class Collections {
 		}
 
 		return outputs;
-	}
-
-	/**
-	 * Index list of inputs by result of mapper function.
-	 *
-	 * @param inputs List of inputs.
-	 * @param indexer Mapper function.
-	 * @param <T> Type of input.
-	 * @param <U> Type of index keys.
-	 * @return Map of key (result of mapper function) with values (inputs).
-	 */
-	public static <T, U> Map<U, T> indexBy(Iterable<T> inputs, Mapper<T, U> indexer) {
-		Map<U, T> index = new HashMap<>();
-		for (T input : inputs) {
-			U output = indexer.map(input);
-			index.put(output, input);
-		}
-
-		return index;
 	}
 }

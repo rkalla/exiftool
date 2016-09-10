@@ -1,5 +1,7 @@
 ## ExifTool - Enhanced Java Integration for Phil Harvey's ExifTool.
 
+[![Build Status](https://travis-ci.org/mjeanroy/exiftool.svg?branch=master)](https://travis-ci.org/mjeanroy/exiftool)
+
 ### Description
 
 *The goal and main features of this fork did not changed, so this description is the same as the original library*

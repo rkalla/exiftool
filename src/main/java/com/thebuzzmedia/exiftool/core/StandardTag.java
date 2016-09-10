@@ -145,35 +145,40 @@ public enum StandardTag implements Tag {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static enum Type {
+	private enum Type {
 		INTEGER {
 			@Override
 			public <T> T parse(String value) {
 				return (T) Integer.valueOf(Integer.parseInt(value));
 			}
 		},
+
 		LONG {
 			@Override
 			public <T> T parse(String value) {
 				return (T) Long.valueOf(Long.parseLong(value));
 			}
 		},
+
 		DOUBLE {
 			@Override
 			public <T> T parse(String value) {
 				return (T) Double.valueOf(Double.parseDouble(value));
 			}
 		},
+
 		STRING {
 			@Override
 			public <T> T parse(String value) {
 				return (T) value;
 			}
 		},
-        ARRAY {
-            @Override
-            public <T> T parse(String value) { return (T) value.split("\\|>☃"); }
-        };
+
+		ARRAY {
+			@Override
+			public <T> T parse(String value) {
+				return (T) value.split("\\|>☃"); }
+		};
 
 		public abstract <T> T parse(String value);
 	}

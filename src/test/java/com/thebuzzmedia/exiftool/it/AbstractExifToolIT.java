@@ -84,6 +84,7 @@ public abstract class AbstractExifToolIT {
 	public void testGetVersion() {
 		assertThat(exifTool.getVersion()).isEqualTo(new Version("10.16.0"));
 		assertThat(exifToolStayOpen.getVersion()).isEqualTo(new Version("10.16.0"));
+		assertThat(exifToolPool.getVersion()).isEqualTo(new Version("10.16.0"));
 	}
 
 	@Test
@@ -167,16 +168,17 @@ public abstract class AbstractExifToolIT {
 	protected abstract Map<Tag, String> updateTags();
 
 	private static File path() {
-		String relativePath = "/exiftool-10_16/";
-		if (IS_WINDOWS) {
-			relativePath += "windows/exiftool.exe";
-		} else {
-			relativePath += "unix/exiftool";
+		String relativePath = "/exiftool-10_16/" + (IS_WINDOWS ? "windows/exiftool.exe" : "unix/exiftool");
+		File file = new File(AbstractExifToolIT.class.getResource(relativePath).getFile());
+
+		if (!file.setExecutable(true)) {
+			throw new UnsupportedOperationException(String.format("Cannot make %s executable", relativePath));
 		}
 
-		File file = new File(AbstractExifToolIT.class.getResource(relativePath).getFile());
-		file.setExecutable(true);
-		file.setReadable(true);
+		if (!file.setReadable(true)) {
+			throw new UnsupportedOperationException(String.format("Cannot make %s readable", relativePath));
+		}
+
 		return file;
 	}
 }

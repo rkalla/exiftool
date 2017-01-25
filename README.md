@@ -51,7 +51,7 @@ the project.
 
 ### History
 
-This library is a fork of [https://github.com/rkalla/exiftool](https://github.com/rkalla/exiftool) (old [link](https://github.com/thebuzzmedia/exiftool))adding new features:
+This library is a fork of [https://github.com/rkalla/exiftool](https://github.com/rkalla/exiftool) adding new features:
 - Use Java executor framework (available with JDK6), instead of legacy `java.utilTimer`.
 - ExifTool instance now implement `Closeable` interface (and can be used with Java 7 `try-with-resource`).
 - Allow extensions: extracting custom tag is now allowed (just need to implement `Tag` interface, most common tags are still available out of the box).

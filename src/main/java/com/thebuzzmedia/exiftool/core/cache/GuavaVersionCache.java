@@ -19,6 +19,7 @@ package com.thebuzzmedia.exiftool.core.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.VersionCache;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -53,7 +54,7 @@ class GuavaVersionCache implements VersionCache {
 		try {
 			return cache.get(exifTool, new VersionCallable(exifTool, executor));
 		}
-		catch (ExecutionException ex) {
+		catch (ExecutionException | UncheckedExecutionException ex) {
 			throw launderThrowable(ex.getCause());
 		}
 	}

@@ -17,6 +17,10 @@
 
 package com.thebuzzmedia.exiftool.tests;
 
+import java.io.File;
+
+import com.thebuzzmedia.exiftool.it.img.AbstractExifToolImgIT;
+
 public final class TestConstants {
 
 	private TestConstants() {
@@ -26,8 +30,18 @@ public final class TestConstants {
 
 	public static final boolean IS_WINDOWS;
 
+	public static final File EXIF_TOOL;
+
 	static {
-		String osName = System.getProperty("os.name").toLowerCase();
-		IS_WINDOWS = osName.contains("windows");
+		final String osName = System.getProperty("os.name").toLowerCase();
+		final boolean isWindows = osName.contains("windows");
+		final String relativePath = "/exiftool-10_16/" + (isWindows ? "windows/exiftool.exe" : "unix/exiftool");
+
+		final File file = new File(AbstractExifToolImgIT.class.getResource(relativePath).getFile());
+		file.setExecutable(true);
+		file.setReadable(true);
+
+		IS_WINDOWS = isWindows;
+		EXIF_TOOL = file;
 	}
 }

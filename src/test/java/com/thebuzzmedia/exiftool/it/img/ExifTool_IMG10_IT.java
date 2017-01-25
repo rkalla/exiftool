@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.it;
+package com.thebuzzmedia.exiftool.it.img;
 
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.core.StandardTag;
@@ -24,39 +24,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ExifTool_IMG2_IT extends AbstractExifToolIT {
+public class ExifTool_IMG10_IT extends AbstractExifToolImgIT {
 
 	@Override
 	protected String image() {
-		return "htc-glacier-cat-ladder.jpg";
+		return "sony-xperia-play-coffee-sign.jpg";
 	}
 
 	@Override
 	protected Map<Tag, String> expectations() {
 		return new HashMap<Tag, String>() {
 			{
-				put(StandardTag.GPS_LONGITUDE, "111 deg 7' 42.12\" W");
-				put(StandardTag.GPS_LATITUDE, "32 deg 22' 28.21\" N");
-				put(StandardTag.FOCAL_LENGTH, "3.5 mm");
+				put(StandardTag.MAKE, "Sony Ericsson");
 				put(StandardTag.COLOR_SPACE, "sRGB");
-				put(StandardTag.ISO, "274");
-				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:10 09:50:45");
-				put(StandardTag.EXIF_VERSION, "0220");
 				put(StandardTag.Y_RESOLUTION, "72");
-				put(StandardTag.GPS_LATITUDE_REF, "North");
-				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");
-				put(StandardTag.FILE_TYPE, "JPEG");
-				put(StandardTag.FILE_SIZE, "841 kB");
+				put(StandardTag.FLASH, "Unknown (0x6d00)");
+				put(StandardTag.ISO, "40");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
 				put(StandardTag.X_RESOLUTION, "72");
-				put(StandardTag.MIME_TYPE, "image/jpeg");
-				put(StandardTag.GPS_ALTITUDE, "613 m Above Sea Level");
-				put(StandardTag.MODEL, "myTouch 4G");
-				put(StandardTag.GPS_PROCESS_METHOD, "GPS");
-				put(StandardTag.IMAGE_HEIGHT, "1456");
-				put(StandardTag.GPS_LONGITUDE_REF, "West");
-				put(StandardTag.GPS_TIMESTAMP, "16:50:45");
+				put(StandardTag.SOFTWARE, "12307");
+				put(StandardTag.EXIF_VERSION, "0220");
+				put(StandardTag.IMAGE_HEIGHT, "1944");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:08 17:09:44");
+				put(StandardTag.EXPOSURE_TIME, "1/250");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "912 kB");
 				put(StandardTag.IMAGE_WIDTH, "2592");
-				put(StandardTag.MAKE, "HTC");
+				put(StandardTag.MODEL, "R800x");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.SHUTTER_SPEED, "1");
+				put(StandardTag.FOCAL_LENGTH, "3.6 mm");
 			}
 		};
 	}

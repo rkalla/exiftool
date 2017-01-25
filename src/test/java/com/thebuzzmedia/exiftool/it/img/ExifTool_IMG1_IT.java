@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.it;
+package com.thebuzzmedia.exiftool.it.img;
 
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.core.StandardTag;
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ExifTool_IMG1_IT extends AbstractExifToolIT {
+public class ExifTool_IMG1_IT extends AbstractExifToolImgIT {
 
 	@Override
 	protected String image() {

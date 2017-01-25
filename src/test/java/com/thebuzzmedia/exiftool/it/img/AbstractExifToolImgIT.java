@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.it;
+package com.thebuzzmedia.exiftool.it.img;
 
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.ExifToolBuilder;
@@ -34,13 +34,13 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.util.Map;
 
-import static com.thebuzzmedia.exiftool.tests.TestConstants.IS_WINDOWS;
+import static com.thebuzzmedia.exiftool.tests.TestConstants.EXIF_TOOL;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class AbstractExifToolIT {
+public abstract class AbstractExifToolImgIT {
 
-	private static final String PATH = path().getAbsolutePath();
+	private static final String PATH = EXIF_TOOL.getAbsolutePath();
 
 	private ExifTool exifTool;
 
@@ -56,19 +56,17 @@ public abstract class AbstractExifToolIT {
 
 	@Before
 	public void setUp() {
-		File path = path();
-
 		exifTool = new ExifToolBuilder()
-			.withPath(path.getAbsolutePath())
+			.withPath(PATH)
 			.build();
 
 		exifToolStayOpen = new ExifToolBuilder()
-			.withPath(path)
+			.withPath(PATH)
 			.enableStayOpen()
 			.build();
 
 		exifToolPool = new ExifToolBuilder()
-				.withPath(path)
+				.withPath(PATH)
 				.withPoolSize(2)
 				.build();
 	}
@@ -78,13 +76,6 @@ public abstract class AbstractExifToolIT {
 		exifTool.close();
 		exifToolStayOpen.close();
 		exifToolPool.close();
-	}
-
-	@Test
-	public void testGetVersion() {
-		assertThat(exifTool.getVersion()).isEqualTo(new Version("10.16.0"));
-		assertThat(exifToolStayOpen.getVersion()).isEqualTo(new Version("10.16.0"));
-		assertThat(exifToolPool.getVersion()).isEqualTo(new Version("10.16.0"));
 	}
 
 	@Test
@@ -166,19 +157,4 @@ public abstract class AbstractExifToolIT {
 	protected abstract Map<Tag, String> expectations();
 
 	protected abstract Map<Tag, String> updateTags();
-
-	private static File path() {
-		String relativePath = "/exiftool-10_16/" + (IS_WINDOWS ? "windows/exiftool.exe" : "unix/exiftool");
-		File file = new File(AbstractExifToolIT.class.getResource(relativePath).getFile());
-
-		if (!file.setExecutable(true)) {
-			throw new UnsupportedOperationException(String.format("Cannot make %s executable", relativePath));
-		}
-
-		if (!file.setReadable(true)) {
-			throw new UnsupportedOperationException(String.format("Cannot make %s readable", relativePath));
-		}
-
-		return file;
-	}
 }

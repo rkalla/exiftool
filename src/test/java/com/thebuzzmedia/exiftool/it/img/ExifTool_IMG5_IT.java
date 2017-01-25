@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.it;
+package com.thebuzzmedia.exiftool.it.img;
 
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.core.StandardTag;
@@ -23,44 +23,43 @@ import com.thebuzzmedia.exiftool.core.StandardTag;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thebuzzmedia.exiftool.tests.TestConstants.IS_WINDOWS;
-
 @SuppressWarnings("serial")
-public class ExifTool_IMG7_IT extends AbstractExifToolIT {
+public class ExifTool_IMG5_IT extends AbstractExifToolImgIT {
 
 	@Override
 	protected String image() {
-		return "palm-pre-menu.jpg";
+		return "nexus-s-electric-cars.jpg";
 	}
 
 	@Override
 	protected Map<Tag, String> expectations() {
-		// Results extracted with exiftool 10.07.
 		return new HashMap<Tag, String>() {
 			{
-				put(StandardTag.MAKE, "Palm");
-				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
+				put(StandardTag.EXPOSURE_COMPENSATION, "0");
+				put(StandardTag.FOCAL_LENGTH, "3.4 mm");
+				put(StandardTag.IMAGE_HEIGHT, "1920");
 				put(StandardTag.X_RESOLUTION, "72");
-				put(StandardTag.Y_RESOLUTION, "72");
-				put(StandardTag.EXPOSURE_TIME, "1/65536000");
-				put(StandardTag.EXIF_VERSION, "0220");
-				put(StandardTag.IMAGE_HEIGHT, "2032");
-				put(StandardTag.ORIENTATION, "Horizontal (normal)");
-				put(StandardTag.GPS_LATITUDE_REF, "North");
-				put(StandardTag.FILE_TYPE, "JPEG");
-				put(StandardTag.IMAGE_WIDTH, "1520");
 				put(StandardTag.MIME_TYPE, "image/jpeg");
-				put(StandardTag.GPS_LATITUDE, "32 deg 48' 4.00\" N");
-
-				// Weird, but there is specific results for windows / unix
-				put(StandardTag.FOCAL_LENGTH, IS_WINDOWS ? "0.0 mm" : "inf mm");
-
-				put(StandardTag.GPS_LONGITUDE, "117 deg 13' 33.00\" W");
-				put(StandardTag.APERTURE, "1.1");
-				put(StandardTag.MODEL, "Pre");
-				put(StandardTag.GPS_LONGITUDE_REF, "West");
-				put(StandardTag.FLASH, "Auto, Did not fire");
-				put(StandardTag.FILE_SIZE, "1017 kB");
+				put(StandardTag.ISO, "50");
+				put(StandardTag.METERING_MODE, "Center-weighted average");
+				put(StandardTag.MODEL, "Nexus S");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.IMAGE_WIDTH, "2560");
+				put(StandardTag.EXPOSURE_TIME, "1/62");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2010:12:10 17:07:05");
+				put(StandardTag.SHUTTER_SPEED, "1/64");
+				put(StandardTag.EXIF_VERSION, "0220");
+				put(StandardTag.ORIENTATION, "Horizontal (normal)");
+				put(StandardTag.FLASH, "No Flash");
+				put(StandardTag.SOFTWARE, "GRH55");
+				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
+				put(StandardTag.MAKE, "google");
+				put(StandardTag.APERTURE, "2.8");
+				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.FILE_SIZE, "1475 kB");
+				put(StandardTag.BRIGHTNESS, "5");
 			}
 		};
 	}
@@ -68,7 +67,8 @@ public class ExifTool_IMG7_IT extends AbstractExifToolIT {
 	@Override
 	protected Map<Tag, String> updateTags() {
 		return new HashMap<Tag, String>() {{
-			put(StandardTag.FLASH, "Auto, Did not fire");
+			put(StandardTag.COMMENT, "Hello =World");
+			put(StandardTag.AUTHOR, "mjeanroy");
 		}};
 	}
 }

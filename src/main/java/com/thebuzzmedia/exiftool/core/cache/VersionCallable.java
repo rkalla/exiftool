@@ -18,11 +18,14 @@
 package com.thebuzzmedia.exiftool.core.cache;
 
 import com.thebuzzmedia.exiftool.Version;
+import com.thebuzzmedia.exiftool.exceptions.ExifToolNotFoundException;
 import com.thebuzzmedia.exiftool.logs.Logger;
 import com.thebuzzmedia.exiftool.logs.LoggerFactory;
+import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.process.command.CommandBuilder;
+import com.thebuzzmedia.exiftool.process.executor.DefaultCommandExecutor;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -64,25 +67,63 @@ class VersionCallable implements Callable<Version> {
 	@Override
 	public Version call() throws Exception {
 		log.debug("Checking exiftool (path: %s) version", exifTool);
+
 		try {
 			CommandExecutor commandExecutor = executor.get();
 			if (commandExecutor == null) {
 				// This should never happen, since this function will be called very quickly after
 				// exiftool creation.
-				log.warn("Command executor has already been garbage collected, cannot parse version");
-				return null;
+				log.warn("Command executor has already been garbage collected, run exiftool with a default executor");
+				commandExecutor = new DefaultCommandExecutor();
 			}
 
-			CommandResult result = commandExecutor.execute(CommandBuilder.builder(exifTool)
-				.addArgument("-ver")
-				.build());
+			final Command cmd = CommandBuilder.builder(exifTool).addArgument("-ver").build();
+			final CommandResult result = commandExecutor.execute(cmd);
 
-			return result.isSuccess() ? new Version(result.getOutput()) : null;
+			// Something wrong happened.
+			// Since this command should succeed, no matter exiftool version, this is probably an error with
+			// exiftool executable binary.
+			if (!result.isSuccess()) {
+				throw new ExifToolNotFoundException(exifTool, result);
+			}
+
+			return new Version(result.getOutput());
+		} catch (IOException ex) {
+			log.error(ex.getMessage(), ex);
+			throw new ExifToolNotFoundException(ex, exifTool, failure(ex));
 		}
-		catch (IOException ex) {
-			// Do not fail now.
-			log.warn(ex.getMessage(), ex);
-			return null;
+	}
+
+	private static CommandResult failure(IOException ex) {
+		return new IOExceptionResult(ex.getMessage());
+	}
+
+	private static class IOExceptionResult implements CommandResult {
+
+		private final String message;
+
+		private IOExceptionResult(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public int getExitStatus() {
+			return -1;
+		}
+
+		@Override
+		public boolean isSuccess() {
+			return false;
+		}
+
+		@Override
+		public boolean isFailure() {
+			return true;
+		}
+
+		@Override
+		public String getOutput() {
+			return message;
 		}
 	}
 }

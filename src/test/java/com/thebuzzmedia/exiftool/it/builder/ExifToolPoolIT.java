@@ -15,30 +15,14 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.exceptions;
+package com.thebuzzmedia.exiftool.it.builder;
 
-/**
- * Basic Exception.
- * Should be extended.
- */
-@SuppressWarnings("serial")
-class AbstractExifException extends RuntimeException {
+import com.thebuzzmedia.exiftool.ExifToolBuilder;
 
-	/**
-	 * Create exception with custom message.
-	 *
-	 * @param message Error message.
-	 */
-	AbstractExifException(String message) {
-		super(message);
-	}
+public class ExifToolPoolIT extends AbstractExifToolIT {
 
-	/**
-	 * Create exception with the causing exception.
-	 *
-	 * @param cause The original cause.
-	 */
-	AbstractExifException(Throwable cause) {
-		super(cause);
+	@Override
+	ExifToolBuilder create() {
+		return new ExifToolBuilder().withPoolSize(10);
 	}
 }

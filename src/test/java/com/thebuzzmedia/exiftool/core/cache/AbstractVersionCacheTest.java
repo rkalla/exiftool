@@ -18,6 +18,7 @@
 package com.thebuzzmedia.exiftool.core.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -25,6 +26,9 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.VersionCache;
+import com.thebuzzmedia.exiftool.exceptions.ExifToolNotFoundException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
@@ -75,6 +80,35 @@ public abstract class AbstractVersionCacheTest<T extends VersionCache> {
 		assertThat(cmdCaptor.getValue().getArguments())
 				.hasSize(2)
 				.containsExactly(exifTool, "-ver");
+	}
+
+	@Test
+	public void it_should_throw_exception_without_success_response() throws Exception {
+		VersionCache cache = create();
+
+		CommandResult result = new CommandResultBuilder()
+				.success(false)
+				.output(null)
+				.build();
+
+		when(executor.execute(any(Command.class))).thenReturn(result);
+
+		thrown.expect(ExifToolNotFoundException.class);
+		thrown.expectMessage("Cannot find exiftool from path: exiftool");
+
+		cache.load(exifTool, executor);
+	}
+
+	@Test
+	public void it_should_return_null_with_io_exception() throws Exception {
+		VersionCache cache = create();
+
+		IOException ex = new IOException();
+		when(executor.execute(any(Command.class))).thenThrow(ex);
+
+		thrown.expectCause(is(ex));
+
+		cache.load(exifTool, executor);
 	}
 
 	@Test

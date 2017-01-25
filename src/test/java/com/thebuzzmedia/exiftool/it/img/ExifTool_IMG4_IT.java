@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.thebuzzmedia.exiftool.it;
+package com.thebuzzmedia.exiftool.it.img;
 
 import com.thebuzzmedia.exiftool.Tag;
 import com.thebuzzmedia.exiftool.core.StandardTag;
@@ -24,51 +24,50 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ExifTool_IMG3_IT extends AbstractExifToolIT {
+public class ExifTool_IMG4_IT extends AbstractExifToolImgIT {
 
 	@Override
 	protected String image() {
-		return "iphone-4-bacardi.jpeg";
+		return "iphone-4-cyanide.JPG";
 	}
 
 	@Override
 	protected Map<Tag, String> expectations() {
-		// Results extracted with exiftool 10.07
 		return new HashMap<Tag, String>() {
 			{
-				put(StandardTag.EXPOSURE_TIME, "1/1117");
 				put(StandardTag.METERING_MODE, "Multi-segment");
-				put(StandardTag.IMAGE_WIDTH, "2592");
-				put(StandardTag.IMAGE_HEIGHT, "1936");
-				put(StandardTag.GPS_ALTITUDE, "25.4 m Above Sea Level");
-				put(StandardTag.GPS_LONGITUDE_REF, "West");
-				put(StandardTag.GPS_LATITUDE_REF, "North");
-				put(StandardTag.ISO, "80");
-				put(StandardTag.FLASH, "Off, Did not fire");
-				put(StandardTag.MAKE, "Apple");
-				put(StandardTag.GPS_LATITUDE, "47 deg 39' 0.00\" N");
-				put(StandardTag.GPS_LONGITUDE, "122 deg 21' 4.80\" W");
-				put(StandardTag.SHUTTER_SPEED, "1/1117");
-				put(StandardTag.FOCAL_LENGTH, "3.9 mm");
-				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");
-				put(StandardTag.EXIF_VERSION, "0221");
-				put(StandardTag.GPS_TIMESTAMP, "00:58:48");
-				put(StandardTag.COLOR_SPACE, "sRGB");
-				put(StandardTag.MODEL, "iPhone 4");
-				put(StandardTag.SHARPNESS, "Hard");
-				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:17 17:31:20");
-				put(StandardTag.ORIENTATION, "Horizontal (normal)");
 				put(StandardTag.Y_RESOLUTION, "72");
+				put(StandardTag.SHARPNESS, "Hard");
+				put(StandardTag.SHUTTER_SPEED, "1/15");
+				put(StandardTag.GPS_LONGITUDE, "122 deg 21' 0.60\" W");
+				put(StandardTag.GPS_LATITUDE_REF, "North");
+				put(StandardTag.DATE_TIME_ORIGINAL, "2011:08:17 19:35:54");
+				put(StandardTag.X_RESOLUTION, "72");
 				put(StandardTag.SENSING_METHOD, "One-chip color area");
-				put(StandardTag.FILE_TYPE, "JPEG");
-				put(StandardTag.FILE_SIZE, "1679 kB");
-				put(StandardTag.BRIGHTNESS, "9.193455245");
+				put(StandardTag.MODEL, "iPhone 4");
+				put(StandardTag.GPS_LATITUDE, "47 deg 38' 56.40\" N");
 				put(StandardTag.WHITE_BALANCE, "Auto");
+				put(StandardTag.FILE_TYPE, "JPEG");
+				put(StandardTag.FILE_SIZE, "1674 kB");
+				put(StandardTag.BRIGHTNESS, "2.087337662");
+				put(StandardTag.FLASH, "Off, Did not fire");
+				put(StandardTag.GPS_LONGITUDE_REF, "West");
+				put(StandardTag.GPS_ALTITUDE_REF, "Above Sea Level");
+				put(StandardTag.GPS_ALTITUDE, "19.9 m Above Sea Level");
 				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
 				put(StandardTag.SOFTWARE, "5.0");
-				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.APERTURE, "2.8");
-				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.MAKE, "Apple");
+				put(StandardTag.EXPOSURE_TIME, "1/15");
+				put(StandardTag.IMAGE_HEIGHT, "1936");
+				put(StandardTag.ORIENTATION, "Rotate 90 CW");
+				put(StandardTag.GPS_TIMESTAMP, "04:01:42");
+				put(StandardTag.ISO, "125");
+				put(StandardTag.FOCAL_LENGTH, "3.9 mm");
+				put(StandardTag.COLOR_SPACE, "sRGB");
+				put(StandardTag.EXIF_VERSION, "0221");
+				put(StandardTag.MIME_TYPE, "image/jpeg");
+				put(StandardTag.IMAGE_WIDTH, "2592");
 			}
 		};
 	}

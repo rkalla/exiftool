@@ -323,7 +323,7 @@ public class ExifTool implements AutoCloseable {
 		this.version = cache.load(path, executor);
 
 		// Check if this instance may be used safely.
-		if (version != null && !strategy.isSupported(version)) {
+		if (!strategy.isSupported(version)) {
 			throw new UnsupportedFeatureException(path, version);
 		}
 	}

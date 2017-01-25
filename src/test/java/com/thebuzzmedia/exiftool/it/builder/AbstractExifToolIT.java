@@ -51,9 +51,10 @@ public abstract class AbstractExifToolIT {
 
 	@Test
 	public void it_should_fail_with_missing_exiftool() {
-		String path = UUID.randomUUID() + "/exiftool";
+		String path = "/" + UUID.randomUUID() + "/exiftool";
 		thrown.expect(ExifToolNotFoundException.class);
-		thrown.expectMessage("Cannot run program \"" + path + "\": error=2, No such file or directory");
+		thrown.expectMessage("Cannot run program \"" + path + "\"");
+		thrown.expectMessage("error=2, No such file or directory");
 		create().withPath(path).build();
 	}
 

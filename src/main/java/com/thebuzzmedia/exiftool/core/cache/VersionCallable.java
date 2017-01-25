@@ -77,7 +77,9 @@ class VersionCallable implements Callable<Version> {
 				commandExecutor = new DefaultCommandExecutor();
 			}
 
-			final Command cmd = CommandBuilder.builder(exifTool).addArgument("-ver").build();
+			final Command cmd = CommandBuilder.builder(exifTool, 1)
+					.addArgument("-ver")
+					.build();
 			final CommandResult result = commandExecutor.execute(cmd);
 
 			// Something wrong happened.

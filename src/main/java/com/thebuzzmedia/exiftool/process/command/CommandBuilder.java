@@ -19,7 +19,7 @@ package com.thebuzzmedia.exiftool.process.command;
 
 import com.thebuzzmedia.exiftool.process.Command;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notBlank;
@@ -34,13 +34,30 @@ public class CommandBuilder {
 	/**
 	 * Get new builder.
 	 *
+	 * <br>
+	 *
+	 * Note: Use {@link #builder(String, int)} to optimize the creation of the argument list.
+	 *
 	 * @param executable Executable value.
 	 * @return The new builder.
 	 * @throws NullPointerException If executable is null.
 	 * @throws IllegalArgumentException If executable is empty or blank.
 	 */
 	public static CommandBuilder builder(String executable) {
-		return new CommandBuilder(executable);
+		return builder(executable, 10);
+	}
+
+	/**
+	 * Get new builder.
+	 *
+	 * @param executable Executable value.
+	 * @param nbArgs The expected number of arguments.
+	 * @return The new builder.
+	 * @throws NullPointerException If executable is null.
+	 * @throws IllegalArgumentException If executable is empty or blank.
+	 */
+	public static CommandBuilder builder(String executable, int nbArgs) {
+		return new CommandBuilder(executable, nbArgs);
 	}
 
 	/**
@@ -60,9 +77,9 @@ public class CommandBuilder {
 	 * @throws NullPointerException If executable is {@code null}.
 	 * @throws IllegalArgumentException If executable is empty or blank.
 	 */
-	private CommandBuilder(String executable) {
+	private CommandBuilder(String executable, int size) {
 		this.executable = notBlank(executable, "Command line executable should be defined");
-		this.arguments = new LinkedList<>();
+		this.arguments = new ArrayList<>(size);
 	}
 
 	/**

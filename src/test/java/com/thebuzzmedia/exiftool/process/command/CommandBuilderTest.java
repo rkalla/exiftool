@@ -37,6 +37,15 @@ public class CommandBuilderTest {
 	}
 
 	@Test
+	public void it_should_build_command_with_expected_size_and_arguments() {
+		Command cmd = CommandBuilder.builder("exiftool", 1)
+				.addArgument("-ver")
+				.build();
+
+		assertThat(cmd.toString()).isEqualTo("exiftool -ver");
+	}
+
+	@Test
 	public void it_should_build_command_with_arguments() {
 		Command cmd = CommandBuilder.builder("exiftool")
 			.addArgument("-ver")

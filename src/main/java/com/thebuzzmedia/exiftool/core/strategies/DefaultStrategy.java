@@ -59,7 +59,7 @@ public class DefaultStrategy implements ExecutionStrategy {
 	public void execute(CommandExecutor executor, String exifTool, List<String> arguments, OutputHandler handler) throws IOException {
 		log.debug("Using ExifTool in non-daemon mode (-stay_open False)...");
 
-		Command cmd = CommandBuilder.builder(exifTool)
+		Command cmd = CommandBuilder.builder(exifTool, arguments.size() + 2)
 				.addArgument("-sep", Constants.SEPARATOR)
 				.addAll(arguments)
 				.build();

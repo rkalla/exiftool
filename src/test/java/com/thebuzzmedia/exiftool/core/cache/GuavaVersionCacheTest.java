@@ -18,87 +18,19 @@
 package com.thebuzzmedia.exiftool.core.cache;
 
 import com.google.common.cache.Cache;
-import com.thebuzzmedia.exiftool.Version;
-import com.thebuzzmedia.exiftool.process.Command;
-import com.thebuzzmedia.exiftool.process.CommandExecutor;
-import com.thebuzzmedia.exiftool.process.CommandResult;
-import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.thebuzzmedia.exiftool.VersionCache;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GuavaVersionCacheTest {
+public class GuavaVersionCacheTest extends AbstractVersionCacheTest<GuavaVersionCache> {
 
-	@Mock
-	private CommandExecutor executor;
-
-	@Captor
-	private ArgumentCaptor<Command> cmdCaptor;
-
-	private String exifTool;
-
-	@Before
-	public void setUp() throws Exception {
-		exifTool = "exifTool";
-
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
+	@Override
+	protected GuavaVersionCache create() {
+		return new GuavaVersionCache();
 	}
 
-	@Test
-	public void it_should_load_cache() throws Exception {
-		GuavaVersionCache cache = new GuavaVersionCache();
-		Version version = cache.load(exifTool, executor);
-
-		assertThat(version).isEqualTo(new Version("9.36.0"));
-		verify(executor).execute(cmdCaptor.capture());
-		assertThat(cmdCaptor.getValue().getArguments())
-			.hasSize(2)
-			.containsExactly(exifTool, "-ver");
-	}
-
-	@Test
-	public void it_should_load_cache_once() throws Exception {
-		GuavaVersionCache cache = new GuavaVersionCache();
-
-		Version v1 = cache.load(exifTool, executor);
-		assertThat(v1).isEqualTo(new Version("9.36.0"));
-		verify(executor).execute(any(Command.class));
-
-		reset(executor);
-
-		Version v2 = cache.load(exifTool, executor);
-		assertThat(v2).isSameAs(v1);
-		verify(executor, never()).execute(any(Command.class));
-	}
-
-	@Test
-	public void it_should_clear_cache() throws Exception {
-		GuavaVersionCache cache = new GuavaVersionCache();
-
-		cache.load(exifTool, executor);
-		assertThat(readPrivateField(cache, "cache", Cache.class).size())
-			.isNotZero()
-			.isEqualTo(1);
-
-		cache.clear();
-		assertThat(readPrivateField(cache, "cache", Cache.class).size())
-			.isZero();
+	@Override
+	protected long size(VersionCache cache) throws Exception {
+		return readPrivateField(cache, "cache", Cache.class).size();
 	}
 }

@@ -17,86 +17,21 @@
 
 package com.thebuzzmedia.exiftool.core.cache;
 
-import com.thebuzzmedia.exiftool.Version;
-import com.thebuzzmedia.exiftool.process.Command;
-import com.thebuzzmedia.exiftool.process.CommandExecutor;
-import com.thebuzzmedia.exiftool.process.CommandResult;
-import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 
 import java.util.concurrent.ConcurrentMap;
 
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.thebuzzmedia.exiftool.VersionCache;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DefaultVersionCacheTest {
+public class DefaultVersionCacheTest extends AbstractVersionCacheTest<DefaultVersionCache> {
 
-	@Mock
-	private CommandExecutor executor;
-
-	@Captor
-	private ArgumentCaptor<Command> cmdCaptor;
-
-	private String exifTool;
-
-	@Before
-	public void setUp() throws Exception {
-		exifTool = "exifTool";
-
-		CommandResult result = new CommandResultBuilder()
-			.output("9.36")
-			.build();
-
-		when(executor.execute(any(Command.class))).thenReturn(result);
+	@Override
+	protected DefaultVersionCache create() {
+		return new DefaultVersionCache();
 	}
 
-	@Test
-	public void it_should_get_version() throws Exception {
-		DefaultVersionCache cache = new DefaultVersionCache();
-		Version version = cache.load(exifTool, executor);
-
-		assertThat(version).isEqualTo(new Version("9.36.0"));
-		verify(executor).execute(cmdCaptor.capture());
-		assertThat(cmdCaptor.getValue().getArguments())
-			.hasSize(2)
-			.containsExactly(exifTool, "-ver");
-	}
-
-	@Test
-	public void it_should_get_version_once() throws Exception {
-		DefaultVersionCache cache = new DefaultVersionCache();
-
-		Version v1 = cache.load(exifTool, executor);
-		assertThat(v1).isEqualTo(new Version("9.36.0"));
-		verify(executor).execute(any(Command.class));
-
-		reset(executor);
-
-		Version v2 = cache.load(exifTool, executor);
-		assertThat(v2).isSameAs(v1);
-		verify(executor, never()).execute(any(Command.class));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void it_should_clear_cache() throws Exception {
-		DefaultVersionCache cache = new DefaultVersionCache();
-		cache.load(exifTool, executor);
-		assertThat(readPrivateField(cache, "cache", ConcurrentMap.class)).isNotEmpty();
-
-		cache.clear();
-		assertThat(readPrivateField(cache, "cache", ConcurrentMap.class)).isEmpty();
+	@Override
+	protected long size(VersionCache cache) throws Exception {
+		return readPrivateField(cache, "cache", ConcurrentMap.class).size();
 	}
 }

@@ -68,6 +68,7 @@ public class ExifTool_IMG4_IT extends AbstractExifToolImgIT {
 				put(StandardTag.EXIF_VERSION, "0221");
 				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.IMAGE_WIDTH, "2592");
+				put(StandardTag.CREATE_DATE, "2011:08:17 19:35:54");
 			}
 		};
 	}

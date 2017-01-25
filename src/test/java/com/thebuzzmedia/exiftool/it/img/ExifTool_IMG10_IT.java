@@ -54,6 +54,7 @@ public class ExifTool_IMG10_IT extends AbstractExifToolImgIT {
 				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.SHUTTER_SPEED, "1");
 				put(StandardTag.FOCAL_LENGTH, "3.6 mm");
+				put(StandardTag.CREATE_DATE, "2011:08:08 17:09:44");
 			}
 		};
 	}

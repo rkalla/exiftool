@@ -69,6 +69,7 @@ public class ExifTool_IMG3_IT extends AbstractExifToolImgIT {
 				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.APERTURE, "2.8");
 				put(StandardTag.X_RESOLUTION, "72");
+				put(StandardTag.CREATE_DATE, "2011:08:17 17:31:20");
 			}
 		};
 	}

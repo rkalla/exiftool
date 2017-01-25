@@ -92,7 +92,6 @@ public enum StandardTag implements Tag {
 	RATING("Rating", Type.INTEGER),
 	RATING_PERCENT("RatingPercent", Type.INTEGER),
 	DATE_TIME_ORIGINAL("DateTimeOriginal", Type.STRING),
-	CREATION_DATE("CreationDate", Type.STRING),
 	GPS_LATITUDE("GPSLatitude", Type.DOUBLE),
 	GPS_LATITUDE_REF("GPSLatitudeRef", Type.STRING),
 	GPS_LONGITUDE("GPSLongitude", Type.DOUBLE),
@@ -119,7 +118,14 @@ public enum StandardTag implements Tag {
 	FILE_TYPE("FileType", Type.STRING),
 	FILE_SIZE("FileSize", Type.LONG),
 	AVG_BITRATE("AvgBitrate", Type.STRING),
-	MIME_TYPE("MIMEType", Type.STRING);
+	MIME_TYPE("MIMEType", Type.STRING),
+	CREATE_DATE("CreateDate", Type.STRING),
+
+	/**
+	 * This tag is deprecated, use {@link #CREATE_DATE} instead.
+	 */
+	@Deprecated
+	CREATION_DATE("CreationDate", Type.STRING);
 
 	/**
 	 * Used to get the name of the tag (e.g. "Orientation", "ISO", etc.).

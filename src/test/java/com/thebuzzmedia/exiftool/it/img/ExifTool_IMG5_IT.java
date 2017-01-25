@@ -60,6 +60,7 @@ public class ExifTool_IMG5_IT extends AbstractExifToolImgIT {
 				put(StandardTag.Y_RESOLUTION, "72");
 				put(StandardTag.FILE_SIZE, "1475 kB");
 				put(StandardTag.BRIGHTNESS, "5");
+				put(StandardTag.CREATE_DATE, "2010:12:10 17:07:05");
 			}
 		};
 	}

@@ -75,6 +75,7 @@ public class ExifTool_IMG1_IT extends AbstractExifToolImgIT {
 				put(StandardTag.APERTURE, "2.8");
 				put(StandardTag.OWNER_NAME, "");
 				put(StandardTag.COPYRIGHT, "");
+				put(StandardTag.CREATE_DATE, "2011:04:30 08:35:00");
 			}
 		};
 	}

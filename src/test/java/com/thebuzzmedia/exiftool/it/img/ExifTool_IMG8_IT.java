@@ -65,6 +65,7 @@ public class ExifTool_IMG8_IT extends AbstractExifToolImgIT {
 				put(StandardTag.ISO, "160");
 				put(StandardTag.IMAGE_WIDTH, "4000");
 				put(StandardTag.FILE_SIZE, "5.5 MB");
+				put(StandardTag.CREATE_DATE, "2011:07:28 02:07:11");
 			}
 		};
 	}

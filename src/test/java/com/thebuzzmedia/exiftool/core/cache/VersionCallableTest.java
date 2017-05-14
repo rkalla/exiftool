@@ -17,13 +17,22 @@
 
 package com.thebuzzmedia.exiftool.core.cache;
 
+import static com.thebuzzmedia.exiftool.tests.TestConstants.EXIF_TOOL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
 import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.exceptions.ExifToolNotFoundException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
 import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,19 +40,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
-
-import static com.thebuzzmedia.exiftool.tests.TestConstants.EXIF_TOOL;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class VersionCallableTest {
 
 	@Rule
@@ -118,13 +117,13 @@ public class VersionCallableTest {
 	}
 
 	@Test
-	public void it_should_parse_version_and_return_null_with_null_reference() throws Exception {
+	public void it_should_parse_version_and_handle_null_reference() throws Exception {
 		String path = EXIF_TOOL.getAbsolutePath();
-		CommandExecutor executor = mock(CommandExecutor.class);
 		CommandResult result = new CommandResultBuilder()
 			.output("9.36")
 			.build();
 
+		CommandExecutor executor = mock(CommandExecutor.class);
 		when(executor.execute(any(Command.class))).thenReturn(result);
 
 		VersionCallable callable = new VersionCallable(path, executor);
@@ -137,6 +136,7 @@ public class VersionCallableTest {
 		Thread.sleep(1000);
 
 		Version version = callable.call();
+
 		assertThat(version).isNotNull();
 		assertThat(version.getMajor()).isEqualTo(10);
 		assertThat(version.getMinor()).isEqualTo(16);

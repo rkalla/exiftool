@@ -21,7 +21,7 @@ import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;

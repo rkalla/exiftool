@@ -17,26 +17,13 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
-import com.thebuzzmedia.exiftool.ExecutionStrategy;
-import com.thebuzzmedia.exiftool.Version;
-import com.thebuzzmedia.exiftool.exceptions.PoolIOException;
-import com.thebuzzmedia.exiftool.process.CommandExecutor;
-import com.thebuzzmedia.exiftool.process.OutputHandler;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
+import static com.thebuzzmedia.exiftool.tests.MockitoUtils.anyListOf;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -45,6 +32,19 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import com.thebuzzmedia.exiftool.ExecutionStrategy;
+import com.thebuzzmedia.exiftool.Version;
+import com.thebuzzmedia.exiftool.exceptions.PoolIOException;
+import com.thebuzzmedia.exiftool.process.CommandExecutor;
+import com.thebuzzmedia.exiftool.process.OutputHandler;
+import org.junit.Before;
+import org.junit.Test;
 
 public class PoolStrategyTest {
 

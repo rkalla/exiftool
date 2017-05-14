@@ -18,8 +18,8 @@
 package com.thebuzzmedia.exiftool.logs;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

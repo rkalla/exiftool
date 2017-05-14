@@ -19,7 +19,7 @@ package com.thebuzzmedia.exiftool;
 
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 

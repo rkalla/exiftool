@@ -95,11 +95,11 @@ public class LoggerSlf4jTest extends AbstractLoggerTest {
 		verify(slf4j).trace(toSlf4jMessage(message), params);
 	}
 
-	private org.slf4j.Logger getSlf4j(Logger logger) throws Exception {
-		return readPrivateField(logger, "log", org.slf4j.Logger.class);
+	private static org.slf4j.Logger getSlf4j(Logger logger) throws Exception {
+		return readPrivateField(logger, "log");
 	}
 
-	private String toSlf4jMessage(String msg) {
+	private static String toSlf4jMessage(String msg) {
 		return msg != null ? msg.replace("%s", "{}") : msg;
 	}
 }

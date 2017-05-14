@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,15 @@
  */
 
 package com.thebuzzmedia.exiftool;
+
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readStaticPrivateField;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.process.Command;
@@ -31,15 +40,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readStaticPrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("resource")
 @RunWith(MockitoJUnitRunner.class)
@@ -75,7 +75,7 @@ public class ExifToolTest {
 		when(executor.execute(any(Command.class))).thenReturn(v9_36);
 
 		// Clear cache before each test
-		VersionCache cache = readStaticPrivateField(ExifTool.class, "cache", VersionCache.class);
+		VersionCache cache = readStaticPrivateField(ExifTool.class, "cache");
 		cache.clear();
 		assertThat(cache).isNotNull();
 		assertThat(cache.size()).isZero();
@@ -118,7 +118,7 @@ public class ExifToolTest {
 
 	@Test
 	public void it_should_get_version_from_cache() throws Exception {
-		VersionCache cache = readStaticPrivateField(ExifTool.class, "cache", VersionCache.class);
+		VersionCache cache = readStaticPrivateField(ExifTool.class, "cache");
 
 		cache.clear();
 		assertThat(cache).isNotNull();
@@ -129,7 +129,7 @@ public class ExifToolTest {
 		ExifTool exifTool = new ExifTool(path, executor, strategy);
 		assertThat(exifTool.getVersion()).isNotNull();
 
-		cache = readStaticPrivateField(ExifTool.class, "cache", VersionCache.class);
+		cache = readStaticPrivateField(ExifTool.class, "cache");
 		assertThat(cache).isNotNull();
 		assertThat(cache.size()).isEqualTo(1);
 	}
@@ -171,20 +171,24 @@ public class ExifToolTest {
 		when(strategy.isSupported(any(Version.class))).thenReturn(true);
 		ExifTool exifTool = new ExifTool(path, executor, strategy);
 
-		assertThat(readPrivateField(exifTool, "path", String.class))
+		String path = readPrivateField(exifTool, "path");
+		CommandExecutor executor = readPrivateField(exifTool, "executor");
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
+
+		assertThat(path)
 			.isNotNull()
 			.isNotEmpty()
-			.isEqualTo(path);
+			.isEqualTo(this.path);
 
-		assertThat(readPrivateField(exifTool, "executor", CommandExecutor.class))
+		assertThat(executor)
 			.isNotNull()
-			.isEqualTo(executor);
+			.isEqualTo(this.executor);
 
-		assertThat(readPrivateField(exifTool, "strategy", ExecutionStrategy.class))
+		assertThat(strategy)
 			.isNotNull()
-			.isEqualTo(strategy);
+			.isEqualTo(this.strategy);
 
-		verify(strategy).isSupported(versionCaptor.capture());
+		verify(this.strategy).isSupported(versionCaptor.capture());
 
 		Version version = versionCaptor.getValue();
 		assertThat(version).isNotNull();
@@ -192,13 +196,13 @@ public class ExifToolTest {
 		assertThat(version.getMinor()).isEqualTo(36);
 		assertThat(version.getPatch()).isEqualTo(0);
 
-		verify(executor).execute(cmdCaptor.capture());
+		verify(this.executor).execute(cmdCaptor.capture());
 		assertThat(cmdCaptor.getValue()).isNotNull();
 		assertThat(cmdCaptor.getValue().getArguments())
 			.isNotNull()
 			.isNotEmpty()
 			.hasSize(2)
-			.containsExactly(path, "-ver");
+			.containsExactly(this.path, "-ver");
 	}
 
 	@Test
@@ -208,8 +212,8 @@ public class ExifToolTest {
 		thrown.expect(UnsupportedFeatureException.class);
 		thrown.expectMessage(
 			"Use of feature requires version 9.36.0 or higher of the native ExifTool program. " +
-			"The version of ExifTool referenced by the path '" + path + "' is not high enough. " +
-			"You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception."
+				"The version of ExifTool referenced by the path '" + path + "' is not high enough. " +
+				"You can either upgrade the install of ExifTool or avoid using this feature to workaround this exception."
 		);
 
 		new ExifTool(path, executor, strategy);

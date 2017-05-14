@@ -32,6 +32,6 @@ public class DefaultVersionCacheTest extends AbstractVersionCacheTest<DefaultVer
 
 	@Override
 	protected long size(VersionCache cache) throws Exception {
-		return readPrivateField(cache, "cache", ConcurrentMap.class).size();
+		return ((ConcurrentMap) readPrivateField(cache, "cache")).size();
 	}
 }

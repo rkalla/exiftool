@@ -17,6 +17,16 @@
 
 package com.thebuzzmedia.exiftool;
 
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.io.File;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import com.thebuzzmedia.exiftool.core.schedulers.DefaultScheduler;
 import com.thebuzzmedia.exiftool.core.schedulers.NoOpScheduler;
 import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
@@ -25,7 +35,7 @@ import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.CommandResult;
-import com.thebuzzmedia.exiftool.process.executor.CommandExecutors;
+import com.thebuzzmedia.exiftool.process.executor.DefaultCommandExecutor;
 import com.thebuzzmedia.exiftool.tests.builders.CommandResultBuilder;
 import com.thebuzzmedia.exiftool.tests.builders.FileBuilder;
 import com.thebuzzmedia.exiftool.tests.junit.SystemPropertyRule;
@@ -33,27 +43,8 @@ import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.File;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({
-	CommandExecutors.class
-})
 public class ExifToolBuilderTest {
 
 	@Rule
@@ -78,7 +69,6 @@ public class ExifToolBuilderTest {
 	@Before
 	public void setUp() throws Exception {
 		initMocks(this);
-		mockStatic(CommandExecutors.class);
 
 		builder = new ExifToolBuilder();
 		path = "/foo";
@@ -97,7 +87,7 @@ public class ExifToolBuilderTest {
 		ExifToolBuilder res = builder.withPath(path);
 
 		assertThat(res).isSameAs(builder);
-		assertThat(readPrivateField(builder, "path", String.class))
+		assertThat(readPrivateField(builder, "path"))
 			.isNotNull()
 			.isEqualTo(path);
 	}
@@ -110,7 +100,7 @@ public class ExifToolBuilderTest {
 		ExifToolBuilder res = builder.withPath(file);
 
 		assertThat(res).isSameAs(builder);
-		assertThat(readPrivateField(builder, "path", String.class))
+		assertThat(readPrivateField(builder, "path"))
 			.isNotNull()
 			.isEqualTo(file.getAbsolutePath());
 	}
@@ -120,54 +110,54 @@ public class ExifToolBuilderTest {
 		ExifToolBuilder res = builder.withExecutor(executor);
 
 		assertThat(res).isSameAs(builder);
-		assertThat(readPrivateField(builder, "executor", CommandExecutor.class))
+		assertThat(readPrivateField(builder, "executor"))
 			.isNotNull()
 			.isEqualTo(executor);
 	}
 
 	@Test
 	public void it_should_enable_stay_open_feature() throws Exception {
-		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isNull();
+		assertThat(readPrivateField(builder, "stayOpen")).isNull();
 
 		ExifToolBuilder r1 = builder.enableStayOpen();
 		assertThat(r1).isSameAs(builder);
-		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
-		assertThat(readPrivateField(builder, "cleanupDelay", Long.class)).isNull();
+		assertThat(readPrivateField(builder, "stayOpen")).isEqualTo(true);
+		assertThat(readPrivateField(builder, "cleanupDelay")).isNull();
 	}
 
 	@Test
 	public void it_should_enable_stay_open_feature_with_delay() throws Exception {
-		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isNull();
-		assertThat(readPrivateField(builder, "cleanupDelay", Boolean.class)).isNull();
+		assertThat(readPrivateField(builder, "stayOpen")).isNull();
+		assertThat(readPrivateField(builder, "cleanupDelay")).isNull();
 
 		long delay = 10000;
 		ExifToolBuilder r1 = builder.enableStayOpen(delay);
 
 		assertThat(r1).isSameAs(builder);
-		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
-		assertThat(readPrivateField(builder, "cleanupDelay", Long.class)).isEqualTo(delay);
+		assertThat(readPrivateField(builder, "stayOpen")).isEqualTo(true);
+		assertThat(readPrivateField(builder, "cleanupDelay")).isEqualTo(delay);
 	}
 
 	@Test
 	public void it_should_enable_stay_open_feature_with_scheduler() throws Exception {
-		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isNull();
-		assertThat(readPrivateField(builder, "scheduler", Scheduler.class)).isNull();
+		assertThat(readPrivateField(builder, "stayOpen")).isNull();
+		assertThat(readPrivateField(builder, "scheduler")).isNull();
 
 		ExifToolBuilder r1 = builder.enableStayOpen(scheduler);
 
 		assertThat(r1).isSameAs(builder);
-		assertThat(readPrivateField(builder, "stayOpen", Boolean.class)).isTrue();
-		assertThat(readPrivateField(builder, "scheduler", Scheduler.class)).isSameAs(scheduler);
+		assertThat(readPrivateField(builder, "stayOpen")).isEqualTo(true);
+		assertThat(readPrivateField(builder, "scheduler")).isSameAs(scheduler);
 	}
 
 	@Test
 	public void it_should_override_strategy() throws Exception {
-		assertThat(readPrivateField(builder, "strategy", ExecutionStrategy.class)).isNull();
+		assertThat(readPrivateField(builder, "strategy")).isNull();
 
 		ExifToolBuilder r1 = builder.withStrategy(strategy);
 
 		assertThat(r1).isSameAs(builder);
-		assertThat(readPrivateField(builder, "strategy", ExecutionStrategy.class)).isSameAs(strategy);
+		assertThat(readPrivateField(builder, "strategy")).isSameAs(strategy);
 	}
 
 	@Test
@@ -178,15 +168,15 @@ public class ExifToolBuilderTest {
 			.enableStayOpen()
 			.build();
 
-		assertThat(readPrivateField(exifTool, "path", String.class))
+		assertThat(readPrivateField(exifTool, "path"))
 			.isNotNull()
 			.isEqualTo(path);
 
-		assertThat(readPrivateField(exifTool, "executor", CommandExecutor.class))
+		assertThat(readPrivateField(exifTool, "executor"))
 			.isNotNull()
 			.isEqualTo(executor);
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(StayOpenStrategy.class);
@@ -200,7 +190,7 @@ public class ExifToolBuilderTest {
 			.withExecutor(executor)
 			.build();
 
-		assertThat(readPrivateField(exifTool, "path", String.class))
+		assertThat(readPrivateField(exifTool, "path"))
 			.isNotNull()
 			.isEqualTo(path);
 	}
@@ -211,7 +201,7 @@ public class ExifToolBuilderTest {
 			.withExecutor(executor)
 			.build();
 
-		assertThat(readPrivateField(exifTool, "path", String.class))
+		assertThat(readPrivateField(exifTool, "path"))
 			.isNotNull()
 			.isEqualTo("exiftool");
 	}
@@ -226,14 +216,14 @@ public class ExifToolBuilderTest {
 			.enableStayOpen()
 			.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(StayOpenStrategy.class);
 
-		Scheduler scheduler = readPrivateField(strategy, "scheduler", Scheduler.class);
-		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(delay);
-		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(TimeUnit.MILLISECONDS);
+		Scheduler scheduler = readPrivateField(strategy, "scheduler");
+		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(delay);
+		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(TimeUnit.MILLISECONDS);
 	}
 
 	@Test
@@ -243,14 +233,14 @@ public class ExifToolBuilderTest {
 			.enableStayOpen()
 			.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(StayOpenStrategy.class);
 
-		Scheduler scheduler = readPrivateField(strategy, "scheduler", Scheduler.class);
-		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(600000);
-		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(TimeUnit.MILLISECONDS);
+		Scheduler scheduler = readPrivateField(strategy, "scheduler");
+		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(600000L);
+		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(TimeUnit.MILLISECONDS);
 	}
 
 	@Test
@@ -260,12 +250,12 @@ public class ExifToolBuilderTest {
 			.enableStayOpen(scheduler)
 			.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(StayOpenStrategy.class);
 
-		assertThat(readPrivateField(strategy, "scheduler", Scheduler.class))
+		assertThat(readPrivateField(strategy, "scheduler"))
 			.isNotNull()
 			.isSameAs(scheduler);
 	}
@@ -276,7 +266,7 @@ public class ExifToolBuilderTest {
 			.withExecutor(executor)
 			.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(DefaultStrategy.class);
@@ -284,14 +274,11 @@ public class ExifToolBuilderTest {
 
 	@Test
 	public void it_should_create_with_default_executor() throws Exception {
-		PowerMockito.when(CommandExecutors.newExecutor()).thenReturn(executor);
+		ExifTool exifTool = builder.build();
 
-		ExifTool exifTool = builder
-			.build();
-
-		assertThat(readPrivateField(exifTool, "executor", CommandExecutor.class))
+		assertThat(readPrivateField(exifTool, "executor"))
 			.isNotNull()
-			.isEqualTo(executor);
+			.isExactlyInstanceOf(DefaultCommandExecutor.class);
 	}
 
 	@Test
@@ -301,7 +288,7 @@ public class ExifToolBuilderTest {
 			.withStrategy(strategy)
 			.build();
 
-		assertThat(readPrivateField(exifTool, "strategy", ExecutionStrategy.class))
+		assertThat(readPrivateField(exifTool, "strategy"))
 			.isNotNull()
 			.isEqualTo(strategy);
 	}
@@ -314,12 +301,12 @@ public class ExifToolBuilderTest {
 			.withPoolSize(10, 500)
 			.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 			.isNotNull()
 			.isExactlyInstanceOf(PoolStrategy.class);
 
-		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool", BlockingQueue.class);
+		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool");
 		assertThat(pool.size()).isEqualTo(10);
 		assertThat(pool)
 				.isNotEmpty()
@@ -334,7 +321,7 @@ public class ExifToolBuilderTest {
 					public boolean matches(ExecutionStrategy value) {
 						StayOpenStrategy stayOpenStrategy = (StayOpenStrategy) value;
 						try {
-							Scheduler scheduler = readPrivateField(stayOpenStrategy, "scheduler", Scheduler.class);
+							Scheduler scheduler = readPrivateField(stayOpenStrategy, "scheduler");
 							return scheduler instanceof DefaultScheduler;
 						}
 						catch (Exception ex) {
@@ -351,7 +338,7 @@ public class ExifToolBuilderTest {
 				.withPoolSize(0, 0)
 				.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 				.isNotNull()
 				.isExactlyInstanceOf(DefaultStrategy.class);
@@ -364,7 +351,7 @@ public class ExifToolBuilderTest {
 				.withPoolSize(0)
 				.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 				.isNotNull()
 				.isExactlyInstanceOf(DefaultStrategy.class);
@@ -378,12 +365,12 @@ public class ExifToolBuilderTest {
 				.withPoolSize(10)
 				.build();
 
-		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy", ExecutionStrategy.class);
+		ExecutionStrategy strategy = readPrivateField(exifTool, "strategy");
 		assertThat(strategy)
 				.isNotNull()
 				.isExactlyInstanceOf(PoolStrategy.class);
 
-		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool", BlockingQueue.class);
+		BlockingQueue<ExecutionStrategy> pool = readPrivateField(strategy, "pool");
 		assertThat(pool.size()).isEqualTo(10);
 		assertThat(pool)
 				.isNotEmpty()
@@ -398,7 +385,7 @@ public class ExifToolBuilderTest {
 					public boolean matches(ExecutionStrategy value) {
 						StayOpenStrategy stayOpenStrategy = (StayOpenStrategy) value;
 						try {
-							Scheduler scheduler = readPrivateField(stayOpenStrategy, "scheduler", Scheduler.class);
+							Scheduler scheduler = readPrivateField(stayOpenStrategy, "scheduler");
 							return scheduler instanceof NoOpScheduler;
 						}
 						catch (Exception ex) {

@@ -17,6 +17,21 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
+import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thebuzzmedia.exiftool.Scheduler;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -31,17 +46,6 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
-import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StayOpenStrategyTest {
@@ -84,8 +88,8 @@ public class StayOpenStrategyTest {
 
 	@Test
 	public void it_should_create_stay_open_strategy() throws Exception {
-		assertThat(readPrivateField(strategy, "scheduler", Scheduler.class)).isSameAs(scheduler);
-		assertThat(readPrivateField(strategy, "process", CommandProcess.class)).isNull();
+		assertThat(readPrivateField(strategy, "scheduler")).isSameAs(scheduler);
+		assertThat(readPrivateField(strategy, "process")).isNull();
 	}
 
 	@Test
@@ -100,7 +104,7 @@ public class StayOpenStrategyTest {
 		inOrder.verify(process).flush();
 		inOrder.verify(process).read(any(OutputHandler.class));
 
-		assertThat(readPrivateField(strategy, "process", CommandProcess.class))
+		assertThat(readPrivateField(strategy, "process"))
 			.isNotNull()
 			.isSameAs(process);
 

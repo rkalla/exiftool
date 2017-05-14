@@ -17,7 +17,8 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
+import static com.thebuzzmedia.exiftool.commons.reflection.DependencyUtils.isLog4jAvailable;
+import static com.thebuzzmedia.exiftool.commons.reflection.DependencyUtils.isSlf4jAvailable;
 
 /**
  * Factory to use to create {@link com.thebuzzmedia.exiftool.logs.Logger} instances.
@@ -46,13 +47,13 @@ public final class LoggerFactory {
 	 */
 	public static Logger getLogger(Class<?> klass) {
 		// First try slf4j
-		if (ClassUtils.isPresent("org.slf4j.Logger")) {
+		if (isSlf4jAvailable()) {
 			org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(klass);
 			return new LoggerSlf4j(log);
 		}
 
 		// Then, try log4j
-		if (ClassUtils.isPresent("org.apache.log4j.Logger")) {
+		if (isLog4jAvailable()) {
 			org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(klass);
 			return new LoggerLog4j(log);
 		}

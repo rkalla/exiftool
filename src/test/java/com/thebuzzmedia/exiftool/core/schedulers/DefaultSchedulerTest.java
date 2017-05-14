@@ -17,19 +17,6 @@
 
 package com.thebuzzmedia.exiftool.core.schedulers;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +24,19 @@ import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultSchedulerTest {
@@ -73,9 +73,9 @@ public class DefaultSchedulerTest {
 		long delay = 10000;
 		DefaultScheduler scheduler = new DefaultScheduler(delay);
 
-		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(delay);
-		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(TimeUnit.MILLISECONDS);
-		assertThat(readPrivateField(scheduler, "executor", ScheduledThreadPoolExecutor.class)).isNotNull();
+		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(delay);
+		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(TimeUnit.MILLISECONDS);
+		assertThat(readPrivateField(scheduler, "executor")).isNotNull();
 	}
 
 	@Test
@@ -85,9 +85,9 @@ public class DefaultSchedulerTest {
 
 		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
 
-		assertThat(readPrivateField(scheduler, "delay", Long.class)).isEqualTo(delay);
-		assertThat(readPrivateField(scheduler, "timeUnit", TimeUnit.class)).isEqualTo(timeUnit);
-		assertThat(readPrivateField(scheduler, "executor", ScheduledThreadPoolExecutor.class)).isNotNull();
+		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(delay);
+		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(timeUnit);
+		assertThat(readPrivateField(scheduler, "executor")).isNotNull();
 	}
 
 	@Test

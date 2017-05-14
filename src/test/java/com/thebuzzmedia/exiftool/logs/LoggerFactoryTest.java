@@ -17,20 +17,14 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writeStaticPrivateField;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.thebuzzmedia.exiftool.commons.reflection.DependencyUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ClassUtils.class)
 public class LoggerFactoryTest {
 
 	private String debug;
@@ -39,22 +33,22 @@ public class LoggerFactoryTest {
 	public void setUp() {
 		debug = System.getProperty("exiftool.debug");
 
-		mockStatic(ClassUtils.class);
-		when(ClassUtils.isPresent("org.slf4j.Logger")).thenReturn(true);
-		when(ClassUtils.isPresent("org.apache.log4j.Logger")).thenReturn(true);
+		assertThat(DependencyUtils.isSlf4jAvailable()).isTrue();
+		assertThat(DependencyUtils.isLog4jAvailable()).isTrue();
 	}
 
 	@After
-	public void tearDown() {
-		if (debug != null) {
-			System.setProperty("exiftool.debug", debug);
-		} else {
-			System.clearProperty("exiftool.debug");
-		}
+	public void tearDown() throws Exception {
+		updateExifToolDebugProperty(debug);
+		updateFlagSlf4j(true);
+		updateFlagLog4j(true);
 	}
 
 	@Test
-	public void it_should_get_slf4j_logger() {
+	public void it_should_get_slf4j_logger() throws Exception {
+		updateFlagLog4j(true);
+		updateFlagSlf4j(true);
+
 		Logger logger = LoggerFactory.getLogger(LoggerFactoryTest.class);
 
 		assertThat(logger)
@@ -63,9 +57,9 @@ public class LoggerFactoryTest {
 	}
 
 	@Test
-	public void it_should_get_log4j_logger() {
-		when(ClassUtils.isPresent("org.slf4j.Logger")).thenReturn(false);
-		when(ClassUtils.isPresent("org.apache.log4j.Logger")).thenReturn(true);
+	public void it_should_get_log4j_logger() throws Exception {
+		updateFlagSlf4j(false);
+		updateFlagLog4j(true);
 
 		Logger logger = LoggerFactory.getLogger(LoggerFactoryTest.class);
 
@@ -75,11 +69,10 @@ public class LoggerFactoryTest {
 	}
 
 	@Test
-	public void it_should_get_default_logger_with_debug_disabled() {
-		System.setProperty("exiftool.debug", "false");
-
-		when(ClassUtils.isPresent("org.slf4j.Logger")).thenReturn(false);
-		when(ClassUtils.isPresent("org.apache.log4j.Logger")).thenReturn(false);
+	public void it_should_get_default_logger_with_debug_disabled() throws Exception {
+		updateExifToolDebugProperty("false");
+		updateFlagLog4j(false);
+		updateFlagSlf4j(false);
 
 		Logger logger = LoggerFactory.getLogger(LoggerFactoryTest.class);
 
@@ -91,11 +84,10 @@ public class LoggerFactoryTest {
 	}
 
 	@Test
-	public void it_should_get_default_logger_with_debug_enabled() {
-		System.setProperty("exiftool.debug", "true");
-
-		when(ClassUtils.isPresent("org.slf4j.Logger")).thenReturn(false);
-		when(ClassUtils.isPresent("org.apache.log4j.Logger")).thenReturn(false);
+	public void it_should_get_default_logger_with_debug_enabled() throws Exception {
+		updateExifToolDebugProperty("true");
+		updateFlagLog4j(false);
+		updateFlagSlf4j(false);
 
 		Logger logger = LoggerFactory.getLogger(LoggerFactoryTest.class);
 
@@ -104,5 +96,21 @@ public class LoggerFactoryTest {
 			.isExactlyInstanceOf(DefaultLogger.class);
 
 		assertThat(logger.isDebugEnabled()).isTrue();
+	}
+
+	private static void updateExifToolDebugProperty(String debug) {
+		if (debug != null) {
+			System.setProperty("exiftool.debug", debug);
+		} else {
+			System.clearProperty("exiftool.debug");
+		}
+	}
+
+	private static void updateFlagSlf4j(boolean value) throws Exception {
+		writeStaticPrivateField(DependencyUtils.class, "SLF4J_AVAILABLE", value);
+	}
+
+	private static void updateFlagLog4j(boolean value) throws Exception {
+		writeStaticPrivateField(DependencyUtils.class, "LOG4J_AVAILABLE", value);
 	}
 }

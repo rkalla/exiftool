@@ -17,30 +17,30 @@
 
 package com.thebuzzmedia.exiftool.core.cache;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.thebuzzmedia.exiftool.VersionCache;
-import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
+import com.thebuzzmedia.exiftool.commons.reflection.DependencyUtils;
+import com.thebuzzmedia.exiftool.tests.ReflectionUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ClassUtils.class)
 public class VersionCacheFactoryTest {
 
 	@Before
 	public void setUp() {
-		mockStatic(ClassUtils.class);
+		assertThat(DependencyUtils.isGuavaAvailable()).isTrue();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		updateGuavaFlag(true);
 	}
 
 	@Test
-	public void it_should_load_guava_cache_by_default() {
-		when(ClassUtils.isPresent("com.google.common.cache.Cache")).thenReturn(true);
+	public void it_should_load_guava_cache_by_default() throws Exception {
+		updateGuavaFlag(true);
 
 		VersionCache cache = VersionCacheFactory.newCache();
 		assertThat(cache)
@@ -49,12 +49,16 @@ public class VersionCacheFactoryTest {
 	}
 
 	@Test
-	public void it_should_load_default_cache_as_fallback() {
-		when(ClassUtils.isPresent("com.google.common.cache.Cache")).thenReturn(false);
+	public void it_should_load_default_cache_as_fallback() throws Exception {
+		updateGuavaFlag(false);
 
 		VersionCache cache = VersionCacheFactory.newCache();
 		assertThat(cache)
 			.isNotNull()
 			.isExactlyInstanceOf(DefaultVersionCache.class);
+	}
+
+	private static void updateGuavaFlag(boolean value) throws Exception {
+		ReflectionUtils.writeStaticPrivateField(DependencyUtils.class, "GUAVA_AVAILABLE", value);
 	}
 }

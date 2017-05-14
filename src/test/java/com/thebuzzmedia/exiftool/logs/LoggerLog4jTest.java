@@ -17,13 +17,13 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import org.apache.log4j.Level;
-
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.apache.log4j.Level;
 
 public class LoggerLog4jTest extends AbstractLoggerTest {
 
@@ -94,7 +94,7 @@ public class LoggerLog4jTest extends AbstractLoggerTest {
 		verifyCall(logger, Level.TRACE, message, params);
 	}
 
-	private void verifyCall(Logger logger, Level level, String message, Object... params) throws Exception {
+	private static void verifyCall(Logger logger, Level level, String message, Object... params) throws Exception {
 		String msg = message;
 		if (msg != null && params.length > 0) {
 			msg = String.format(msg, params);
@@ -105,7 +105,7 @@ public class LoggerLog4jTest extends AbstractLoggerTest {
 		verify(log4j).log(level, msg);
 	}
 
-	private org.apache.log4j.Logger getLog4j(Logger logger) throws Exception {
-		return readPrivateField(logger, "log", org.apache.log4j.Logger.class);
+	private static org.apache.log4j.Logger getLog4j(Logger logger) throws Exception {
+		return readPrivateField(logger, "log");
 	}
 }

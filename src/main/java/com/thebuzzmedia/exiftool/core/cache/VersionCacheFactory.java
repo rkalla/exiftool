@@ -17,11 +17,16 @@
 
 package com.thebuzzmedia.exiftool.core.cache;
 
-import com.thebuzzmedia.exiftool.VersionCache;
-import com.thebuzzmedia.exiftool.commons.reflection.ClassUtils;
+import static com.thebuzzmedia.exiftool.commons.reflection.DependencyUtils.isGuavaAvailable;
 
+import com.thebuzzmedia.exiftool.VersionCache;
+
+/**
+ * {@link VersionCache} factory.
+ */
 public final class VersionCacheFactory {
 
+	// Ensure non instantiation.
 	private VersionCacheFactory() {
 	}
 
@@ -31,11 +36,6 @@ public final class VersionCacheFactory {
 	 * @return New instance of {@link VersionCache}.
 	 */
 	public static VersionCache newCache() {
-		// Try Guava first
-		if (ClassUtils.isPresent("com.google.common.cache.Cache")) {
-			return new GuavaVersionCache();
-		}
-
-		return new DefaultVersionCache();
+		return isGuavaAvailable() ? new GuavaVersionCache() : new DefaultVersionCache();
 	}
 }

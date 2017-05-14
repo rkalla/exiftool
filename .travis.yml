@@ -5,3 +5,4 @@ jdk:
   - oraclejdk7
 os:
   - linux
+script: mvn clean verify

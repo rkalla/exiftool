@@ -17,21 +17,6 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
-import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thebuzzmedia.exiftool.Scheduler;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -46,6 +31,17 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
+import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StayOpenStrategyTest {
@@ -156,10 +152,17 @@ public class StayOpenStrategyTest {
 	}
 
 	@Test
-	public void it_should_not_close_process_if_it_is_not_started() throws Exception {
+	public void it_should_try_to_close_process_if_it_is_not_started() throws Exception {
 		StayOpenStrategy strategy = new StayOpenStrategy(scheduler);
 		strategy.close();
-		verify(scheduler, never()).stop();
+		verify(scheduler).stop();
+	}
+
+	@Test
+	public void it_should_try_to_shutdown_process_if_it_is_not_started() throws Exception {
+		StayOpenStrategy strategy = new StayOpenStrategy(scheduler);
+		strategy.shutdown();
+		verify(scheduler).shutdown();
 	}
 
 	@Test
@@ -169,10 +172,27 @@ public class StayOpenStrategyTest {
 		strategy.close();
 
 		InOrder inOrder = inOrder(scheduler, process);
-		inOrder.verify(scheduler).stop();
 		inOrder.verify(process).write("-stay_open\nFalse\n");
 		inOrder.verify(process).flush();
 		inOrder.verify(process).close();
+		inOrder.verify(scheduler).stop();
+
+		verifyNoMoreInteractions(process);
+		verifyNoMoreInteractions(scheduler);
+	}
+
+	@Test
+	public void it_should_shutdown_process_if_it_is_started() throws Exception {
+		StayOpenStrategy strategy = new StayOpenStrategy(scheduler);
+		writePrivateField(strategy, "process", process);
+		strategy.shutdown();
+
+		InOrder inOrder = inOrder(scheduler, process);
+		inOrder.verify(process).write("-stay_open\nFalse\n");
+		inOrder.verify(process).flush();
+		inOrder.verify(process).close();
+		inOrder.verify(scheduler).stop();
+		inOrder.verify(scheduler).shutdown();
 
 		verifyNoMoreInteractions(process);
 		verifyNoMoreInteractions(scheduler);

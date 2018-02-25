@@ -17,26 +17,20 @@
 
 package com.thebuzzmedia.exiftool.core.schedulers;
 
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.concurrent.*;
+
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultSchedulerTest {
@@ -123,6 +117,29 @@ public class DefaultSchedulerTest {
 		verify(r1).cancel(false);
 		verify(r2).cancel(false);
 		verify(executor).purge();
+	}
+
+	@Test
+	public void it_should_shutdown_scheduler() throws Throwable {
+		int delay = 10000;
+		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
+		writePrivateField(scheduler, "executor", executor);
+
+		RunnableFuture<?> r1 = mock(RunnableFuture.class);
+		RunnableFuture<?> r2 = mock(RunnableFuture.class);
+		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(10);
+		queue.add(r1);
+		queue.add(r2);
+
+		when(executor.getQueue()).thenReturn(queue);
+
+		scheduler.shutdown();
+
+		verify(r1).cancel(false);
+		verify(r2).cancel(false);
+		verify(executor).purge();
+		verify(executor).shutdownNow();
 	}
 
 	@Test

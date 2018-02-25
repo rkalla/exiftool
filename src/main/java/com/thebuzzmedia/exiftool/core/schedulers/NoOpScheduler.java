@@ -33,4 +33,9 @@ public class NoOpScheduler implements Scheduler {
 	public void stop() {
 		// No Op.
 	}
+
+	@Override
+	public void shutdown() {
+		// No Op.
+	}
 }

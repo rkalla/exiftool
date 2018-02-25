@@ -17,24 +17,21 @@
 
 package com.thebuzzmedia.exiftool.core.schedulers;
 
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class TimerSchedulerTest {
 
@@ -127,6 +124,38 @@ public class TimerSchedulerTest {
 
 		TimerTask actualScheduler = readPrivateField(scheduler, "pendingTask");
 		assertThat(actualScheduler).isNull();
+	}
+
+	@Test
+	public void it_should_shutdown_scheduler_without_pending_task() throws Throwable {
+		long delay = 10000;
+		TimerScheduler scheduler = new TimerScheduler(null, delay);
+
+		Timer timer = mock(Timer.class);
+		writePrivateField(scheduler, "timer", timer);
+
+		scheduler.shutdown();
+
+		verify(timer, never()).purge();
+		verify(timer).cancel();
+		assertThat(readPrivateField(scheduler, "pendingTask")).isNull();
+	}
+
+	@Test
+	public void it_should_shutdown_scheduler_with_pending_task() throws Throwable {
+		long delay = 10000;
+		TimerScheduler scheduler = new TimerScheduler(null, delay);
+
+		Timer timer = mock(Timer.class);
+		TimerTask timerTask = mock(TimerTask.class);
+		writePrivateField(scheduler, "timer", timer);
+		writePrivateField(scheduler, "pendingTask", timerTask);
+
+		scheduler.shutdown();
+
+		verify(timer).purge();
+		verify(timer).cancel();
+		assertThat(readPrivateField(scheduler, "pendingTask")).isNull();
 	}
 
 	@Test

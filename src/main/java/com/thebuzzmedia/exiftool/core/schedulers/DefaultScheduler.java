@@ -106,13 +106,18 @@ public class DefaultScheduler implements Scheduler {
 		executor.purge();
 	}
 
+	@Override
+	public void shutdown() {
+		stop();
+		executor.shutdownNow();
+	}
+
 	// Implement finalizer.
 	// This is just a small security to stop scheduled task if
 	// instance is garbage collected.
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		stop();
-		executor.shutdownNow();
+		shutdown();
 	}
 }

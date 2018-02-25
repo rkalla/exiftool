@@ -132,9 +132,16 @@ public class StayOpenStrategy implements ExecutionStrategy {
 	@Override
 	public synchronized void close() throws Exception {
 		if (process != null) {
-			closeScheduler();
 			closeProcess();
 		}
+
+		closeScheduler();
+	}
+
+	@Override
+	public synchronized void shutdown() throws Exception {
+		close();
+		shutdownScheduler();
 	}
 
 	// Implement finalizer.
@@ -147,7 +154,7 @@ public class StayOpenStrategy implements ExecutionStrategy {
 		super.finalize();
 
 		// Be sure process is closed
-		close();
+		shutdown();
 	}
 
 	/**
@@ -167,6 +174,27 @@ public class StayOpenStrategy implements ExecutionStrategy {
 			// Should not fail everything.
 			// Important to log warning at least.
 			log.warn("Cleanup task failed to stop");
+			log.warn(ex.getMessage(), ex);
+		}
+	}
+
+	/**
+	 * Close pending cleanup task and stop scheduler.
+	 * This scheduler may be re-used if necessary.
+	 */
+	private synchronized void shutdownScheduler() {
+		// Try to stop cleanup task
+		// Note: If task is not stopped, it may be executed later
+
+		try {
+			log.debug("Attempting to shutdown cleanup task");
+			scheduler.shutdown();
+			log.debug("Cleanup task successfully shutdown");
+		}
+		catch (Exception ex) {
+			// Should not fail everything.
+			// Important to log warning at least.
+			log.warn("Cleanup task failed to shutdown");
 			log.warn(ex.getMessage(), ex);
 		}
 	}

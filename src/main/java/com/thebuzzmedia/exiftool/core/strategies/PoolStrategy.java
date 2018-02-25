@@ -112,6 +112,15 @@ public class PoolStrategy implements ExecutionStrategy {
 
 	@Override
 	public void close() throws Exception {
+		processPool(CLOSE_EXECUTION_STRATEGY);
+	}
+
+	@Override
+	public void shutdown() throws Exception {
+		processPool(SHUTDOWN_EXECUTION_STRATEGY);
+	}
+
+	private void processPool(ExecutionStrategyFunction function) throws Exception {
 		List<ExecutionStrategy> strategies = new ArrayList<>(poolSize);
 
 		// Get all strategies from the pool.
@@ -136,10 +145,9 @@ public class PoolStrategy implements ExecutionStrategy {
 		int i = 0;
 		for (ExecutionStrategy strategy : strategies) {
 			try {
-				log.debug("Closing strategy #%s", i);
-				strategy.close();
+				function.apply(strategy, i);
 			} catch (Exception ex) {
-				log.error("Failed to close strategy #%s", i);
+				log.error("Failed to process strategy #%s", i);
 				thrownEx.add(ex);
 			}
 			finally {
@@ -154,4 +162,24 @@ public class PoolStrategy implements ExecutionStrategy {
 			throw new PoolIOException("Some strategies in the pool failed to close properly", thrownEx);
 		}
 	}
+
+	private interface ExecutionStrategyFunction {
+		void apply(ExecutionStrategy strategy, int i) throws Exception;
+	}
+
+	private static final ExecutionStrategyFunction CLOSE_EXECUTION_STRATEGY = new ExecutionStrategyFunction() {
+		@Override
+		public void apply(ExecutionStrategy strategy, int i) throws Exception {
+			log.debug("Closing strategy #%s", i);
+			strategy.close();
+		}
+	};
+
+	private static final ExecutionStrategyFunction SHUTDOWN_EXECUTION_STRATEGY = new ExecutionStrategyFunction() {
+		@Override
+		public void apply(ExecutionStrategy strategy, int i) throws Exception {
+			log.debug("Closing strategy #%s", i);
+			strategy.shutdown();
+		}
+	};
 }

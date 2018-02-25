@@ -87,10 +87,15 @@ public class TimerScheduler implements Scheduler {
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
+	public synchronized void shutdown() {
 		stop();
 		timer.cancel();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		shutdown();
 	}
 
 	private static class CleanupTask extends TimerTask {

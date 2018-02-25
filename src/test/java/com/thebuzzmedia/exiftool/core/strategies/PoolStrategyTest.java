@@ -17,27 +17,6 @@
 
 package com.thebuzzmedia.exiftool.core.strategies;
 
-import static com.thebuzzmedia.exiftool.tests.MockitoUtils.anyListOf;
-import static java.lang.Thread.sleep;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import com.thebuzzmedia.exiftool.ExecutionStrategy;
 import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.exceptions.PoolIOException;
@@ -45,6 +24,20 @@ import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import static com.thebuzzmedia.exiftool.tests.MockitoUtils.anyListOf;
+import static java.lang.Thread.sleep;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class PoolStrategyTest {
 
@@ -274,31 +267,17 @@ public class PoolStrategyTest {
 	public void it_should_close_inner_strategies() throws Exception {
 		CountDownLatch execLock = new CountDownLatch(1);
 		ExecutionStrategy s1 = mock(ExecutionStrategy.class);
-		doAnswer(new LockAnswer(1, execLock))
-			.when(s1)
-			.execute(any(CommandExecutor.class), anyString(), anyListOf(String.class), any(OutputHandler.class));
-
 		ExecutionStrategy s2 = mock(ExecutionStrategy.class);
 
-		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+		LockAnswer answer = new LockAnswer(1, execLock);
+		doAnswer(answer).when(s1).execute(any(CommandExecutor.class), anyString(), anyListOf(String.class), any(OutputHandler.class));
 
-		// Start a thread with strategy #1
-		CountDownLatch lock = new CountDownLatch(1);
-		Thread t1 = new Thread(new ExecuteTask(1, lock, pool, executor, exifTool, arguments, handler));
-		t1.start();
-
-		// Unblock threads.
-		lock.countDown();
-		sleep(1000);
-
-		// Test that first one is executed.
-		assertThat(pool.isRunning()).isTrue();
-		verify(s1).execute(executor, exifTool, arguments, handler);
-		verify(s2, never()).execute(executor, exifTool, arguments, handler);
-
-		// Start new thread used to close pool.
-		Thread t2 = new Thread(new CloseTask(1, pool));
-		t2.start();
+		runPool(s1, s2, new TaskFactory() {
+			@Override
+			public Runnable create(PoolStrategy pool) {
+				return new CloseTask(1, pool);
+			}
+		});
 
 		verify(s1, never()).close();
 		verify(s2, never()).close();
@@ -309,6 +288,33 @@ public class PoolStrategyTest {
 
 		verify(s1).close();
 		verify(s2).close();
+	}
+
+	@Test
+	public void it_should_shutdown_inner_strategies() throws Exception {
+		CountDownLatch execLock = new CountDownLatch(1);
+		ExecutionStrategy s1 = mock(ExecutionStrategy.class);
+		ExecutionStrategy s2 = mock(ExecutionStrategy.class);
+
+		LockAnswer answer = new LockAnswer(1, execLock);
+		doAnswer(answer).when(s1).execute(any(CommandExecutor.class), anyString(), anyListOf(String.class), any(OutputHandler.class));
+
+		runPool(s1, s2, new TaskFactory() {
+			@Override
+			public Runnable create(PoolStrategy pool) {
+				return new ShutdownTask(1, pool);
+			}
+		});
+
+		verify(s1, never()).shutdown();
+		verify(s2, never()).shutdown();
+
+		// Unblock first strategy.
+		execLock.countDown();
+		sleep(1000);
+
+		verify(s1).shutdown();
+		verify(s2).shutdown();
 	}
 
 	@Test
@@ -368,5 +374,33 @@ public class PoolStrategyTest {
 			.isNotEmpty()
 			.hasSize(2)
 			.contains(ex1, ex2);
+	}
+
+	private PoolStrategy runPool(ExecutionStrategy s1, ExecutionStrategy s2, TaskFactory taskFactory) throws Exception {
+		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+
+		// Start a thread with strategy #1
+		CountDownLatch lock = new CountDownLatch(1);
+		Thread t1 = new Thread(new ExecuteTask(1, lock, pool, executor, exifTool, arguments, handler));
+		t1.start();
+
+		// Unblock threads.
+		lock.countDown();
+		sleep(1000);
+
+		// Test that first one is executed.
+		assertThat(pool.isRunning()).isTrue();
+		verify(s1).execute(executor, exifTool, arguments, handler);
+		verify(s2, never()).execute(executor, exifTool, arguments, handler);
+
+		// Start new thread used to close pool.
+		Thread t2 = new Thread(taskFactory.create(pool));
+		t2.start();
+
+		return pool;
+	}
+
+	private interface TaskFactory {
+		Runnable create(PoolStrategy pool);
 	}
 }

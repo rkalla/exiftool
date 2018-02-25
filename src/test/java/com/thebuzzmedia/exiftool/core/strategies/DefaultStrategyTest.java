@@ -72,4 +72,9 @@ public class DefaultStrategyTest {
 	public void it_should_do_nothing_on_close() {
 		new DefaultStrategy().close();
 	}
+
+	@Test
+	public void it_should_do_nothing_on_shutdown() {
+		new DefaultStrategy().shutdown();
+	}
 }

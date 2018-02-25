@@ -47,4 +47,10 @@ public interface Scheduler {
 	 * Stop pending task.
 	 */
 	void stop();
+
+	/**
+	 * Shutdown scheduler: once done, the scheduler will not be usable
+	 * anymore.
+	 */
+	void shutdown();
 }

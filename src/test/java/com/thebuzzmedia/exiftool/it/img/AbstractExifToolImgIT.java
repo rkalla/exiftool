@@ -20,7 +20,6 @@ package com.thebuzzmedia.exiftool.it.img;
 import com.thebuzzmedia.exiftool.ExifTool;
 import com.thebuzzmedia.exiftool.ExifToolBuilder;
 import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.core.StandardFormat;
 import com.thebuzzmedia.exiftool.core.StandardTag;
 import com.thebuzzmedia.exiftool.tests.FileUtils;
@@ -66,9 +65,9 @@ public abstract class AbstractExifToolImgIT {
 			.build();
 
 		exifToolPool = new ExifToolBuilder()
-				.withPath(PATH)
-				.withPoolSize(2)
-				.build();
+			.withPath(PATH)
+			.withPoolSize(2)
+			.build();
 	}
 
 	@After

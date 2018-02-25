@@ -81,6 +81,11 @@ public class DefaultStrategy implements ExecutionStrategy {
 
 	@Override
 	public void close() {
-		// Nothing to do here
+		// Nothing to do here.
+	}
+
+	@Override
+	public void shutdown() {
+		// Nothing to do here.
 	}
 }

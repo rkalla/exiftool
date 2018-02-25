@@ -93,4 +93,9 @@ public interface ExecutionStrategy extends AutoCloseable {
 	 * if a call to {@link #execute} is made.
 	 */
 	void close() throws Exception;
+
+	/**
+	 * Shutdown the strategy.
+	 */
+	void shutdown() throws Exception;
 }

@@ -333,13 +333,22 @@ public class ExifTool implements AutoCloseable {
 	 *
 	 * <br>
 	 *
+	 * <strong>NOTE: Calling this method prvent this instance of {@link ExifTool} from being re-used.</strong>
+	 */
+	@Override
+	public void close() throws Exception {
+		strategy.shutdown();
+	}
+
+	/**
+	 * Close `ExifTool` client.
+	 *
 	 * <strong>NOTE</strong>: Calling this method does not preclude this
 	 * instance of {@link ExifTool} from being re-used, it merely disposes of
 	 * the native and internal resources until the next call to
 	 * {@code getImageMeta} causes them to be re-instantiated.
 	 */
-	@Override
-	public void close() throws Exception {
+	public void pause() throws Exception {
 		strategy.close();
 	}
 
@@ -447,7 +456,7 @@ public class ExifTool implements AutoCloseable {
 		notEmpty(tags, "Tags cannot be null and must contain 1 or more Tag to query the image for.");
 		isWritable(image, "Unable to read the given image [%s], ensure that the image exists at the given withPath and that the executing Java process has permissions to read it.", image);
 
-		log.debug("Writing %d tags to image: %s", tags.size(), image);
+		log.debug("Writing %s tags to image: %s", tags.size(), image);
 
 		long startTime = System.currentTimeMillis();
 

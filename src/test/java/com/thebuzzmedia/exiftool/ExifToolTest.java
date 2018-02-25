@@ -17,15 +17,6 @@
 
 package com.thebuzzmedia.exiftool;
 
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readStaticPrivateField;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.thebuzzmedia.exiftool.exceptions.UnsupportedFeatureException;
 import com.thebuzzmedia.exiftool.process.Command;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
@@ -40,6 +31,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readStaticPrivateField;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("resource")
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -155,7 +153,16 @@ public class ExifToolTest {
 		when(strategy.isSupported(any(Version.class))).thenReturn(true);
 		ExifTool exifTool = new ExifTool(path, executor, strategy);
 		exifTool.close();
+		verify(strategy).shutdown();
+	}
+
+	@Test
+	public void it_should_pause_exiftool() throws Exception {
+		when(strategy.isSupported(any(Version.class))).thenReturn(true);
+		ExifTool exifTool = new ExifTool(path, executor, strategy);
+		exifTool.pause();
 		verify(strategy).close();
+		verify(strategy, never()).shutdown();
 	}
 
 	@Test

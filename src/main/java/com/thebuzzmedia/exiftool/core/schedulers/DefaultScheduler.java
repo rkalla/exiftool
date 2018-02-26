@@ -107,7 +107,7 @@ public class DefaultScheduler implements Scheduler {
 	}
 
 	@Override
-	public void shutdown() {
+	public synchronized void shutdown() {
 		stop();
 		executor.shutdownNow();
 	}

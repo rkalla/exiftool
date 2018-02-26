@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.millis;
 import static com.thebuzzmedia.exiftool.process.executor.CommandExecutors.newExecutor;
 
 /**
@@ -523,7 +524,7 @@ public class ExifToolBuilder {
 			// We have to look up the delay between automatic clean and create
 			// the scheduler.
 			final long delay = firstNonNull(this.delay, DELAY);
-			return delay > 0 ? new DefaultScheduler(delay) : new NoOpScheduler();
+			return delay > 0 ? new DefaultScheduler(millis(delay)) : new NoOpScheduler();
 		}
 	}
 

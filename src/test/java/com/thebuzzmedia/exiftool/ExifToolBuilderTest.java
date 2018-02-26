@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.thebuzzmedia.exiftool.core.schedulers.DefaultScheduler;
 import com.thebuzzmedia.exiftool.core.schedulers.NoOpScheduler;
+import com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration;
 import com.thebuzzmedia.exiftool.core.strategies.DefaultStrategy;
 import com.thebuzzmedia.exiftool.core.strategies.PoolStrategy;
 import com.thebuzzmedia.exiftool.core.strategies.StayOpenStrategy;
@@ -222,8 +223,8 @@ public class ExifToolBuilderTest {
 			.isExactlyInstanceOf(StayOpenStrategy.class);
 
 		Scheduler scheduler = readPrivateField(strategy, "scheduler");
-		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(delay);
-		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(TimeUnit.MILLISECONDS);
+		SchedulerDuration expectedDelay = new SchedulerDuration(delay, TimeUnit.MILLISECONDS);
+		assertThat(readPrivateField(scheduler, "executionDelay")).isEqualTo(expectedDelay);
 	}
 
 	@Test
@@ -239,8 +240,8 @@ public class ExifToolBuilderTest {
 			.isExactlyInstanceOf(StayOpenStrategy.class);
 
 		Scheduler scheduler = readPrivateField(strategy, "scheduler");
-		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(600000L);
-		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(TimeUnit.MILLISECONDS);
+		SchedulerDuration expectedDelay = new SchedulerDuration(600000L, TimeUnit.MILLISECONDS);
+		assertThat(readPrivateField(scheduler, "executionDelay")).isEqualTo(expectedDelay);
 	}
 
 	@Test

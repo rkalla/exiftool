@@ -18,13 +18,15 @@
 package com.thebuzzmedia.exiftool.core.schedulers;
 
 import com.thebuzzmedia.exiftool.Scheduler;
+import com.thebuzzmedia.exiftool.logs.Logger;
+import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.isPositive;
 import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.seconds;
 
 /**
  * Default implementation for {@code exiftool} {@link com.thebuzzmedia.exiftool.Scheduler}.
@@ -46,15 +48,19 @@ import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
 public class DefaultScheduler implements Scheduler {
 
 	/**
-	 * Delay before task execution.
+	 * Class Logger.
 	 */
-	private final long delay;
+	private static final Logger log = LoggerFactory.getLogger(DefaultScheduler.class);
 
 	/**
-	 * Time unit for the specified {@link #delay}.
-	 * Default is {@link TimeUnit#MILLISECONDS}.
+	 * Delay before task execution.
 	 */
-	private final TimeUnit timeUnit;
+	private final SchedulerDuration executionDelay;
+
+	/**
+	 * Delay to wait for scheduler termination.
+	 */
+	private final SchedulerDuration terminationDelay;
 
 	/**
 	 * Executor used to defer task execution.
@@ -67,25 +73,25 @@ public class DefaultScheduler implements Scheduler {
 	 * Default time unit is {@link TimeUnit#MILLISECONDS}.
 	 * A default withExecutor will be created.
 	 *
-	 * @param delay Delay.
+	 * @param executionDelay The delay between execution.
 	 * @throws IllegalArgumentException If {@code delay} is less than or equal to zero.
 	 */
-	public DefaultScheduler(long delay) {
-		this(delay, TimeUnit.MILLISECONDS);
+	public DefaultScheduler(SchedulerDuration executionDelay) {
+		this(executionDelay, seconds(5));
 	}
 
 	/**
 	 * Create new scheduler.
 	 * A default withExecutor will be created.
 	 *
-	 * @param delay Delay.
-	 * @param timeUnit Time Unit.
+	 * @param executionDelay The delay between scheduler execution.
+	 * @param terminationDelay The delay to use to wait for termination when scheduler is shutting down.
 	 * @throws NullPointerException If {@code timeUnit} is {@code null}.
 	 * @throws IllegalArgumentException If {@code delay} is less than or equal to zero.
 	 */
-	public DefaultScheduler(long delay, TimeUnit timeUnit) {
-		this.delay = isPositive(delay, "Delay should be a strictly positive value");
-		this.timeUnit = notNull(timeUnit, "Time Unit should not be null");
+	public DefaultScheduler(SchedulerDuration executionDelay, SchedulerDuration terminationDelay) {
+		this.executionDelay = notNull(executionDelay, "Execution delay must not be null");
+		this.terminationDelay = notNull(terminationDelay, "Termination delay must not be null");
 
 		// Create executor
 		this.executor = new ScheduledThreadPoolExecutor(1);
@@ -94,7 +100,7 @@ public class DefaultScheduler implements Scheduler {
 
 	@Override
 	public synchronized void start(Runnable runnable) {
-		executor.schedule(runnable, delay, timeUnit);
+		executor.schedule(runnable, executionDelay.getDelay(), executionDelay.getTimeUnit());
 	}
 
 	@Override
@@ -109,7 +115,37 @@ public class DefaultScheduler implements Scheduler {
 	@Override
 	public synchronized void shutdown() {
 		stop();
-		executor.shutdownNow();
+		processShutdown();
+	}
+
+	private void processShutdown() {
+		log.debug("Shutdown scheduler");
+
+		// Disable new tasks from being submitted
+		executor.shutdown();
+
+		try {
+			log.debug("Wait for scheduler termination");
+
+			// Wait a while for existing tasks to terminate
+			if (!executor.awaitTermination(terminationDelay.getDelay(), terminationDelay.getTimeUnit())) {
+				// Cancel currently executing tasks
+				log.debug("Termination seems to failed, shutdown now");
+				executor.shutdownNow();
+
+				// Wait a while for tasks to respond to being cancelled
+				if (!executor.awaitTermination(terminationDelay.getDelay(), terminationDelay.getTimeUnit())) {
+					log.error("Scheduler did not seem to terminate");
+				}
+			}
+		}
+		catch (InterruptedException ie) {
+			// (Re-)Cancel if current thread also interrupted
+			executor.shutdownNow();
+
+			// Preserve interrupt status
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	// Implement finalizer.

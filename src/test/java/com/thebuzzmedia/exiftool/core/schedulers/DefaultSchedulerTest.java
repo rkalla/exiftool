@@ -26,6 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.*;
 
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.millis;
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,33 +43,33 @@ public class DefaultSchedulerTest {
 	private ScheduledThreadPoolExecutor executor;
 
 	@Test
-	public void it_should_not_create_default_scheduler_with_negative_delay() throws Exception {
+	public void it_should_not_create_default_scheduler_with_negative_delay() {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Delay should be a strictly positive value");
-		new DefaultScheduler(-1);
+		new DefaultScheduler(millis(-1));
 	}
 
 	@Test
-	public void it_should_not_create_default_scheduler_with_zero_delay() throws Exception {
+	public void it_should_not_create_default_scheduler_with_zero_delay() {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Delay should be a strictly positive value");
-		new DefaultScheduler(0);
+		new DefaultScheduler(millis(0));
 	}
 
 	@Test
-	public void it_should_not_create_default_scheduler_with_null_time_unit() throws Exception {
+	public void it_should_not_create_default_scheduler_with_null_time_unit() {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Time Unit should not be null");
-		new DefaultScheduler(1, null);
+		new DefaultScheduler(new SchedulerDuration(1, null));
 	}
 
 	@Test
 	public void it_should_create_default_scheduler() throws Exception {
 		long delay = 10000;
-		DefaultScheduler scheduler = new DefaultScheduler(delay);
+		DefaultScheduler scheduler = new DefaultScheduler(millis(delay));
 
-		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(delay);
-		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(TimeUnit.MILLISECONDS);
+		SchedulerDuration expectedDelay = new SchedulerDuration(delay, TimeUnit.MILLISECONDS);
+		assertThat(readPrivateField(scheduler, "executionDelay")).isEqualTo(expectedDelay);
 		assertThat(readPrivateField(scheduler, "executor")).isNotNull();
 	}
 
@@ -77,10 +78,11 @@ public class DefaultSchedulerTest {
 		long delay = 1;
 		TimeUnit timeUnit = TimeUnit.HOURS;
 
-		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
+		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 
-		assertThat(readPrivateField(scheduler, "delay")).isEqualTo(delay);
-		assertThat(readPrivateField(scheduler, "timeUnit")).isEqualTo(timeUnit);
+		SchedulerDuration expectedDelay = new SchedulerDuration(delay, timeUnit);
+		assertThat(readPrivateField(scheduler, "executionDelay")).isEqualTo(expectedDelay);
 		assertThat(readPrivateField(scheduler, "executor")).isNotNull();
 	}
 
@@ -88,20 +90,22 @@ public class DefaultSchedulerTest {
 	public void it_should_start_scheduler() throws Exception {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
+		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
 		RunnableFuture<?> runnable = mock(RunnableFuture.class);
 		scheduler.start(runnable);
 
-		verify(executor).schedule((Runnable) runnable, delay, timeUnit);
+		verify(executor).schedule(runnable, delay, timeUnit);
 	}
 
 	@Test
 	public void it_should_stop_scheduler() throws Exception {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
+		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
 		RunnableFuture<?> r1 = mock(RunnableFuture.class);
@@ -123,7 +127,8 @@ public class DefaultSchedulerTest {
 	public void it_should_shutdown_scheduler() throws Throwable {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
+		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
 		RunnableFuture<?> r1 = mock(RunnableFuture.class);
@@ -146,7 +151,8 @@ public class DefaultSchedulerTest {
 	public void it_should_finalize_scheduler() throws Throwable {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		DefaultScheduler scheduler = new DefaultScheduler(delay, timeUnit);
+		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
 		RunnableFuture<?> r1 = mock(RunnableFuture.class);

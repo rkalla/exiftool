@@ -91,11 +91,15 @@ public interface ExecutionStrategy extends AutoCloseable {
 	 *
 	 * Once closed, ExifTool should still be able to use this strategy
 	 * if a call to {@link #execute} is made.
+	 *
+	 * @throws Exception If an error occurred while stopping exiftool client.
 	 */
 	void close() throws Exception;
 
 	/**
 	 * Shutdown the strategy.
+	 *
+	 * @throws Exception If an error occurred while stopping exiftool client.
 	 */
 	void shutdown() throws Exception;
 }

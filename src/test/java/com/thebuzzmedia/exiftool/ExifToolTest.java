@@ -157,10 +157,10 @@ public class ExifToolTest {
 	}
 
 	@Test
-	public void it_should_pause_exiftool() throws Exception {
+	public void it_should_stop_exiftool() throws Exception {
 		when(strategy.isSupported(any(Version.class))).thenReturn(true);
 		ExifTool exifTool = new ExifTool(path, executor, strategy);
-		exifTool.pause();
+		exifTool.stop();
 		verify(strategy).close();
 		verify(strategy, never()).shutdown();
 	}

@@ -333,7 +333,9 @@ public class ExifTool implements AutoCloseable {
 	 *
 	 * <br>
 	 *
-	 * <strong>NOTE: Calling this method prvent this instance of {@link ExifTool} from being re-used.</strong>
+	 * <strong>NOTE: Calling this method prevent this instance of {@link ExifTool} from being re-used.</strong>
+	 *
+	 * @throws Exception If an error occurred while closing exiftool client.
 	 */
 	@Override
 	public void close() throws Exception {
@@ -341,14 +343,16 @@ public class ExifTool implements AutoCloseable {
 	}
 
 	/**
-	 * Close `ExifTool` client.
+	 * Stop `ExifTool` client.
 	 *
 	 * <strong>NOTE</strong>: Calling this method does not preclude this
 	 * instance of {@link ExifTool} from being re-used, it merely disposes of
 	 * the native and internal resources until the next call to
 	 * {@code getImageMeta} causes them to be re-instantiated.
+	 *
+	 * @throws Exception If an error occurred while stopping exiftool client.
 	 */
-	public void pause() throws Exception {
+	public void stop() throws Exception {
 		strategy.close();
 	}
 

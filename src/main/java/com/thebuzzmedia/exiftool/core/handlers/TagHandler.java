@@ -103,13 +103,13 @@ public class TagHandler implements OutputHandler {
 			// supported tags.
 			if (tag != null) {
 				tags.put(tag, value);
-				log.debug("Read Tag [name=%s, value=%s]", tag, pair[1]);
+				log.debug("Read Tag [name={}, value={}]", tag, pair[1]);
 			}
 			else {
-				log.debug("Unable to read Tag: %s", line);
+				log.debug("Unable to read Tag: {}", line);
 			}
 		} else {
-			log.warn("Skipped line: %s", line);
+			log.warn("Skipped line: {}", line);
 		}
 
 		return true;

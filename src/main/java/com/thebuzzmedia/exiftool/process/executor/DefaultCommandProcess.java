@@ -183,7 +183,7 @@ public class DefaultCommandProcess implements CommandProcess {
 		notNull(input, "Write input should not be null");
 
 		// Just log some debug information
-		log.debug("Send command input: %s", input);
+		log.debug("Send command input: {}", input);
 
 		try {
 			os.write(input.getBytes());

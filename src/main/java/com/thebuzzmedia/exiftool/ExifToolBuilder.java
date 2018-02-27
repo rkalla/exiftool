@@ -196,7 +196,7 @@ public class ExifToolBuilder {
 	 * @return Current builder.
 	 */
 	public ExifToolBuilder withPath(String path) {
-		log.debug("Set path: %s", path);
+		log.debug("Set path: {}", path);
 		this.path = path;
 		return this;
 	}
@@ -216,10 +216,10 @@ public class ExifToolBuilder {
 	 * @return Current builder.
 	 */
 	public ExifToolBuilder withPath(File path) {
-		log.debug("Set path: %s", path);
+		log.debug("Set path: {}", path);
 
 		if (!path.canExecute()) {
-			log.warn("Executable %s is not executable, exiftool may fail later", path);
+			log.warn("Executable {} is not executable, exiftool may fail later", path);
 		}
 
 		this.path = path.getAbsolutePath();
@@ -233,7 +233,7 @@ public class ExifToolBuilder {
 	 * @return Current builder.
 	 */
 	public ExifToolBuilder withExecutor(CommandExecutor executor) {
-		log.debug("Set withExecutor: %s", executor);
+		log.debug("Set withExecutor: {}", executor);
 		this.executor = executor;
 		return this;
 	}
@@ -404,10 +404,10 @@ public class ExifToolBuilder {
 		// Add some debugging information
 		if (log.isDebugEnabled()) {
 			log.debug("Create ExifTool instance:");
-			log.debug(" - Path: %s", path);
-			log.debug(" - Executor: %s", executor);
-			log.debug(" - Strategy: %s", strategy);
-			log.debug(" - StayOpen: %s", stayOpen);
+			log.debug(" - Path: {}", path);
+			log.debug(" - Executor: {}", executor);
+			log.debug(" - Strategy: {}", strategy);
+			log.debug(" - StayOpen: {}", stayOpen);
 		}
 
 		return new ExifTool(path, executor, strategy);

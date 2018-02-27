@@ -22,7 +22,6 @@ import com.thebuzzmedia.exiftool.logs.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Static Input/Output Utilities.
@@ -61,8 +60,8 @@ public final class IOs {
 			while (hasNext) {
 				line = br.readLine();
 				hasNext = visitor.readLine(line);
-				log.trace("  - Line: %s", line);
-				log.trace("  - Continue: %s", hasNext);
+				log.trace("  - Line: {}", line);
+				log.trace("  - Continue: {}", hasNext);
 			}
 		}
 		catch (IOException ex) {

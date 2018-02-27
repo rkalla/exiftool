@@ -17,13 +17,10 @@
 
 package com.thebuzzmedia.exiftool.logs;
 
-import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.apache.log4j.Level;
+
+import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
+import static org.mockito.Mockito.*;
 
 public class LoggerLog4jTest extends AbstractLoggerTest {
 
@@ -73,10 +70,13 @@ public class LoggerLog4jTest extends AbstractLoggerTest {
 	}
 
 	@Override
-	protected void verifyException(Logger logger, String message, Exception ex) throws Exception {
-		org.apache.log4j.Logger log4j = getLog4j(logger);
-		verify(log4j).isEnabledFor(Level.ERROR);
-		verify(log4j).error(message, ex);
+	protected void verifyErrorException(Logger logger, String message, Exception ex) throws Exception {
+		verifyException(logger, Level.ERROR, message, ex);
+	}
+
+	@Override
+	protected void verifyWarnException(Logger logger, String message, Exception ex) throws Exception {
+		verifyException(logger, Level.WARN, message, ex);
 	}
 
 	@Override
@@ -94,11 +94,15 @@ public class LoggerLog4jTest extends AbstractLoggerTest {
 		verifyCall(logger, Level.TRACE, message, params);
 	}
 
+	private void verifyException(Logger logger, Level level, String message, Exception ex) throws Exception {
+		org.apache.log4j.Logger log4j = getLog4j(logger);
+		verify(log4j).isEnabledFor(level);
+		verify(log4j).log(level, message, ex);
+	}
+
 	private static void verifyCall(Logger logger, Level level, String message, Object... params) throws Exception {
-		String msg = message;
-		if (msg != null && params.length > 0) {
-			msg = String.format(msg, params);
-		}
+		String template = toStringFormatMessage(message);
+		String msg = String.format(template, params);
 
 		org.apache.log4j.Logger log4j = getLog4j(logger);
 		verify(log4j).isEnabledFor(level);
@@ -107,5 +111,9 @@ public class LoggerLog4jTest extends AbstractLoggerTest {
 
 	private static org.apache.log4j.Logger getLog4j(Logger logger) throws Exception {
 		return readPrivateField(logger, "log");
+	}
+
+	private static String toStringFormatMessage(String message) {
+		return message.replace("{}", "%s");
 	}
 }

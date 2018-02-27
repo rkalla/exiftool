@@ -29,9 +29,29 @@ public interface Logger {
 	 * is enabled.
 	 *
 	 * @param message Message to display.
-	 * @param params Optional message parameters.
 	 */
-	void trace(CharSequence message, Object... params);
+	void trace(String message);
+
+	/**
+	 * Display trace to the console.
+	 * Message will be displayed if and only trace level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 Message parameter.
+	 */
+	void trace(String message, Object p1);
+
+	/**
+	 * Display trace to the console.
+	 * Message will be displayed if and only trace level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 * @param p2 Second message parameter.
+	 */
+	void trace(String message, Object p1, Object p2);
 
 	/**
 	 * Display information to the console.
@@ -39,9 +59,29 @@ public interface Logger {
 	 * is enabled.
 	 *
 	 * @param message Message to display.
-	 * @param params Optional message parameters.
 	 */
-	void info(CharSequence message, Object... params);
+	void info(String message);
+
+	/**
+	 * Display information to the console.
+	 * Message will be displayed if and only information level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 */
+	void info(String message, Object p1);
+
+	/**
+	 * Display information to the console.
+	 * Message will be displayed if and only information level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 * @param p2 Second message parameter.
+	 */
+	void info(String message, Object p1, Object p2);
 
 	/**
 	 * Display debug information to the console.
@@ -49,9 +89,29 @@ public interface Logger {
 	 * is enabled.
 	 *
 	 * @param message Message to display.
-	 * @param params Optional message parameters.
 	 */
-	void debug(CharSequence message, Object... params);
+	void debug(String message);
+
+	/**
+	 * Display debug information to the console.
+	 * Message will be displayed if and only debug level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 Optional message parameter.
+	 */
+	void debug(String message, Object p1);
+
+	/**
+	 * Display debug information to the console.
+	 * Message will be displayed if and only debug level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 Optional (first) message parameter.
+	 * @param p2 Optional (second) message parameter.
+	 */
+	void debug(String message, Object p1, Object p2);
 
 	/**
 	 * Display warning information to the console.
@@ -59,9 +119,39 @@ public interface Logger {
 	 * is enabled.
 	 *
 	 * @param message Message to display.
-	 * @param params Optional message parameters.
 	 */
-	void warn(CharSequence message, Object... params);
+	void warn(String message);
+
+	/**
+	 * Display warning information to the console.
+	 * Message will be displayed if and only warn level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param ex The exception to log.
+	 */
+	void warn(String message, Throwable ex);
+
+	/**
+	 * Display warning information to the console.
+	 * Message will be displayed if and only warn level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 */
+	void warn(String message, Object p1);
+
+	/**
+	 * Display warning information to the console.
+	 * Message will be displayed if and only warn level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 * @param p2 Second message parameter.
+	 */
+	void warn(String message, Object p1, Object p2);
 
 	/**
 	 * Display error information to the console.
@@ -69,9 +159,29 @@ public interface Logger {
 	 * is enabled.
 	 *
 	 * @param message Message to display.
-	 * @param params Optional message parameters.
 	 */
-	void error(CharSequence message, Object... params);
+	void error(String message);
+
+	/**
+	 * Display error information to the console.
+	 * Message will be displayed if and only error level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 */
+	void error(String message, Object p1);
+
+	/**
+	 * Display error information to the console.
+	 * Message will be displayed if and only error level
+	 * is enabled.
+	 *
+	 * @param message Message to display.
+	 * @param p1 First message parameter.
+	 * @param p2 Second message parameter.
+	 */
+	void error(String message, Object p1, Object p2);
 
 	/**
 	 * Log exception stack trace as error Level.
@@ -79,7 +189,7 @@ public interface Logger {
 	 * @param message Error message.
 	 * @param ex Thrown exception.
 	 */
-	void error(CharSequence message, Throwable ex);
+	void error(String message, Throwable ex);
 
 	/**
 	 * Check if debug level is enabled for this logger.

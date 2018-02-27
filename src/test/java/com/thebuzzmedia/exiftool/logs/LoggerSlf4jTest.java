@@ -56,31 +56,77 @@ public class LoggerSlf4jTest extends AbstractLoggerTest {
 	@Override
 	protected void verifyInfo(Logger logger, String message, Object... params) throws Exception {
 		org.slf4j.Logger slf4j = getSlf4j(logger);
-		verify(slf4j).info(toSlf4jMessage(message), params);
+
+		int nbParams = params.length;
+		if (nbParams == 0) {
+			verify(slf4j).info(message);
+		} else if (nbParams == 1) {
+			verify(slf4j).info(message, params[0]);
+		} else if (nbParams == 2) {
+			verify(slf4j).info(message, params[0], params[1]);
+		} else {
+			throw new AssertionError("Invalid number of parameters");
+		}
 	}
 
 	@Override
 	protected void verifyWarn(Logger logger, String message, Object... params) throws Exception {
 		org.slf4j.Logger slf4j = getSlf4j(logger);
-		verify(slf4j).warn(toSlf4jMessage(message), params);
+
+		int nbParams = params.length;
+		if (nbParams == 0) {
+			verify(slf4j).warn(message);
+		} else if (nbParams == 1) {
+			verify(slf4j).warn(message, params[0]);
+		} else if (nbParams == 2) {
+			verify(slf4j).warn(message, params[0], params[1]);
+		} else {
+			throw new AssertionError("Invalid number of parameters");
+		}
 	}
 
 	@Override
 	protected void verifyError(Logger logger, String message, Object... params) throws Exception {
 		org.slf4j.Logger slf4j = getSlf4j(logger);
-		verify(slf4j).error(toSlf4jMessage(message), params);
+
+		int nbParams = params.length;
+		if (nbParams == 0) {
+			verify(slf4j).error(message);
+		} else if (nbParams == 1) {
+			verify(slf4j).error(message, params[0]);
+		} else if (nbParams == 2) {
+			verify(slf4j).error(message, params[0], params[1]);
+		} else {
+			throw new AssertionError("Invalid number of parameters");
+		}
 	}
 
 	@Override
-	protected void verifyException(Logger logger, String message, Exception ex) throws Exception {
+	protected void verifyErrorException(Logger logger, String message, Exception ex) throws Exception {
 		org.slf4j.Logger slf4j = getSlf4j(logger);
 		verify(slf4j).error(message, ex);
 	}
 
 	@Override
+	protected void verifyWarnException(Logger logger, String message, Exception ex) throws Exception {
+		org.slf4j.Logger slf4j = getSlf4j(logger);
+		verify(slf4j).warn(message, ex);
+	}
+
+	@Override
 	protected void verifyDebug(Logger logger, String message, Object... params) throws Exception {
 		org.slf4j.Logger slf4j = getSlf4j(logger);
-		verify(slf4j).debug(toSlf4jMessage(message), params);
+
+		int nbParams = params.length;
+		if (nbParams == 0) {
+			verify(slf4j).debug(message);
+		} else if (nbParams == 1) {
+			verify(slf4j).debug(message, params[0]);
+		} else if (nbParams == 2) {
+			verify(slf4j).debug(message, params[0], params[1]);
+		} else {
+			throw new AssertionError("Invalid number of parameters");
+		}
 	}
 
 	@Override
@@ -92,7 +138,17 @@ public class LoggerSlf4jTest extends AbstractLoggerTest {
 	@Override
 	protected void verifyTrace(Logger logger, String message, Object... params) throws Exception {
 		org.slf4j.Logger slf4j = getSlf4j(logger);
-		verify(slf4j).trace(toSlf4jMessage(message), params);
+
+		int nbParams = params.length;
+		if (nbParams == 0) {
+			verify(slf4j).trace(message);
+		} else if (nbParams == 1) {
+			verify(slf4j).trace(message, params[0]);
+		} else if (nbParams == 2) {
+			verify(slf4j).trace(message, params[0], params[1]);
+		} else {
+			throw new AssertionError("Invalid number of parameters");
+		}
 	}
 
 	private static org.slf4j.Logger getSlf4j(Logger logger) throws Exception {

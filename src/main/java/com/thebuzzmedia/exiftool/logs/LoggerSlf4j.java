@@ -39,115 +39,92 @@ class LoggerSlf4j implements Logger {
 	}
 
 	@Override
-	public void trace(CharSequence message, Object... params) {
-		print(Level.TRACE, message, params);
+	public void trace(String message) {
+		this.log.trace(message);
 	}
 
 	@Override
-	public void info(CharSequence message, Object... params) {
-		print(Level.INFO, message, params);
+	public void trace(String message, Object p1) {
+		this.log.trace(message, p1);
 	}
 
 	@Override
-	public void debug(CharSequence message, Object... params) {
-		print(Level.DEBUG, message, params);
+	public void trace(String message, Object p1, Object p2) {
+		this.log.trace(message, p1, p2);
 	}
 
 	@Override
-	public void warn(CharSequence message, Object... params) {
-		print(Level.WARN, message, params);
+	public void info(String message) {
+		this.log.info(message);
 	}
 
 	@Override
-	public void error(CharSequence message, Object... params) {
-		print(Level.ERROR, message, params);
+	public void info(String message, Object p1) {
+		this.log.info(message, p1);
 	}
 
 	@Override
-	public void error(CharSequence message, Throwable ex) {
-		String msg = message == null ? null : message.toString();
-		log.error(msg, ex);
+	public void info(String message, Object p1, Object p2) {
+		this.log.info(message, p1, p2);
+	}
+
+	@Override
+	public void debug(String message) {
+		this.log.debug(message);
+	}
+
+	@Override
+	public void debug(String message, Object p1) {
+		this.log.debug(message, p1);
+	}
+
+	@Override
+	public void debug(String message, Object p1, Object p2) {
+		this.log.debug(message, p1, p2);
+	}
+
+	@Override
+	public void warn(String message) {
+		this.log.warn(message);
+	}
+
+	@Override
+	public void warn(String message, Throwable ex) {
+		this.log.warn(message, ex);
+	}
+
+	@Override
+	public void warn(String message, Object p1) {
+		this.log.warn(message, p1);
+	}
+
+	@Override
+	public void warn(String message, Object p1, Object p2) {
+		this.log.warn(message, p1, p2);
+	}
+
+	@Override
+	public void error(String message) {
+		this.log.error(message);
+	}
+
+	@Override
+	public void error(String message, Object p1) {
+		this.log.error(message, p1);
+	}
+
+	@Override
+	public void error(String message, Object p1, Object p2) {
+		this.log.error(message, p1, p2);
+	}
+
+	@Override
+	public void error(String message, Throwable ex) {
+		log.error(message, ex);
 	}
 
 	@Override
 	public boolean isDebugEnabled() {
 		return log.isDebugEnabled();
-	}
-
-	private void print(Level level, CharSequence message, Object... params) {
-		if (level.isEnabled(log)) {
-			String str = message == null ? null : message.toString();
-			if (str != null && params.length > 0) {
-				str = str.replaceAll("%s", "{}");
-			}
-
-			level.log(log, str, params);
-		}
-	}
-
-	private static enum Level {
-		TRACE {
-			@Override
-			boolean isEnabled(org.slf4j.Logger log) {
-				return log.isTraceEnabled();
-			}
-
-			@Override
-			void log(org.slf4j.Logger log, String str, Object... params) {
-				log.trace(str, params);
-			}
-		},
-
-		DEBUG {
-			@Override
-			boolean isEnabled(org.slf4j.Logger log) {
-				return log.isDebugEnabled();
-			}
-
-			@Override
-			void log(org.slf4j.Logger log, String str, Object... params) {
-				log.debug(str, params);
-			}
-		},
-
-		INFO {
-			@Override
-			boolean isEnabled(org.slf4j.Logger log) {
-				return log.isInfoEnabled();
-			}
-
-			@Override
-			void log(org.slf4j.Logger log, String str, Object... params) {
-				log.info(str, params);
-			}
-		},
-
-		WARN {
-			@Override
-			boolean isEnabled(org.slf4j.Logger log) {
-				return log.isWarnEnabled();
-			}
-
-			@Override
-			void log(org.slf4j.Logger log, String str, Object... params) {
-				log.warn(str, params);
-			}
-		},
-
-		ERROR {
-			@Override
-			boolean isEnabled(org.slf4j.Logger log) {
-				return log.isErrorEnabled();
-			}
-
-			@Override
-			void log(org.slf4j.Logger log, String str, Object... params) {
-				log.error(str, params);
-			}
-		};
-
-		abstract boolean isEnabled(org.slf4j.Logger log);
-
-		abstract void log(org.slf4j.Logger log, String str, Object... params);
 	}
 }

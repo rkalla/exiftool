@@ -19,7 +19,7 @@ package com.thebuzzmedia.exiftool.logs;
 
 import org.apache.log4j.Level;
 
-import static java.lang.String.format;
+import static com.thebuzzmedia.exiftool.logs.LogUtils.fromSlf4jStyle;
 
 /**
  * Implementation of logger using log4j as
@@ -43,35 +43,88 @@ class LoggerLog4j implements Logger {
 	}
 
 	@Override
-	public void trace(CharSequence message, Object... params) {
-		print(Level.TRACE, message, params);
+	public void trace(String message) {
+		print(Level.TRACE, message);
 	}
 
 	@Override
-	public void info(CharSequence message, Object... params) {
-		print(Level.INFO, message, params);
+	public void trace(String message, Object p1) {
+		print(Level.TRACE, message, p1);
 	}
 
 	@Override
-	public void debug(CharSequence message, Object... params) {
-		print(Level.DEBUG, message, params);
+	public void trace(String message, Object p1, Object p2) {
+		print(Level.TRACE, message, p1, p2);
 	}
 
 	@Override
-	public void warn(CharSequence message, Object... params) {
-		print(Level.WARN, message, params);
+	public void info(String message) {
+		print(Level.INFO, message);
 	}
 
 	@Override
-	public void error(CharSequence message, Object... params) {
-		print(Level.ERROR, message, params);
+	public void info(String message, Object p1) {
+		print(Level.INFO, message, p1);
 	}
 
 	@Override
-	public void error(CharSequence message, Throwable ex) {
-		if (log.isEnabledFor(Level.ERROR)) {
-			log.error(message, ex);
-		}
+	public void info(String message, Object p1, Object p2) {
+		print(Level.INFO, message, p1, p2);
+	}
+
+	@Override
+	public void debug(String message) {
+		print(Level.DEBUG, message);
+	}
+
+	@Override
+	public void debug(String message, Object p1) {
+		print(Level.DEBUG, message, p1);
+	}
+
+	@Override
+	public void debug(String message, Object p1, Object p2) {
+		print(Level.DEBUG, message, p1, p2);
+	}
+
+	@Override
+	public void warn(String message) {
+		print(Level.WARN, message);
+	}
+
+	@Override
+	public void warn(String message, Throwable ex) {
+		printThrowable(Level.WARN, message, ex);
+	}
+
+	@Override
+	public void warn(String message, Object p1) {
+		print(Level.WARN, message, p1);
+	}
+
+	@Override
+	public void warn(String message, Object p1, Object p2) {
+		print(Level.WARN, message, p1, p2);
+	}
+
+	@Override
+	public void error(String message) {
+		print(Level.ERROR, message);
+	}
+
+	@Override
+	public void error(String message, Object p1) {
+		print(Level.ERROR, message, p1);
+	}
+
+	@Override
+	public void error(String message, Object p1, Object p2) {
+		print(Level.ERROR, message, p1, p2);
+	}
+
+	@Override
+	public void error(String message, Throwable ex) {
+		printThrowable(Level.ERROR, message, ex);
 	}
 
 	@Override
@@ -79,14 +132,27 @@ class LoggerLog4j implements Logger {
 		return log.isDebugEnabled();
 	}
 
-	private void print(Level level, CharSequence message, Object... params) {
+	private void print(Level level, String message) {
 		if (log.isEnabledFor(level)) {
-			String msg = message == null ? null : message.toString();
-			if (msg != null && params.length > 0) {
-				msg = format(msg, params);
-			}
+			log.log(level, message);
+		}
+	}
 
-			log.log(level, msg);
+	private void print(Level level, String message, Object p1) {
+		if (log.isEnabledFor(level)) {
+			log.log(level, String.format(fromSlf4jStyle(message), p1));
+		}
+	}
+
+	private void print(Level level, String message, Object p1, Object p2) {
+		if (log.isEnabledFor(level)) {
+			log.log(level, String.format(fromSlf4jStyle(message), p1, p2));
+		}
+	}
+
+	private void printThrowable(Level level, String message, Throwable ex) {
+		if (log.isEnabledFor(level)) {
+			log.log(level, message, ex);
 		}
 	}
 }

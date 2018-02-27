@@ -66,7 +66,7 @@ class VersionCallable implements Callable<Version> {
 
 	@Override
 	public Version call() throws Exception {
-		log.debug("Checking exiftool (path: %s) version", exifTool);
+		log.debug("Checking exiftool (path: {}) version", exifTool);
 
 		try {
 			CommandExecutor commandExecutor = executor.get();

@@ -147,7 +147,7 @@ public class PoolStrategy implements ExecutionStrategy {
 			try {
 				function.apply(strategy, i);
 			} catch (Exception ex) {
-				log.error("Failed to process strategy #%s", i);
+				log.error("Failed to process strategy #{}", i);
 				thrownEx.add(ex);
 			}
 			finally {
@@ -170,7 +170,7 @@ public class PoolStrategy implements ExecutionStrategy {
 	private static final ExecutionStrategyFunction CLOSE_EXECUTION_STRATEGY = new ExecutionStrategyFunction() {
 		@Override
 		public void apply(ExecutionStrategy strategy, int i) throws Exception {
-			log.debug("Closing strategy #%s", i);
+			log.debug("Closing strategy #{}", i);
 			strategy.close();
 		}
 	};
@@ -178,7 +178,7 @@ public class PoolStrategy implements ExecutionStrategy {
 	private static final ExecutionStrategyFunction SHUTDOWN_EXECUTION_STRATEGY = new ExecutionStrategyFunction() {
 		@Override
 		public void apply(ExecutionStrategy strategy, int i) throws Exception {
-			log.debug("Closing strategy #%s", i);
+			log.debug("Closing strategy #{}", i);
 			strategy.shutdown();
 		}
 	};

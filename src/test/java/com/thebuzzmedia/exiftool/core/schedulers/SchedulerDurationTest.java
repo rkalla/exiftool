@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.duration;
 import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.millis;
 import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.seconds;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +31,7 @@ public class SchedulerDurationTest {
 	public void it_should_create_duration() {
 		long delay = 1;
 		TimeUnit timeUnit = TimeUnit.HOURS;
-		SchedulerDuration duration = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration duration = duration(delay, timeUnit);
 		assertThat(duration.getDelay()).isEqualTo(delay);
 		assertThat(duration.getTimeUnit()).isEqualTo(timeUnit);
 	}

@@ -50,6 +50,17 @@ public class SchedulerDuration {
 	}
 
 	/**
+	 * Create new duration in millis.
+	 *
+	 * @param delay The delay, in millis.
+	 * @param timeUnit The time unit.
+	 * @return The duration.
+	 */
+	public static SchedulerDuration duration(long delay, TimeUnit timeUnit) {
+		return new SchedulerDuration(delay, timeUnit);
+	}
+
+	/**
 	 * The duration delay.
 	 */
 	private final long delay;
@@ -65,7 +76,7 @@ public class SchedulerDuration {
 	 * @param delay Duration delay.
 	 * @param timeUnit Duration unit.
 	 */
-	public SchedulerDuration(long delay, TimeUnit timeUnit) {
+	private SchedulerDuration(long delay, TimeUnit timeUnit) {
 		this.delay = isPositive(delay, "Delay should be a strictly positive value");
 		this.timeUnit = notNull(timeUnit, "Time Unit should not be null");
 	}

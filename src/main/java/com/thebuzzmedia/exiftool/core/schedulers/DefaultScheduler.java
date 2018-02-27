@@ -26,6 +26,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static com.thebuzzmedia.exiftool.commons.lang.PreConditions.notNull;
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.duration;
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.millis;
 import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.seconds;
 
 /**
@@ -67,6 +69,35 @@ public class DefaultScheduler implements Scheduler {
 	 * This withExecutor will produce instance of {@link RunnableFuture} tasks.
 	 */
 	private final ScheduledThreadPoolExecutor executor;
+
+	/**
+	 * Create new scheduler.
+	 * Default time unit is {@link TimeUnit#MILLISECONDS}.
+	 * A default withExecutor will be created.
+	 *
+	 * @param delay Delay.
+	 * @throws IllegalArgumentException If {@code delay} is less than or equal to zero.
+	 * @deprecated Use {@link #DefaultScheduler(SchedulerDuration)} instead.
+	 */
+	@Deprecated
+	public DefaultScheduler(long delay) {
+		this(millis(delay));
+	}
+
+	/**
+	 * Create new scheduler.
+	 * A default withExecutor will be created.
+	 *
+	 * @param delay Delay.
+	 * @param timeUnit Time Unit.
+	 * @throws NullPointerException If {@code timeUnit} is {@code null}.
+	 * @throws IllegalArgumentException If {@code delay} is less than or equal to zero.
+	 * @deprecated Use {@link #DefaultScheduler(SchedulerDuration)} instead.
+	 */
+	@Deprecated
+	public DefaultScheduler(long delay, TimeUnit timeUnit) {
+		this(duration(delay, timeUnit));
+	}
 
 	/**
 	 * Create new scheduler.

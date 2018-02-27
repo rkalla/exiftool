@@ -26,6 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.*;
 
+import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.duration;
 import static com.thebuzzmedia.exiftool.core.schedulers.SchedulerDuration.millis;
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.readPrivateField;
 import static com.thebuzzmedia.exiftool.tests.ReflectionUtils.writePrivateField;
@@ -60,7 +61,7 @@ public class DefaultSchedulerTest {
 	public void it_should_not_create_default_scheduler_with_null_time_unit() {
 		thrown.expect(NullPointerException.class);
 		thrown.expectMessage("Time Unit should not be null");
-		new DefaultScheduler(new SchedulerDuration(1, null));
+		new DefaultScheduler(duration(1, null));
 	}
 
 	@Test
@@ -68,7 +69,7 @@ public class DefaultSchedulerTest {
 		long delay = 10000;
 		DefaultScheduler scheduler = new DefaultScheduler(millis(delay));
 
-		SchedulerDuration expectedDelay = new SchedulerDuration(delay, TimeUnit.MILLISECONDS);
+		SchedulerDuration expectedDelay = duration(delay, TimeUnit.MILLISECONDS);
 		assertThat(readPrivateField(scheduler, "executionDelay")).isEqualTo(expectedDelay);
 		assertThat(readPrivateField(scheduler, "executor")).isNotNull();
 	}
@@ -78,10 +79,10 @@ public class DefaultSchedulerTest {
 		long delay = 1;
 		TimeUnit timeUnit = TimeUnit.HOURS;
 
-		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration executionDelay = duration(delay, timeUnit);
 		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 
-		SchedulerDuration expectedDelay = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration expectedDelay = duration(delay, timeUnit);
 		assertThat(readPrivateField(scheduler, "executionDelay")).isEqualTo(expectedDelay);
 		assertThat(readPrivateField(scheduler, "executor")).isNotNull();
 	}
@@ -90,7 +91,7 @@ public class DefaultSchedulerTest {
 	public void it_should_start_scheduler() throws Exception {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration executionDelay = duration(delay, timeUnit);
 		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
@@ -104,7 +105,7 @@ public class DefaultSchedulerTest {
 	public void it_should_stop_scheduler() throws Exception {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration executionDelay = duration(delay, timeUnit);
 		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
@@ -127,7 +128,7 @@ public class DefaultSchedulerTest {
 	public void it_should_shutdown_scheduler() throws Throwable {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration executionDelay = duration(delay, timeUnit);
 		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 
@@ -151,7 +152,7 @@ public class DefaultSchedulerTest {
 	public void it_should_finalize_scheduler() throws Throwable {
 		int delay = 10000;
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		SchedulerDuration executionDelay = new SchedulerDuration(delay, timeUnit);
+		SchedulerDuration executionDelay = duration(delay, timeUnit);
 		DefaultScheduler scheduler = new DefaultScheduler(executionDelay);
 		writePrivateField(scheduler, "executor", executor);
 

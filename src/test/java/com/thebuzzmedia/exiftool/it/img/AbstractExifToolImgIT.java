@@ -88,6 +88,12 @@ public abstract class AbstractExifToolImgIT {
 	}
 
 	@Test
+	public void testGetImageMeta_stay_open_two_times() throws Exception {
+		verifyGetMeta(exifToolStayOpen);
+		verifyGetMeta(exifToolStayOpen);
+	}
+
+	@Test
 	public void testGetImageMeta_Pool() throws Exception {
 		verifyGetMeta(exifToolPool);
 	}

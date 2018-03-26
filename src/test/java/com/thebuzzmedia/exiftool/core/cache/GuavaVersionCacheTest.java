@@ -31,6 +31,6 @@ public class GuavaVersionCacheTest extends AbstractVersionCacheTest<GuavaVersion
 
 	@Override
 	protected long size(VersionCache cache) throws Exception {
-		return ((Cache) readPrivateField(cache, "cache")).size();
+		return ((Cache<?, ?>) readPrivateField(cache, "cache")).size();
 	}
 }

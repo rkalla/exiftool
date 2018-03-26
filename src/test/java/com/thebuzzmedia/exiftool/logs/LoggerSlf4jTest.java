@@ -154,8 +154,4 @@ public class LoggerSlf4jTest extends AbstractLoggerTest {
 	private static org.slf4j.Logger getSlf4j(Logger logger) throws Exception {
 		return readPrivateField(logger, "log");
 	}
-
-	private static String toSlf4jMessage(String msg) {
-		return msg != null ? msg.replace("%s", "{}") : msg;
-	}
 }

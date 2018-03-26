@@ -124,7 +124,6 @@ public abstract class AbstractVersionCacheTest<T extends VersionCache> {
 		verify(executor, never()).execute(any(Command.class));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void it_should_clear_cache() throws Exception {
 		VersionCache cache = create();

@@ -22,6 +22,8 @@ import com.thebuzzmedia.exiftool.Version;
 import com.thebuzzmedia.exiftool.exceptions.PoolIOException;
 import com.thebuzzmedia.exiftool.process.CommandExecutor;
 import com.thebuzzmedia.exiftool.process.OutputHandler;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,12 +48,26 @@ public class PoolStrategyTest {
 	private List<String> arguments;
 	private OutputHandler handler;
 
+	private PoolStrategy pool;
+
 	@Before
 	public void setUp() {
 		executor = mock(CommandExecutor.class);
 		exifTool = "exiftool";
 		arguments = singletonList("-ver");
 		handler = mock(OutputHandler.class);
+	}
+
+	@After
+	public void tearDown() {
+		if (pool != null) {
+			try {
+				pool.close();
+			}
+			catch (Exception ex) {
+				// No worry, that's ok in these unit tests.
+			}
+		}
 	}
 
 	@Test
@@ -61,7 +77,7 @@ public class PoolStrategyTest {
 		ExecutionStrategy s3 = mock(ExecutionStrategy.class);
 		Collection<ExecutionStrategy> strategies = asList(s1, s2, s3);
 
-		PoolStrategy pool = new PoolStrategy(strategies);
+		pool = new PoolStrategy(strategies);
 
 		assertThat(pool.isRunning()).isFalse();
 	}
@@ -73,8 +89,7 @@ public class PoolStrategyTest {
 		ExecutionStrategy s3 = mock(ExecutionStrategy.class);
 		Collection<ExecutionStrategy> strategies = asList(s1, s2, s3);
 
-		PoolStrategy pool = new PoolStrategy(strategies);
-
+		pool = new PoolStrategy(strategies);
 		pool.execute(executor, exifTool, arguments, handler);
 
 		verify(s1).execute(executor, exifTool, arguments, handler);
@@ -86,12 +101,11 @@ public class PoolStrategyTest {
 		ExecutionStrategy s2 = mock(ExecutionStrategy.class);
 		Collection<ExecutionStrategy> strategies = asList(s1, s2);
 
-		PoolStrategy pool = new PoolStrategy(strategies);
-
 		Version version = mock(Version.class);
 		when(s1.isSupported(version)).thenReturn(true);
 		when(s2.isSupported(version)).thenReturn(false);
 
+		pool = new PoolStrategy(strategies);
 		assertThat(pool.isSupported(version)).isFalse();
 	}
 
@@ -101,12 +115,11 @@ public class PoolStrategyTest {
 		ExecutionStrategy s2 = mock(ExecutionStrategy.class);
 		Collection<ExecutionStrategy> strategies = asList(s1, s2);
 
-		PoolStrategy pool = new PoolStrategy(strategies);
-
 		Version version = mock(Version.class);
 		when(s1.isSupported(version)).thenReturn(true);
 		when(s2.isSupported(version)).thenReturn(true);
 
+		pool = new PoolStrategy(strategies);
 		assertThat(pool.isSupported(version)).isTrue();
 	}
 
@@ -124,7 +137,7 @@ public class PoolStrategyTest {
 			.when(s2)
 			.execute(any(CommandExecutor.class), anyString(), anyListOf(String.class), any(OutputHandler.class));
 
-		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+		pool = new PoolStrategy(asList(s1, s2));
 
 		CountDownLatch lock = new CountDownLatch(1);
 
@@ -168,7 +181,7 @@ public class PoolStrategyTest {
 			.when(s2)
 			.execute(any(CommandExecutor.class), anyString(), anyListOf(String.class), any(OutputHandler.class));
 
-		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+		pool = new PoolStrategy(asList(s1, s2));
 
 		CountDownLatch lock = new CountDownLatch(1);
 
@@ -229,7 +242,7 @@ public class PoolStrategyTest {
 			.when(s2)
 			.execute(any(CommandExecutor.class), anyString(), anyListOf(String.class), any(OutputHandler.class));
 
-		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+		pool = new PoolStrategy(asList(s1, s2));
 
 		CountDownLatch lock = new CountDownLatch(1);
 
@@ -327,7 +340,7 @@ public class PoolStrategyTest {
 
 		ExecutionStrategy s2 = mock(ExecutionStrategy.class);
 
-		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+		pool = new PoolStrategy(asList(s1, s2));
 
 		// Start a thread with strategy #1
 		CountDownLatch lock = new CountDownLatch(1);
@@ -377,7 +390,7 @@ public class PoolStrategyTest {
 	}
 
 	private PoolStrategy runPool(ExecutionStrategy s1, ExecutionStrategy s2, TaskFactory taskFactory) throws Exception {
-		PoolStrategy pool = new PoolStrategy(asList(s1, s2));
+		pool = new PoolStrategy(asList(s1, s2));
 
 		// Start a thread with strategy #1
 		CountDownLatch lock = new CountDownLatch(1);

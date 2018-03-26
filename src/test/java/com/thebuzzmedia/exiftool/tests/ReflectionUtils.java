@@ -42,12 +42,12 @@ public final class ReflectionUtils {
 		return doRead(o.getClass(), o, name);
 	}
 
-	public static <T> T readStaticPrivateField(Class klass, String name) throws NoSuchFieldException, IllegalAccessException {
+	public static <T> T readStaticPrivateField(Class<?> klass, String name) throws NoSuchFieldException, IllegalAccessException {
 		return doRead(klass, null, name);
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> T doRead(Class klass, Object instance, String name) throws NoSuchFieldException, IllegalAccessException {
+	private static <T> T doRead(Class<?> klass, Object instance, String name) throws NoSuchFieldException, IllegalAccessException {
 		Field field = klass.getDeclaredField(name);
 		field.setAccessible(true);
 		return (T) field.get(instance);

@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import static java.util.Collections.unmodifiableCollection;
 
+@SuppressWarnings("serial")
 public class PoolIOException extends IOException {
 
 	private final Collection<Exception> thrownExceptions;

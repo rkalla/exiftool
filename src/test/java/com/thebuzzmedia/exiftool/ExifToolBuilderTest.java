@@ -296,7 +296,6 @@ public class ExifToolBuilderTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void it_should_create_with_pool_strategy() throws Exception {
 		ExifTool exifTool = builder
 			.withExecutor(executor)
@@ -360,7 +359,6 @@ public class ExifToolBuilderTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void it_should_create_with_pool_strategy_and_no_op_scheduler() throws Exception {
 		ExifTool exifTool = builder
 				.withExecutor(executor)

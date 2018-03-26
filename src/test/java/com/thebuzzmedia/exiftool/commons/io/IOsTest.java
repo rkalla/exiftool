@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import static com.thebuzzmedia.exiftool.tests.TestConstants.BR;
 import static org.mockito.ArgumentMatchers.anyString;

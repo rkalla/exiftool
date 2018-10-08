@@ -1,9 +1,9 @@
 language: java
 dist: trusty
 jdk:
+  - oraclejdk10
   - oraclejdk9
   - oraclejdk8
-  - openjdk8
   - openjdk7
 os:
   - linux

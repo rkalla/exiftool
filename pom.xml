@@ -53,7 +53,7 @@
 		<!-- Plugins -->
 		<maven-surefire-plugin.version>2.20</maven-surefire-plugin.version>
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-		<versions-maven-plugin.version>2.3</versions-maven-plugin.version>
+		<versions-maven-plugin.version>2.7</versions-maven-plugin.version>
 
 		<!-- Project dependencies -->
 		<slf4j.version>1.7.25</slf4j.version>

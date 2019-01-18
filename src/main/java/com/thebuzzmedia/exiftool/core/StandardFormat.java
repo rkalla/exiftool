@@ -32,34 +32,34 @@ import static java.util.Collections.singletonList;
  *
  * <br>
  *
- * ExifTool, via the <code>-n</code> command line arg, is capable of
- * returning most values in their raw numeric form (e.g.
- * Aperture="2.8010323841") as well as a more human-readable/friendly format
- * (e.g. Aperture="2.8").
+ * ExifTool, via the <code>-n</code> command line arg, is capable of returning
+ * most values in their raw numeric form (e.g. Aperture="2.8010323841") as well
+ * as a more human-readable/friendly format (e.g. Aperture="2.8").
  *
  * <br>
  *
  * If the caller finds the human-readable format easier to process,
  * {@link StandardFormat#HUMAN_READABLE} can be specified when calling
- * {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(File, Format, Collection)} and the returned
- * {@link String} values processed manually by the caller.
+ * {@link com.thebuzzmedia.exiftool.ExifTool#getImageMeta(File, Format, Collection)}
+ * and the returned {@link String} values processed manually by the caller.
  *
  * <br>
  *
  * In order to see the types of values that are returned when
- * {@link StandardFormat#HUMAN_READABLE} is used, you can check the comprehensive <a
- * href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">
+ * {@link StandardFormat#HUMAN_READABLE} is used, you can check the
+ * comprehensive
+ * <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/index.html">
  * ExifTool Tag Guide</a>.
  *
  * <br>
  *
  * This makes sense with some values like Aperture that in
- * {@link StandardFormat#NUMERIC} format end up returning as 14-decimal-place, high
- * precision values that are near the intended value (e.g.
- * "2.79999992203711" instead of just returning "2.8"). On the other hand,
- * other values (like Orientation) are easier to parse when their numeric
- * value (1-8) is returned instead of a much longer friendly name (e.g.
- * "Mirror horizontal and rotate 270 CW").
+ * {@link StandardFormat#NUMERIC} format end up returning as 14-decimal-place,
+ * high precision values that are near the intended value (e.g.
+ * "2.79999992203711" instead of just returning "2.8"). On the other hand, other
+ * values (like Orientation) are easier to parse when their numeric value (1-8)
+ * is returned instead of a much longer friendly name (e.g. "Mirror horizontal
+ * and rotate 270 CW").
  *
  * @author Riyad Kalla (software@thebuzzmedia.com)
  * @author Mickael Jeanroy (mickael.jeanroy@gmail.com)

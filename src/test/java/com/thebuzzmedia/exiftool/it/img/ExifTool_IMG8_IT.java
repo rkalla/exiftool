@@ -56,6 +56,7 @@ public class ExifTool_IMG8_IT extends AbstractExifToolImgIT {
 				put(StandardTag.CONTRAST, "Normal");
 				put(StandardTag.SENSING_METHOD, "One-chip color area");
 				put(StandardTag.FOCAL_LENGTH_35MM, "150 mm");
+				put(StandardTag.FNUMBER, "6.3");
 				put(StandardTag.IMAGE_HEIGHT, "3000");
 				put(StandardTag.EXPOSURE_COMPENSATION, "0");
 				put(StandardTag.MIME_TYPE, "image/jpeg");

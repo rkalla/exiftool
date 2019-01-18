@@ -68,6 +68,7 @@ public class ExifTool_IMG9_IT extends AbstractExifToolImgIT {
 				put(StandardTag.EXPOSURE_COMPENSATION, "0");
 				put(StandardTag.GPS_ALTITUDE, "0 m Above Sea Level");
 				put(StandardTag.APERTURE, "2.6");
+				put(StandardTag.FNUMBER, "2.6");
 				put(StandardTag.EXIF_VERSION, "0220");
 				put(StandardTag.DIGITAL_ZOOM_RATIO, "2.245614035");
 				put(StandardTag.FILE_SIZE, "901 kB");

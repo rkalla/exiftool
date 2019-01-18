@@ -73,7 +73,7 @@ public class TagHandler implements OutputHandler {
 
 		Map<String, Tag> inputs = new HashMap<>();
 		for (Tag tag : tags) {
-			inputs.put(tag.getName(), tag);
+			inputs.put(tag.getDisplayName(), tag);
 		}
 
 		this.inputs = unmodifiableMap(inputs);

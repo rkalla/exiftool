@@ -57,6 +57,7 @@ public class ExifTool_IMG4_IT extends AbstractExifToolImgIT {
 				put(StandardTag.EXPOSURE_PROGRAM, "Program AE");
 				put(StandardTag.SOFTWARE, "5.0");
 				put(StandardTag.APERTURE, "2.8");
+				put(StandardTag.FNUMBER, "2.8");
 				put(StandardTag.MAKE, "Apple");
 				put(StandardTag.EXPOSURE_TIME, "1/15");
 				put(StandardTag.IMAGE_HEIGHT, "1936");

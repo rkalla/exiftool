@@ -57,6 +57,8 @@ public class ExifTool_IMG5_IT extends AbstractExifToolImgIT {
 				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
 				put(StandardTag.MAKE, "google");
 				put(StandardTag.APERTURE, "2.8");
+				put(StandardTag.FNUMBER, "2.6");
+
 				put(StandardTag.Y_RESOLUTION, "72");
 				put(StandardTag.FILE_SIZE, "1475 kB");
 				put(StandardTag.BRIGHTNESS, "5");

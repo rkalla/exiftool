@@ -60,6 +60,7 @@ public class ExifTool_IMG6_IT extends AbstractExifToolImgIT {
 				put(StandardTag.EXPOSURE_COMPENSATION, "0");
 				put(StandardTag.WHITE_BALANCE, "Auto");
 				put(StandardTag.FOCAL_LENGTH, "50.0 mm");
+				put(StandardTag.FNUMBER, "8.0");
 				put(StandardTag.EXPOSURE_PROGRAM, "Aperture-priority AE");
 				put(StandardTag.ISO, "400");
 				put(StandardTag.IMAGE_WIDTH, "3604");

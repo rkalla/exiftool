@@ -51,6 +51,7 @@ public class ExifTool_IMG7_IT extends AbstractExifToolImgIT {
 				put(StandardTag.IMAGE_WIDTH, "1520");
 				put(StandardTag.MIME_TYPE, "image/jpeg");
 				put(StandardTag.GPS_LATITUDE, "32 deg 48' 4.00\" N");
+				put(StandardTag.FNUMBER, "2.4");
 
 				// Weird, but there is specific results for windows / unix
 				put(StandardTag.FOCAL_LENGTH, IS_WINDOWS ? "0.0 mm" : "inf mm");

@@ -54,10 +54,22 @@ public interface Tag {
 
 	/**
 	 * Used to get the name of the tag (e.g. "Orientation", "ISO", etc.).
+	 * This is the value actually used to invoke the tool.
 	 *
 	 * @return Name of the tag.
 	 */
 	String getName();
+	
+	/**
+	 * Used to get the display name of the tag, which is the actual name printed
+	 * by the tool on stout. 
+	 * 
+	 * For simple tags this is equivalent to value returned by <code>getName</code>.
+	 * 
+	 * @since 2.4.0
+	 * @return Display name of the tag.
+	 */
+	String getDisplayName();
 
 	/**
 	 * Parse given tag to the correct data format.

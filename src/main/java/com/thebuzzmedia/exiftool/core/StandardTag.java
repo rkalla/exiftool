@@ -70,6 +70,7 @@ public enum StandardTag implements Tag {
 	Y_RESOLUTION("YResolution", Type.DOUBLE),
 	FLASH("Flash", Type.INTEGER),
 	METERING_MODE("MeteringMode", Type.INTEGER),
+	FNUMBER("FNumber", Type.DOUBLE),
 	FOCAL_LENGTH("FocalLength", Type.DOUBLE),
 	FOCAL_LENGTH_35MM("FocalLengthIn35mmFormat", Type.INTEGER),
 	EXPOSURE_TIME("ExposureTime", Type.DOUBLE),
@@ -146,6 +147,11 @@ public enum StandardTag implements Tag {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getDisplayName() {
+	    return name;
 	}
 
 	@Override

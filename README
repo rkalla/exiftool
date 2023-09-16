@@ -1,11 +1,4 @@
 ExifTool - Enhanced Java Integration for Phil Harvey's ExifTool.
-http://www.thebuzzmedia.com/software/exiftool-enhanced-java-integration-for-exiftool/
-
-
-				=================================================
-				  See ExifTool in action at http://imgscalr.com
-				=================================================
-
 
 Changelog
 ---------
@@ -204,10 +197,3 @@ them.
 Reference
 ---------
 ExifTool by Phil Harvey - http://www.sno.phy.queensu.ca/~phil/exiftool/
-imgscalr - http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/
-
-
-Contact
--------
-If you have questions, comments or bug reports for this software please contact
-us at: software@thebuzzmedia.com
